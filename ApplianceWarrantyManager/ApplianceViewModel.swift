@@ -72,21 +72,19 @@ public final class ApplianceViewModel {
         price: Decimal,
         currency: String
     ) async {
-        let entity = ApplianceEntity(
-            brand: brand,
-            modelName: model,
-            serialNumber: serial,
-            roomLocation: room,
-            purchaseDate: Date(),
-            purchasePrice: price,
-            currencyCode: currency
-        )
-        
         do {
-            try await databaseWorker.insertAppliance(entity)
+            let applianceID = try await databaseWorker.createAndInsertAppliance(
+                brand: brand,
+                modelName: model,
+                serialNumber: serial,
+                roomLocation: room,
+                purchaseDate: Date(),
+                purchasePrice: price,
+                currencyCode: currency
+            )
             // Initial baseline health score
             try await databaseWorker.recordApplianceHealthScore(
-                applianceID: entity.id,
+                applianceID: applianceID,
                 score: 100,
                 degradationRate: 1.0,
                 remainingMonths: 144,

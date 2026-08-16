@@ -55,19 +55,17 @@ public final class SkiGearViewModel {
         bsl: Int,
         din: Double
     ) async {
-        let gear = SkiGearEntity(
-            brand: brand,
-            modelName: model,
-            serialNumber: serial,
-            gearCategory: "Alpine Skis",
-            skiLengthCm: length,
-            bootSoleLengthMm: bsl
-        )
-        
         do {
-            try await databaseWorker.insertSkiGear(gear)
+            let gearID = try await databaseWorker.createAndInsertSkiGear(
+                brand: brand,
+                modelName: model,
+                serialNumber: serial,
+                gearCategory: "Alpine Skis",
+                skiLengthCm: length,
+                bootSoleLengthMm: bsl
+            )
             try await databaseWorker.recordDINSetting(
-                gearID: gear.id,
+                gearID: gearID,
                 din: din,
                 toe: din,
                 heel: din,

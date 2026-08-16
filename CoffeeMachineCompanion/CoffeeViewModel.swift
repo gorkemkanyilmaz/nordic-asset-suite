@@ -57,17 +57,15 @@ public final class CoffeeViewModel {
         model: String,
         machineType: String
     ) async {
-        let machine = CoffeeMachineEntity(
-            brand: brand,
-            modelName: model,
-            machineType: machineType,
-            totalShotsPulled: 0
-        )
-        
         do {
-            try await databaseWorker.insertCoffeeMachine(machine)
+            let machineID = try await databaseWorker.createAndInsertCoffeeMachine(
+                brand: brand,
+                modelName: model,
+                machineType: machineType,
+                totalShotsPulled: 0
+            )
             try await databaseWorker.recordDescalingCycle(
-                machineID: machine.id,
+                machineID: machineID,
                 chemical: "OEM Descaling Tablets",
                 waterLiters: 45.0,
                 daysUntilNext: 60,

@@ -62,18 +62,16 @@ public final class EBikeViewModel {
         motor: String,
         odometer: Double
     ) async {
-        let bike = EBikeEntity(
-            brand: brand,
-            modelName: model,
-            frameNumber: frameNo,
-            motorSystem: motor,
-            totalOdometerKm: odometer
-        )
-        
         do {
-            try await databaseWorker.insertEBike(bike)
+            let bikeID = try await databaseWorker.createAndInsertEBike(
+                brand: brand,
+                modelName: model,
+                frameNumber: frameNo,
+                motorSystem: motor,
+                totalOdometerKm: odometer
+            )
             try await databaseWorker.recordBatteryHealth(
-                ebikeID: bike.id,
+                ebikeID: bikeID,
                 healthPct: 98.0,
                 capacityWh: 750.0,
                 cycles: 12,

@@ -125,7 +125,7 @@ platform :ios do
         project: "NordicAssetSuite.xcodeproj",
         scheme: app[:scheme],
         output_directory: "build/ipa",
-        output_name: "#{app[:scheme]}.ipa",
+        output_name: app[:scheme],
         clean: (idx == 0),
         export_method: "app-store",
         export_team_id: team_id,
