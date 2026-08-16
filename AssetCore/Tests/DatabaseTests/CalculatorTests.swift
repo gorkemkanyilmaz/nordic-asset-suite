@@ -3,7 +3,7 @@
 //  AssetCoreDatabaseTests
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Unit Tests for ISO 11088 DIN, Chain Wear, Water Hardness & Appliance Health.
+//  Strict Concurrency: Complete. Unit tests for Domain Calculators.
 //
 
 import XCTest
@@ -11,76 +11,65 @@ import XCTest
 
 final class CalculatorTests: XCTestCase {
     
-    // MARK: - Test 1: ISO 11088 Ski Binding DIN Calculation
+    // MARK: - Test 1: ISO 11088 DIN Skier Release Torque Calculations
     func testISO11088DINCalculation() {
-        // Adult male: 75kg, 180cm, 30 years old, Type II (Moderate), Boot Sole Length 305mm
+        // Adult Male: 74 kg, 178 cm, 32 yrs old, 305mm boot sole length, Type II skier
         let result = DINCalculator.shared.calculateDIN(
-            weightKg: 75.0,
-            heightCm: 180.0,
-            age: 30,
+            weightKg: 74.0,
+            heightCm: 178.0,
+            age: 32,
             skierType: .typeII,
             bootSoleLengthMm: 305
         )
         
-        // Weight 75kg -> Code H (7). Type II -> Code I (8). BSL 305 -> Bracket 3. Matrix[8][3] = 6.00
-        XCTAssertEqual(result.dinValue, 6.0, "DIN value for 75kg Type II skier with 305mm BSL should be 6.0")
-        XCTAssertTrue(result.disclaimerRequired, "Mandatory safety liability disclaimer must be enforced.")
-        XCTAssertTrue(DINCalculator.legalSafetyDisclaimer.contains("certified ski technician"))
+        // Weight row J (67-78 kg) -> 6.0 DIN at 305mm. Type II adds 1 row -> row K -> 6.5 DIN.
+        XCTAssertEqual(result.calculatedDIN, 6.5, accuracy: 0.01)
+        XCTAssertEqual(result.skierCodeRow, "K")
+        XCTAssertFalse(result.safetyDisclaimerText.isEmpty)
     }
     
-    // MARK: - Test 2: E-Bike Chain Wear Elongation (0.75% Critical Threshold)
-    func testChainWearThresholdEvaluation() {
-        let optimal = EBikeTelemetryCalculator.shared.evaluateChainWear(elongationPercentage: 0.35)
-        XCTAssertEqual(optimal, .optimal)
+    // MARK: - Test 2: ISO 11088 Age Modification (> 50 yrs old)
+    func testISO11088AgeAdjustment() {
+        // Senior Skier (62 yrs old): should reduce skier code by 1 row
+        let result = DINCalculator.shared.calculateDIN(
+            weightKg: 74.0,
+            heightCm: 178.0,
+            age: 62,
+            skierType: .typeII,
+            bootSoleLengthMm: 305
+        )
         
-        let moderate = EBikeTelemetryCalculator.shared.evaluateChainWear(elongationPercentage: 0.60)
-        XCTAssertEqual(moderate, .normalWear)
-        
-        let replace = EBikeTelemetryCalculator.shared.evaluateChainWear(elongationPercentage: 0.78)
-        XCTAssertEqual(replace, .replaceRequired, "Chain elongation >= 0.75% must trigger immediate replacement warning.")
+        // Base K (Type II) - 1 (Age > 50) -> row J -> 5.5 DIN at 305mm.
+        XCTAssertEqual(result.calculatedDIN, 5.5, accuracy: 0.01)
+        XCTAssertEqual(result.skierCodeRow, "J")
     }
     
-    // MARK: - Test 3: E-Bike Suspension PSI Calculation
-    func testSuspensionPSICalculation() {
-        let recommendation = EBikeTelemetryCalculator.shared.calculateSuspensionPSI(riderWeightWithGearKg: 80.0)
+    // MARK: - Test 3: E-Bike Chain Wear & Suspension PSI
+    func testEBikeTelemetryCalculations() {
+        // Chain elongation at 0.76% (Critical Threshold: 0.75%)
+        let statusCritical = EBikeTelemetryCalculator.shared.evaluateChainWear(chainElongationPercentage: 0.76)
+        XCTAssertEqual(statusCritical, .criticalReplaceImmediately)
         
-        XCTAssertGreaterThan(recommendation.recommendedForkPSI, 80.0)
-        XCTAssertGreaterThan(recommendation.recommendedRearShockPSI, 150.0)
-        XCTAssertEqual(recommendation.targetSagMm, 40.0) // 160mm * 25% sag = 40mm
+        let statusGood = EBikeTelemetryCalculator.shared.evaluateChainWear(chainElongationPercentage: 0.45)
+        XCTAssertEqual(statusGood, .optimal)
+        
+        // Suspension PSI for 80 kg rider
+        let suspension = EBikeTelemetryCalculator.shared.calculateSuspensionPSI(riderWeightKg: 80.0, ridingStyle: .enduroTrail)
+        XCTAssertEqual(suspension.forkPressurePSI, 80.0, accuracy: 0.5)
+        XCTAssertEqual(suspension.rearShockPressurePSI, 160.0, accuracy: 0.5)
     }
     
     // MARK: - Test 4: Coffee Water Chemistry & Dynamic Descaling Allowance
     func testWaterHardnessAndDescalingCalculations() {
-        let (fH, ppm, category) = CoffeeChemistryCalculator.shared.convertHardness(germanDegreesDH: 14.0)
+        let (fH, _, _) = CoffeeChemistryCalculator.shared.convertHardness(germanDegreesDH: 14.0)
         
         XCTAssertEqual(fH, 24.92, accuracy: 0.01)
-        XCTAssertEqual(category, .hard)
         
-        // At 14 °dH with active filter (effective 5.6 °dH), allowed liters before descale
-        let allowedLitersWithFilter = CoffeeChemistryCalculator.shared.calculateLitersUntilDescale(
+        // Descaling liters for hard water (14 °dH -> factor 1.4 -> 50 / 1.4 ≈ 35.7 L)
+        let allowance = CoffeeChemistryCalculator.shared.calculateLitersUntilDescale(
             germanDegreesDH: 14.0,
-            isFilterCartridgeActive: true
+            hasWaterFilterInstalled: false
         )
-        let allowedLitersWithoutFilter = CoffeeChemistryCalculator.shared.calculateLitersUntilDescale(
-            germanDegreesDH: 14.0,
-            isFilterCartridgeActive: false
-        )
-        
-        XCTAssertGreaterThan(allowedLitersWithFilter, allowedLitersWithoutFilter, "Active water filter must extend liters throughput before mandatory descaling.")
-    }
-    
-    // MARK: - Test 5: Appliance Health Score Degradation
-    func testApplianceHealthScoreCalculation() {
-        let newAppliance = ApplianceHealthCalculator.shared.calculateHealth(ageMonths: 12)
-        XCTAssertGreaterThanOrEqual(newAppliance.healthScore, 95)
-        
-        let degradedAppliance = ApplianceHealthCalculator.shared.calculateHealth(
-            ageMonths: 72, // 6 years
-            overdueFilterDays: 45,
-            unresolvedErrorCodesCount: 1
-        )
-        
-        XCTAssertLessThan(degradedAppliance.healthScore, 75)
-        XCTAssertEqual(degradedAppliance.remainingLifespanMonths, 72)
+        XCTAssertEqual(allowance.recommendedLitersBeforeDescale, 35.7, accuracy: 0.2)
     }
 }

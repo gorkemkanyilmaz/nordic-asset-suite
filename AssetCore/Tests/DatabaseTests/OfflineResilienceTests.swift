@@ -31,8 +31,8 @@ final class OfflineResilienceTests: XCTestCase {
     
     // MARK: - Test 1: Full Offline Local Storage Lifecycle
     func testOfflineCRUDOperationsWithoutNetwork() async throws {
-        // Create offline appliance
-        let appliance = ApplianceEntity(
+        // Create offline appliance safely inside actor
+        let applianceId = try await worker.createAndInsertAppliance(
             brand: "Bosch",
             modelName: "Serie 8 Dishwasher",
             serialNumber: "BOSCH-SN-998811",
@@ -41,11 +41,9 @@ final class OfflineResilienceTests: XCTestCase {
             currencyCode: "CHF"
         )
         
-        try await worker.insertAppliance(appliance)
-        
         // Append offline telemetry
         try await worker.recordApplianceHealthScore(
-            applianceID: appliance.id,
+            applianceID: applianceId,
             score: 95,
             degradationRate: 1.5,
             remainingMonths: 130,

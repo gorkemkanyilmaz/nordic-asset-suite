@@ -3,7 +3,7 @@
 //  AssetCoreDatabase
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. @ModelActor Pattern.
+//  Strict Concurrency: Complete. @ModelActor Pattern with Safe Sendable Insertion.
 //
 
 import Foundation
@@ -35,9 +35,29 @@ public actor DatabaseWorker {
         }
     }
     
-    public func insertAppliance(_ appliance: ApplianceEntity) throws {
+    public func createAndInsertAppliance(
+        id: UUID = UUID(),
+        brand: String,
+        modelName: String,
+        serialNumber: String = "",
+        roomLocation: String = "Kitchen",
+        purchaseDate: Date = Date(),
+        purchasePrice: Decimal = 0.0,
+        currencyCode: String = "CHF"
+    ) throws -> UUID {
+        let appliance = ApplianceEntity(
+            id: id,
+            brand: brand,
+            modelName: modelName,
+            serialNumber: serialNumber,
+            roomLocation: roomLocation,
+            purchaseDate: purchaseDate,
+            purchasePrice: purchasePrice,
+            currencyCode: currencyCode
+        )
         modelContext.insert(appliance)
         try modelContext.save()
+        return appliance.id
     }
     
     public func recordApplianceHealthScore(applianceID: UUID, score: Int, degradationRate: Double, remainingMonths: Int, flags: String) throws {
@@ -78,9 +98,27 @@ public actor DatabaseWorker {
         }
     }
     
-    public func insertSkiGear(_ gear: SkiGearEntity) throws {
+    public func createAndInsertSkiGear(
+        id: UUID = UUID(),
+        brand: String,
+        modelName: String,
+        serialNumber: String = "",
+        gearCategory: String = "Alpine Skis",
+        skiLengthCm: Double = 175.0,
+        bootSoleLengthMm: Int = 305
+    ) throws -> UUID {
+        let gear = SkiGearEntity(
+            id: id,
+            brand: brand,
+            modelName: modelName,
+            serialNumber: serialNumber,
+            gearCategory: gearCategory,
+            skiLengthCm: skiLengthCm,
+            bootSoleLengthMm: bootSoleLengthMm
+        )
         modelContext.insert(gear)
         try modelContext.save()
+        return gear.id
     }
     
     public func recordDINSetting(gearID: UUID, din: Double, toe: Double, heel: Double, weight: Double, height: Double, age: Int, skierType: String, bsl: Int) throws {
@@ -123,9 +161,25 @@ public actor DatabaseWorker {
         }
     }
     
-    public func insertEBike(_ bike: EBikeEntity) throws {
+    public func createAndInsertEBike(
+        id: UUID = UUID(),
+        brand: String,
+        modelName: String,
+        frameNumber: String = "",
+        motorSystem: String = "Bosch Performance Line CX",
+        totalOdometerKm: Double = 0.0
+    ) throws -> UUID {
+        let bike = EBikeEntity(
+            id: id,
+            brand: brand,
+            modelName: modelName,
+            frameNumber: frameNumber,
+            motorSystem: motorSystem,
+            totalOdometerKm: totalOdometerKm
+        )
         modelContext.insert(bike)
         try modelContext.save()
+        return bike.id
     }
     
     public func recordBatteryHealth(ebikeID: UUID, healthPct: Double, capacityWh: Double, cycles: Int, cellDiffMv: Double, tempC: Double) throws {
@@ -169,9 +223,23 @@ public actor DatabaseWorker {
         }
     }
     
-    public func insertCoffeeMachine(_ machine: CoffeeMachineEntity) throws {
+    public func createAndInsertCoffeeMachine(
+        id: UUID = UUID(),
+        brand: String,
+        modelName: String,
+        machineType: String = "Superautomatic",
+        totalShotsPulled: Int = 0
+    ) throws -> UUID {
+        let machine = CoffeeMachineEntity(
+            id: id,
+            brand: brand,
+            modelName: modelName,
+            machineType: machineType,
+            totalShotsPulled: totalShotsPulled
+        )
         modelContext.insert(machine)
         try modelContext.save()
+        return machine.id
     }
     
     public func recordDescalingCycle(machineID: UUID, chemical: String, waterLiters: Double, daysUntilNext: Int, notes: String) throws {

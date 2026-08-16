@@ -3,7 +3,7 @@
 //  AssetCoreDatabaseTests
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. XCTest Suite for SwiftData & DatabaseWorker.
+//  Strict Concurrency: Complete. SwiftData In-Memory & Schema Integrity Tests.
 //
 
 import XCTest
@@ -17,7 +17,6 @@ final class DatabaseTests: XCTestCase {
     
     override func setUp() async throws {
         try await super.setUp()
-        // Instantiate isolated in-memory container for each test
         container = try DatabaseContainer.shared.makeInMemoryContainer()
         worker = DatabaseWorker(modelContainer: container)
     }
@@ -28,138 +27,129 @@ final class DatabaseTests: XCTestCase {
         try await super.tearDown()
     }
     
-    // MARK: - Test 1: Appliance & Health Score Append-Only Log
-    func testApplianceCreationAndAppendOnlyHealthScore() async throws {
-        let appliance = ApplianceEntity(
+    // MARK: - Test 1: Appliance Entity Ingestion & Append-Only Health Scores
+    func testApplianceIngestionAndHealthAuditTrail() async throws {
+        let applianceId = try await worker.createAndInsertAppliance(
             brand: "Miele",
-            modelName: "W1 Washing Machine",
-            serialNumber: "SN-981244",
+            modelName: "W1 TwinDos Washing Machine",
+            serialNumber: "MIELE-CH-889912",
             roomLocation: "Laundry Room",
-            purchasePrice: 1850.00,
+            purchaseDate: Date(),
+            purchasePrice: 2450.00,
             currencyCode: "CHF"
         )
         
-        try await worker.insertAppliance(appliance)
-        
         // Record 1st health score
         try await worker.recordApplianceHealthScore(
-            applianceID: appliance.id,
+            applianceID: applianceId,
             score: 98,
             degradationRate: 1.2,
-            remainingMonths: 140,
-            flags: "NORMAL_OPERATION"
+            remainingMonths: 118,
+            flags: "NOMINAL"
         )
         
-        // Record 2nd health score (degradation simulation)
+        // Record 2nd health score after simulated usage (append-only)
         try await worker.recordApplianceHealthScore(
-            applianceID: appliance.id,
+            applianceID: applianceId,
             score: 91,
-            degradationRate: 2.5,
-            remainingMonths: 120,
-            flags: "FILTER_REPLACEMENT_RECOMMENDED"
+            degradationRate: 2.8,
+            remainingMonths: 104,
+            flags: "FILTER_SCALE_DETECTED"
         )
         
-        let fetchedAppliances = try await worker.fetchAppliances()
-        XCTAssertEqual(fetchedAppliances.count, 1)
-        XCTAssertEqual(fetchedAppliances.first?.brand, "Miele")
-        XCTAssertEqual(fetchedAppliances.first?.latestHealthScore, 91)
+        let appliances = try await worker.fetchAppliances()
+        XCTAssertEqual(appliances.count, 1)
+        
+        let dto = try XCTUnwrap(appliances.first)
+        XCTAssertEqual(dto.brand, "Miele")
+        XCTAssertEqual(dto.currencyCode, "CHF")
+        XCTAssertEqual(dto.latestHealthScore, 91)
     }
     
-    // MARK: - Test 2: Ski Gear & DIN Binding Audit Trail
-    func testSkiGearCreationAndDINCalculationLog() async throws {
-        let ski = SkiGearEntity(
+    // MARK: - Test 2: Ski Gear Quiver & ISO 11088 DIN Audit
+    func testSkiGearIngestionAndDINRecord() async throws {
+        let skiId = try await worker.createAndInsertSkiGear(
             brand: "Stöckli",
             modelName: "Laser SL",
-            serialNumber: "STK-2026-789",
-            gearCategory: "Alpine Skis",
+            serialNumber: "STK-2026-9901",
+            gearCategory: "Slalom Alpine",
             skiLengthCm: 165.0,
-            bootSoleLengthMm: 310
+            bootSoleLengthMm: 305
         )
-        
-        try await worker.insertSkiGear(ski)
         
         // Calculate DIN for moderate skier (Type II)
         try await worker.recordDINSetting(
-            gearID: ski.id,
+            gearID: skiId,
             din: 6.5,
             toe: 6.5,
             heel: 6.5,
-            weight: 76.0,
-            height: 182.0,
-            age: 34,
-            skierType: "Type II",
-            bsl: 310
+            weight: 74.0,
+            height: 178.0,
+            age: 32,
+            skierType: "TypeII",
+            bsl: 305
         )
         
-        // Recalculate for aggressive season upgrade (Type III)
-        try await worker.recordDINSetting(
-            gearID: ski.id,
-            din: 8.0,
-            toe: 8.0,
-            heel: 8.0,
-            weight: 76.0,
-            height: 182.0,
-            age: 34,
-            skierType: "Type III",
-            bsl: 310
-        )
+        let quiver = try await worker.fetchSkiGear()
+        XCTAssertEqual(quiver.count, 1)
         
-        let fetchedSkis = try await worker.fetchSkiGear()
-        XCTAssertEqual(fetchedSkis.count, 1)
-        XCTAssertEqual(fetchedSkis.first?.brand, "Stöckli")
-        XCTAssertEqual(fetchedSkis.first?.latestDIN, 8.0)
+        let dto = try XCTUnwrap(quiver.first)
+        XCTAssertEqual(dto.brand, "Stöckli")
+        XCTAssertEqual(dto.latestDIN, 6.5)
+        XCTAssertFalse(dto.isArchivedForSummer)
     }
     
-    // MARK: - Test 3: E-Bike & Battery Telemetry Append-Only
-    func testEBikeCreationAndBatteryHealthLog() async throws {
-        let ebike = EBikeEntity(
+    // MARK: - Test 3: E-Bike Digital Twin & Battery Telemetry
+    func testEBikeTelemetryIngestion() async throws {
+        let ebikeId = try await worker.createAndInsertEBike(
             brand: "Scott",
             modelName: "Patron eRIDE 900",
-            frameNumber: "SCOTT-PATRON-2026",
+            frameNumber: "SCOTT-CH-FRAME-7788",
             motorSystem: "Bosch Performance Line CX",
-            totalOdometerKm: 1450.0
+            totalOdometerKm: 1450.5
         )
-        
-        try await worker.insertEBike(ebike)
         
         try await worker.recordBatteryHealth(
-            ebikeID: ebike.id,
+            ebikeID: ebikeId,
             healthPct: 97.5,
             capacityWh: 750.0,
-            cycles: 34,
-            cellDiffMv: 4.2,
-            tempC: 21.0
+            cycles: 42,
+            cellDiffMv: 12.0,
+            tempC: 22.5
         )
         
-        let fetchedBikes = try await worker.fetchEBikes()
-        XCTAssertEqual(fetchedBikes.count, 1)
-        XCTAssertEqual(fetchedBikes.first?.brand, "Scott")
-        XCTAssertEqual(fetchedBikes.first?.latestBatteryHealthPercentage, 97.5)
+        let garage = try await worker.fetchEBikes()
+        XCTAssertEqual(garage.count, 1)
+        
+        let dto = try XCTUnwrap(garage.first)
+        XCTAssertEqual(dto.brand, "Scott")
+        XCTAssertEqual(dto.totalOdometerKm, 1450.5)
+        XCTAssertEqual(dto.latestBatteryHealthPercentage, 97.5)
     }
     
-    // MARK: - Test 4: Coffee Machine & Descaling Cycle Log
-    func testCoffeeMachineCreationAndDescalingLog() async throws {
-        let coffee = CoffeeMachineEntity(
+    // MARK: - Test 4: Coffee Machine Companion & Descaling Journal
+    func testCoffeeMachineJournalAndMaintenance() async throws {
+        let coffeeId = try await worker.createAndInsertCoffeeMachine(
             brand: "Jura",
-            modelName: "E8 Piano Black",
-            serialNumber: "JURA-E8-9081",
+            modelName: "Z10 Diamond Black",
             machineType: "Superautomatic",
-            totalShotsPulled: 420
+            totalShotsPulled: 1250
         )
-        
-        try await worker.insertCoffeeMachine(coffee)
         
         try await worker.recordDescalingCycle(
-            machineID: coffee.id,
+            machineID: coffeeId,
             chemical: "Jura 2-Phase Descaling Tablets",
             waterLiters: 48.0,
-            daysUntilNext: 60,
-            notes: "Claris Smart filter replaced simultaneously."
+            daysUntilNext: 45,
+            notes: "Complete descaling cycle completed with Claris Smart filter exchange."
         )
         
-        let fetchedMachines = try await worker.fetchCoffeeMachines()
-        XCTAssertEqual(fetchedMachines.count, 1)
-        XCTAssertEqual(fetchedMachines.first?.brand, "Jura")
-        XCTAssertEqual(fetchedMachines.first?.totalShotsPulled, 420)
+        let coffeeMachines = try await worker.fetchCoffeeMachines()
+        XCTAssertEqual(coffeeMachines.count, 1)
+        
+        let dto = try XCTUnwrap(coffeeMachines.first)
+        XCTAssertEqual(dto.brand, "Jura")
+        XCTAssertEqual(dto.totalShotsPulled, 1250)
+        XCTAssertEqual(dto.daysSinceLastDescale, 0)
     }
 }
