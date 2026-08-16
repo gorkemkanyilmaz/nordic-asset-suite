@@ -26,33 +26,21 @@ jobs:
           ./BuildScripts/verify_concurrency.sh
           ./BuildScripts/run_all_tests.sh
 
-      - name: 4. Configure App Store Connect API Authentication
-        env:
-          PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
-          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        run: |
-          if [ -n "$PRIVATE_KEY" ]; then
-            mkdir -p ~/.appstoreconnect/private_keys
-            echo "$PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
-            echo "API Key installed successfully."
-          else
-            echo "Warning: APP_STORE_CONNECT_PRIVATE_KEY secret is not set yet."
-          fi
-
-      - name: 5. Install XcodeGen & Generate iOS Projects
+      - name: 4. Generate Native Xcode Project
         run: |
           brew install xcodegen
+          xcodegen generate
 
-      - name: 6. Build iOS Archives & Upload to TestFlight
+      - name: 5. Execute Fastlane Automated TestFlight Upload
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
-          ./BuildScripts/build_and_upload_testflight.sh "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
+          fastlane deploy_all
 
-      - name: 7. TestFlight Readiness Report
+      - name: 6. TestFlight Deployment Completed
         run: |
           echo "=========================================================="
-          echo "    ALL 4 APPS ARCHIVED & DEPLOYED TO TESTFLIGHT"
+          echo "    ALL 4 APPS DEPLOYED DIRECTLY TO APPLE TESTFLIGHT"
           echo "=========================================================="
