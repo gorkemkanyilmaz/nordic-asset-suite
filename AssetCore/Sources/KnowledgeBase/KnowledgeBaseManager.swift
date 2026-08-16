@@ -39,13 +39,13 @@ public struct ManufacturerSpecItem: Sendable, Identifiable, Codable {
 public actor KnowledgeBaseManager {
     public static let shared = KnowledgeBaseManager()
     
-    private var cachedSpecs: [String: ManufacturerSpecItem] = [:]
+    private var cachedSpecs: [String: ManufacturerSpecItem]
     
     private init() {
-        loadBundledSeedSpecs()
+        self.cachedSpecs = Self.makeDefaultSeedSpecs()
     }
     
-    private func loadBundledSeedSpecs() {
+    private static func makeDefaultSeedSpecs() -> [String: ManufacturerSpecItem] {
         // Pre-bundled baseline specs for top European manufacturers
         let defaultSpecs: [ManufacturerSpecItem] = [
             ManufacturerSpecItem(
@@ -82,9 +82,11 @@ public actor KnowledgeBaseManager {
             )
         ]
         
+        var dict: [String: ManufacturerSpecItem] = [:]
         for spec in defaultSpecs {
-            cachedSpecs[spec.id] = spec
+            dict[spec.id] = spec
         }
+        return dict
     }
     
     /// Searches for technical specifications and error code mappings.
