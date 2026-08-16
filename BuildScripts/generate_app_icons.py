@@ -1,6 +1,6 @@
 import os
 import json
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 APPS = {
     "ApplianceWarrantyManager": {
@@ -32,29 +32,6 @@ APPS = {
         "symbol": "CUP"
     }
 }
-
-ICON_SIZES = [
-    # (idiom, size_str, scale_str, pixel_size, filename)
-    ("iphone", "20x20", "2x", 40, "icon-20@2x.png"),
-    ("iphone", "20x20", "3x", 60, "icon-20@3x.png"),
-    ("iphone", "29x29", "2x", 58, "icon-29@2x.png"),
-    ("iphone", "29x29", "3x", 87, "icon-29@3x.png"),
-    ("iphone", "40x40", "2x", 80, "icon-40@2x.png"),
-    ("iphone", "40x40", "3x", 120, "icon-40@3x.png"),
-    ("iphone", "60x60", "2x", 120, "icon-60@2x.png"),
-    ("iphone", "60x60", "3x", 180, "icon-60@3x.png"),
-    ("ipad", "20x20", "1x", 20, "icon-20.png"),
-    ("ipad", "20x20", "2x", 40, "icon-20@2x-ipad.png"),
-    ("ipad", "29x29", "1x", 29, "icon-29.png"),
-    ("ipad", "29x29", "2x", 58, "icon-29@2x-ipad.png"),
-    ("ipad", "40x40", "1x", 40, "icon-40.png"),
-    ("ipad", "40x40", "2x", 80, "icon-40@2x-ipad.png"),
-    ("ipad", "76x76", "1x", 76, "icon-76.png"),
-    ("ipad", "76x76", "2x", 152, "icon-76@2x.png"),
-    ("ipad", "83.5x83.5", "2x", 167, "icon-83.5@2x.png"),
-    ("ios-marketing", "1024x1024", "1x", 1024, "icon-1024.png"),
-    ("universal", "1024x1024", "1x", 1024, "icon-universal-1024.png")
-]
 
 def draw_gradient_background(size, start_col, end_col):
     img = Image.new("RGB", (size, size), start_col)
@@ -135,9 +112,15 @@ def generate_all():
     
     for app_name, config in APPS.items():
         appicon_dir = os.path.join(base_dir, app_name, "Assets.xcassets", "AppIcon.appiconset")
-        os.makedirs(appicon_dir, exist_ok=True)
         
-        # Also create top-level Assets.xcassets Contents.json
+        # Clean directory first
+        if os.path.exists(appicon_dir):
+            for f in os.listdir(appicon_dir):
+                os.remove(os.path.join(appicon_dir, f))
+        else:
+            os.makedirs(appicon_dir, exist_ok=True)
+        
+        # Top-level Assets.xcassets Contents.json
         top_contents = {
             "info": {
                 "author": "xcode",
@@ -148,24 +131,19 @@ def generate_all():
             json.dump(top_contents, f, indent=2)
             
         master = render_master_icon(app_name, config)
+        icon_path = os.path.join(appicon_dir, "AppIcon-1024.png")
+        master.save(icon_path, "PNG")
         
-        images_json = []
-        for idiom, size_str, scale_str, px, fname in ICON_SIZES:
-            resized = master.resize((px, px), Image.Resampling.LANCZOS)
-            resized.save(os.path.join(appicon_dir, fname), "PNG")
-            
-            entry = {
-                "size": size_str,
-                "idiom": idiom,
-                "filename": fname,
-                "scale": scale_str
-            }
-            if idiom == "ios-marketing":
-                entry["platform"] = "ios"
-            images_json.append(entry)
-            
+        # Standard Xcode 15/16 Universal Single-Size App Icon specification
         appicon_contents = {
-            "images": images_json,
+            "images": [
+                {
+                    "filename": "AppIcon-1024.png",
+                    "idiom": "universal",
+                    "platform": "ios",
+                    "size": "1024x1024"
+                }
+            ],
             "info": {
                 "author": "xcode",
                 "version": 1
@@ -174,7 +152,7 @@ def generate_all():
         with open(os.path.join(appicon_dir, "Contents.json"), "w") as f:
             json.dump(appicon_contents, f, indent=2)
             
-        print(f"Generated icons for {app_name} -> {appicon_dir}")
+        print(f"Generated single-size AppIcon for {app_name} -> {icon_path}")
 
 if __name__ == "__main__":
     generate_all()
