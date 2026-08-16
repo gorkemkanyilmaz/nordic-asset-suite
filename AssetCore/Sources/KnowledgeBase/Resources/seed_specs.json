@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "items": [
+    {
+      "id": "SEED_001",
+      "brand": "Miele",
+      "model": "W1",
+      "category": "Appliance"
+    }
+  ]
+}
