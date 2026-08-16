@@ -4,6 +4,8 @@ options:
   deploymentTarget:
     iOS: "17.0"
   xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
 
 packages:
   AssetCore:
@@ -81,3 +83,29 @@ targets:
       INFOPLIST_KEY_CFBundleDisplayName: "Coffee Companion"
       INFOPLIST_KEY_UILaunchScreen_Generation: YES
       INFOPLIST_KEY_NSCameraUsageDescription: "Scan espresso machine rating badges and water hardness test strips."
+
+schemes:
+  ApplianceWarrantyManager:
+    build:
+      targets:
+        ApplianceWarrantyManager: all
+    archive:
+      config: Release
+  SkiGearTracker:
+    build:
+      targets:
+        SkiGearTracker: all
+    archive:
+      config: Release
+  EBikeServiceTracker:
+    build:
+      targets:
+        EBikeServiceTracker: all
+    archive:
+      config: Release
+  CoffeeMachineCompanion:
+    build:
+      targets:
+        CoffeeMachineCompanion: all
+    archive:
+      config: Release
