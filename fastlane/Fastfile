@@ -129,7 +129,6 @@ platform :ios do
         clean: (idx == 0),
         export_method: "app-store",
         export_team_id: team_id,
-        codesigning_identity: "Apple Distribution",
         xcargs: "DEVELOPMENT_TEAM='#{team_id}'",
         export_options: {
           method: "app-store",
