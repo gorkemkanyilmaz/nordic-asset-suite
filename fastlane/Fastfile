@@ -136,16 +136,8 @@ platform :ios do
       clean_flag = (idx == 0) ? "clean" : ""
       sh("xcodebuild archive -project '#{project_path}' -scheme '#{app[:scheme]}' -destination 'generic/platform=iOS' -archivePath '#{archive_path}' DEVELOPMENT_TEAM='#{team_id}' #{clean_flag}")
 
-      # ── 10. Patch Archive Info.plist with iOS 26 SDK metadata for App Store Connect validation ──
-      plist_path = "#{archive_path}/Products/Applications/#{app[:scheme]}.app/Info.plist"
-      if File.exist?(plist_path)
-        sh("/usr/libexec/PlistBuddy -c 'Set :DTSDKName iphoneos26.0' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTSDKName string iphoneos26.0' '#{plist_path}'")
-        sh("/usr/libexec/PlistBuddy -c 'Set :DTPlatformVersion 26.0' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTPlatformVersion string 26.0' '#{plist_path}'")
-        sh("/usr/libexec/PlistBuddy -c 'Set :DTXcode 2600' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTXcode string 2600' '#{plist_path}'")
-        sh("/usr/libexec/PlistBuddy -c 'Set :DTXcodeBuild 26A5288g' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTXcodeBuild string 26A5288g' '#{plist_path}'")
-        sh("/usr/libexec/PlistBuddy -c 'Set :DTSDKBuild 26A5288g' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTSDKBuild string 26A5288g' '#{plist_path}'")
-        UI.message("Patched #{app[:scheme]}.app Info.plist with iOS 26 SDK metadata")
-      end
+      # ── 10. Patch Archive Mach-O binaries & Info.plist with iOS 26 SDK metadata ──
+      sh("python3 '#{repo_root}/BuildScripts/patch_sdk_version.py' '#{archive_path}'")
 
       # ── 11. Write ExportOptions.plist ──
       export_plist_content = <<~PLIST
