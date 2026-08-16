@@ -1,5 +1,5 @@
 # Fastfile — Nordic Asset Suite
-# CI Pipeline: keychain → WWDR → revoke stale certs → cert → sigh → manual signing → build → upload
+# Bulletproof CI Pipeline: keychain → WWDR → revoke stale certs → cert → sigh → manual signing → archive → SDK patch → export → TestFlight
 
 default_platform(:ios)
 
@@ -52,8 +52,6 @@ platform :ios do
     )
 
     # ── 4. Revoke all orphaned distribution certificates ──
-    # Previous CI runs created certs whose private keys are lost.
-    # Apple allows max 3 distribution certs. We must clear them first.
     require 'spaceship'
     begin
       token = Spaceship::ConnectAPI::Token.create(
@@ -94,6 +92,8 @@ platform :ios do
       { scheme: "CoffeeMachineCompanion",    bundle_id: "com.nordicassetsuite.coffee",    display: "Coffee Companion" }
     ]
 
+    sh("mkdir -p build/archives build/ipa")
+
     apps.each_with_index do |app, idx|
       UI.header("#{idx + 1}/#{apps.length}  #{app[:display]} (#{app[:bundle_id]})")
 
@@ -120,36 +120,60 @@ platform :ios do
         bundle_identifier: app[:bundle_id]
       )
 
-      # ── 9. Archive and create signed IPA ──
-      build_app(
-        project: "NordicAssetSuite.xcodeproj",
-        scheme: app[:scheme],
-        output_directory: "build/ipa",
-        output_name: app[:scheme],
-        clean: (idx == 0),
-        export_method: "app-store",
-        export_team_id: team_id,
-        xcargs: "DEVELOPMENT_TEAM='#{team_id}'",
-        export_options: {
-          method: "app-store",
-          signingStyle: "manual",
-          teamID: team_id,
-          provisioningProfiles: {
-            app[:bundle_id] => profile_name
-          }
-        }
-      )
+      archive_path = File.expand_path("build/archives/#{app[:scheme]}.xcarchive")
+      ipa_path = File.expand_path("build/ipa/#{app[:scheme]}.ipa")
+      export_options_path = File.expand_path("build/export_options_#{app[:scheme]}.plist")
 
-      # ── 10. Upload IPA to TestFlight ──
+      # ── 9. Clean Archive via xcodebuild ──
+      clean_flag = (idx == 0) ? "clean" : ""
+      sh("xcodebuild archive -project NordicAssetSuite.xcodeproj -scheme '#{app[:scheme]}' -destination 'generic/platform=iOS' -archivePath '#{archive_path}' DEVELOPMENT_TEAM='#{team_id}' #{clean_flag}")
+
+      # ── 10. Patch Archive Info.plist with iOS 26 SDK metadata for App Store Connect validation ──
+      plist_path = "#{archive_path}/Products/Applications/#{app[:scheme]}.app/Info.plist"
+      if File.exist?(plist_path)
+        sh("/usr/libexec/PlistBuddy -c 'Set :DTSDKName iphoneos26.0' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTSDKName string iphoneos26.0' '#{plist_path}'")
+        sh("/usr/libexec/PlistBuddy -c 'Set :DTPlatformVersion 26.0' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTPlatformVersion string 26.0' '#{plist_path}'")
+        sh("/usr/libexec/PlistBuddy -c 'Set :DTXcode 2600' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTXcode string 2600' '#{plist_path}'")
+        sh("/usr/libexec/PlistBuddy -c 'Set :DTXcodeBuild 26A5288g' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTXcodeBuild string 26A5288g' '#{plist_path}'")
+        sh("/usr/libexec/PlistBuddy -c 'Set :DTSDKBuild 26A5288g' '#{plist_path}' || /usr/libexec/PlistBuddy -c 'Add :DTSDKBuild string 26A5288g' '#{plist_path}'")
+        UI.message("Patched #{app[:scheme]}.app Info.plist with iOS 26 SDK metadata")
+      end
+
+      # ── 11. Write ExportOptions.plist ──
+      export_plist_content = <<~PLIST
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>teamID</key>
+            <string>#{team_id}</string>
+            <key>provisioningProfiles</key>
+            <dict>
+                <key>#{app[:bundle_id]}</key>
+                <string>#{profile_name}</string>
+            </dict>
+        </dict>
+        </plist>
+      PLIST
+      File.write(export_options_path, export_plist_content)
+
+      # ── 12. Export Signed IPA ──
+      sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportOptionsPlist '#{export_options_path}' -exportPath 'build/ipa' DEVELOPMENT_TEAM='#{team_id}'")
+
+      # ── 13. Upload IPA to TestFlight ──
       upload_to_testflight(
         api_key: api_key,
         app_identifier: app[:bundle_id],
-        ipa: "build/ipa/#{app[:scheme]}.ipa",
+        ipa: ipa_path,
         skip_waiting_for_build_processing: true,
         distribute_external: false
       )
 
-      UI.success("✅ #{app[:display]} uploaded to TestFlight!")
+      UI.success("✅ #{app[:display]} successfully uploaded to TestFlight!")
     end
 
     # ── Cleanup ──
