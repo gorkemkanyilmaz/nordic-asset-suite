@@ -8,6 +8,7 @@ platform :ios do
     key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
     issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
     key_content = ENV["APP_STORE_CONNECT_PRIVATE_KEY"]
+    team_id = ENV["APPLE_TEAM_ID"]
 
     if key_id.to_s.empty? || issuer_id.to_s.empty? || key_content.to_s.empty?
       UI.user_error!("App Store Connect API credentials missing in environment variables.")
@@ -37,6 +38,8 @@ platform :ios do
         output_directory: "build/ipa",
         output_name: "#{app[:name]}.ipa",
         export_method: "app-store",
+        export_team_id: team_id,
+        xcargs: (team_id && !team_id.empty?) ? "DEVELOPMENT_TEAM=#{team_id}" : nil,
         skip_package_dependencies_resolution: false,
         clean: true,
         export_options: {
