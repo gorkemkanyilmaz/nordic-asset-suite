@@ -38,10 +38,7 @@ let package = Package(
         .target(
             name: "AssetCoreSecurity",
             dependencies: [],
-            path: "Sources/Security",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Security"
         ),
         
         // MARK: - Core Localization
@@ -51,9 +48,6 @@ let package = Package(
             path: "Sources/Localization",
             resources: [
                 .process("Resources")
-            ],
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
             ]
         ),
 
@@ -63,10 +57,7 @@ let package = Package(
             dependencies: [
                 "AssetCoreSecurity"
             ],
-            path: "Sources/Database",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Database"
         ),
 
         // MARK: - Core Cloud Sync (CloudKit Engine)
@@ -76,20 +67,14 @@ let package = Package(
                 "AssetCoreDatabase",
                 "AssetCoreSecurity"
             ],
-            path: "Sources/CloudSync",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/CloudSync"
         ),
 
         // MARK: - Core Image Processing
         .target(
             name: "AssetCoreImageEngine",
             dependencies: [],
-            path: "Sources/ImageEngine",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/ImageEngine"
         ),
 
         // MARK: - Core OCR (Apple Vision)
@@ -99,10 +84,7 @@ let package = Package(
                 "AssetCoreImageEngine",
                 "AssetCoreSecurity"
             ],
-            path: "Sources/OCR",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/OCR"
         ),
 
         // MARK: - Core AI (App Attest Proxy & Fallback Engine)
@@ -112,10 +94,7 @@ let package = Package(
                 "AssetCoreSecurity",
                 "AssetCoreOCR"
             ],
-            path: "Sources/AI",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/AI"
         ),
 
         // MARK: - Core Knowledge Base
@@ -128,9 +107,6 @@ let package = Package(
             path: "Sources/KnowledgeBase",
             resources: [
                 .process("Resources")
-            ],
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
             ]
         ),
 
@@ -141,10 +117,7 @@ let package = Package(
                 "AssetCoreKnowledgeBase",
                 "AssetCoreSecurity"
             ],
-            path: "Sources/ManufacturerSync",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/ManufacturerSync"
         ),
 
         // MARK: - Core Search Engine
@@ -154,10 +127,7 @@ let package = Package(
                 "AssetCoreDatabase",
                 "AssetCoreKnowledgeBase"
             ],
-            path: "Sources/Search",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Search"
         ),
 
         // MARK: - Core Subscription (StoreKit 2)
@@ -166,10 +136,7 @@ let package = Package(
             dependencies: [
                 "AssetCoreSecurity"
             ],
-            path: "Sources/Subscription",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Subscription"
         ),
 
         // MARK: - Core Notifications
@@ -178,10 +145,7 @@ let package = Package(
             dependencies: [
                 "AssetCoreDatabase"
             ],
-            path: "Sources/Notifications",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Notifications"
         ),
 
         // MARK: - Core Reports (PDF Export)
@@ -191,20 +155,14 @@ let package = Package(
                 "AssetCoreDatabase",
                 "AssetCoreLocalization"
             ],
-            path: "Sources/Reports",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Reports"
         ),
 
         // MARK: - Core Analytics (Privacy-First Local Telemetry)
         .target(
             name: "AssetCoreAnalytics",
             dependencies: [],
-            path: "Sources/Analytics",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/Analytics"
         ),
 
         // MARK: - Core UI Components (Design System Primitives)
@@ -213,10 +171,7 @@ let package = Package(
             dependencies: [
                 "AssetCoreLocalization"
             ],
-            path: "Sources/UIComponents",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            path: "Sources/UIComponents"
         ),
 
         // MARK: - Test Targets

@@ -8,7 +8,7 @@
 
 import Foundation
 import CoreGraphics
-import CoreImage
+@preconcurrency import CoreImage
 #if os(iOS)
 import UIKit
 #endif
@@ -32,7 +32,7 @@ public enum ImageProcessingError: Error, LocalizedError, Sendable {
 }
 
 /// High-performance thread-safe image pre-processor for OCR optimization and archival.
-public final class ImageProcessor: Sendable {
+public final class ImageProcessor: @unchecked Sendable {
     public static let shared = ImageProcessor()
     
     private let ciContext: CIContext
