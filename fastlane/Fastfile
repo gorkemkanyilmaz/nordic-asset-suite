@@ -28,7 +28,7 @@ platform :ios do
       unlock: true,
       timeout: 3600,
       lock_when_sleeps: false,
-      add_to_search_list: :replace
+      add_to_search_list: true
     )
 
     # ── 2. Install Apple WWDR intermediate certificates ──
