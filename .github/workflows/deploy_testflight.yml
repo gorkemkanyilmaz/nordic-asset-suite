@@ -40,13 +40,19 @@ jobs:
             echo "Warning: APP_STORE_CONNECT_PRIVATE_KEY secret is not set yet."
           fi
 
-      - name: 5. Build Applications Package & Verify IPA Archives
+      - name: 5. Install XcodeGen & Generate iOS Projects
         run: |
-          echo "Building Nordic Asset Suite packages on macOS Apple Silicon runner..."
-          ./BuildScripts/package_release.sh
+          brew install xcodegen
 
-      - name: 6. TestFlight Readiness Report
+      - name: 6. Build iOS Archives & Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          ./BuildScripts/build_and_upload_testflight.sh "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
+
+      - name: 7. TestFlight Readiness Report
         run: |
           echo "=========================================================="
-          echo "    ALL 4 APPS TESTED, COMPILED & READY FOR TESTFLIGHT"
+          echo "    ALL 4 APPS ARCHIVED & DEPLOYED TO TESTFLIGHT"
           echo "=========================================================="
