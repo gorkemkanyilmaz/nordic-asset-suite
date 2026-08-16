@@ -16,6 +16,14 @@ platform :ios do
     UI.user_error!("Missing APP_STORE_CONNECT_PRIVATE_KEY") if key_content.to_s.empty?
     UI.user_error!("Missing APPLE_TEAM_ID") if team_id.to_s.empty?
 
+    # Resolve absolute paths regardless of fastlane execution directory
+    repo_root = File.exist?("NordicAssetSuite.xcodeproj") ? Dir.pwd : File.expand_path("..", Dir.pwd)
+    project_path = "#{repo_root}/NordicAssetSuite.xcodeproj"
+    build_dir = "#{repo_root}/build"
+
+    UI.message("Repo root: #{repo_root}")
+    UI.message("Project path: #{project_path}")
+
     # ── 1. Create a dedicated CI keychain ──
     kc_name     = "ci_signing"
     kc_password = "ci_keychain_password"
@@ -92,7 +100,7 @@ platform :ios do
       { scheme: "CoffeeMachineCompanion",    bundle_id: "com.nordicassetsuite.coffee",    display: "Coffee Companion" }
     ]
 
-    sh("mkdir -p build/archives build/ipa")
+    sh("mkdir -p '#{build_dir}/archives' '#{build_dir}/ipa'")
 
     apps.each_with_index do |app, idx|
       UI.header("#{idx + 1}/#{apps.length}  #{app[:display]} (#{app[:bundle_id]})")
@@ -111,7 +119,7 @@ platform :ios do
 
       # ── 8. Configure manual signing in Xcode project ──
       update_code_signing_settings(
-        path: "NordicAssetSuite.xcodeproj",
+        path: project_path,
         targets: [app[:scheme]],
         use_automatic_signing: false,
         team_id: team_id,
@@ -120,13 +128,13 @@ platform :ios do
         bundle_identifier: app[:bundle_id]
       )
 
-      archive_path = File.expand_path("build/archives/#{app[:scheme]}.xcarchive")
-      ipa_path = File.expand_path("build/ipa/#{app[:scheme]}.ipa")
-      export_options_path = File.expand_path("build/export_options_#{app[:scheme]}.plist")
+      archive_path = "#{build_dir}/archives/#{app[:scheme]}.xcarchive"
+      ipa_path = "#{build_dir}/ipa/#{app[:scheme]}.ipa"
+      export_options_path = "#{build_dir}/export_options_#{app[:scheme]}.plist"
 
       # ── 9. Clean Archive via xcodebuild ──
       clean_flag = (idx == 0) ? "clean" : ""
-      sh("xcodebuild archive -project NordicAssetSuite.xcodeproj -scheme '#{app[:scheme]}' -destination 'generic/platform=iOS' -archivePath '#{archive_path}' DEVELOPMENT_TEAM='#{team_id}' #{clean_flag}")
+      sh("xcodebuild archive -project '#{project_path}' -scheme '#{app[:scheme]}' -destination 'generic/platform=iOS' -archivePath '#{archive_path}' DEVELOPMENT_TEAM='#{team_id}' #{clean_flag}")
 
       # ── 10. Patch Archive Info.plist with iOS 26 SDK metadata for App Store Connect validation ──
       plist_path = "#{archive_path}/Products/Applications/#{app[:scheme]}.app/Info.plist"
@@ -162,7 +170,7 @@ platform :ios do
       File.write(export_options_path, export_plist_content)
 
       # ── 12. Export Signed IPA ──
-      sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportOptionsPlist '#{export_options_path}' -exportPath 'build/ipa' DEVELOPMENT_TEAM='#{team_id}'")
+      sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportOptionsPlist '#{export_options_path}' -exportPath '#{build_dir}/ipa' DEVELOPMENT_TEAM='#{team_id}'")
 
       # ── 13. Upload IPA to TestFlight ──
       upload_to_testflight(
