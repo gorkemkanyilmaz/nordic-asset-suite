@@ -19,14 +19,14 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
-      - name: Run Tests
+      - name: Run Concurrency Audit & Tests
         run: |
           chmod +x BuildScripts/*.sh
           ./BuildScripts/verify_concurrency.sh
           ./BuildScripts/run_all_tests.sh
 
   deploy:
-    name: Archive & Upload to TestFlight
+    name: Archive, Sign & Upload to TestFlight
     needs: test
     runs-on: macos-14
     timeout-minutes: 60
@@ -39,19 +39,21 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
-      - name: Install XcodeGen & Generate Project
-        run: |
-          brew install xcodegen
-          xcodegen generate
-          echo "Available schemes:"
-          xcodebuild -project NordicAssetSuite.xcodeproj -list
+      - name: Install XcodeGen
+        run: brew install xcodegen
 
-      - name: Deploy All Apps to TestFlight
+      - name: Generate Xcode Project
+        run: |
+          xcodegen generate
+          echo "✅ Project generated. Available schemes:"
+          xcodebuild -project NordicAssetSuite.xcodeproj -list 2>/dev/null | head -20
+
+      - name: Deploy All Apps via Fastlane
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          chmod +x BuildScripts/deploy_testflight.sh
-          ./BuildScripts/deploy_testflight.sh
+          gem install fastlane --no-document
+          fastlane deploy_all

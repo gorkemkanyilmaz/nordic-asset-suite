@@ -1,19 +1,26 @@
-# Fastfile for Nordic Asset Suite automated TestFlight deployment
+# Fastfile — Nordic Asset Suite
+# Bulletproof CI/CD: setup_ci → cert → sigh → manual signing → build → upload
+# No cloud signing dependency. Works on any GitHub Actions macOS runner.
 
 default_platform(:ios)
 
 platform :ios do
-  desc "Build and upload all 4 applications to Apple TestFlight"
+  desc "Build and upload all 4 Nordic Asset Suite apps to Apple TestFlight"
   lane :deploy_all do
-    key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
+    key_id    = ENV["APP_STORE_CONNECT_KEY_ID"]
     issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
     key_content = ENV["APP_STORE_CONNECT_PRIVATE_KEY"]
-    team_id = ENV["APPLE_TEAM_ID"]
+    team_id   = ENV["APPLE_TEAM_ID"]
 
-    if key_id.to_s.empty? || issuer_id.to_s.empty? || key_content.to_s.empty?
-      UI.user_error!("App Store Connect API credentials missing in environment variables.")
-    end
+    UI.user_error!("Missing APP_STORE_CONNECT_KEY_ID") if key_id.to_s.empty?
+    UI.user_error!("Missing APP_STORE_CONNECT_ISSUER_ID") if issuer_id.to_s.empty?
+    UI.user_error!("Missing APP_STORE_CONNECT_PRIVATE_KEY") if key_content.to_s.empty?
+    UI.user_error!("Missing APPLE_TEAM_ID") if team_id.to_s.empty?
 
+    # ── 1. Create temporary CI keychain ──
+    setup_ci(force: true)
+
+    # ── 2. Authenticate with App Store Connect API ──
     api_key = app_store_connect_api_key(
       key_id: key_id,
       issuer_id: issuer_id,
@@ -22,55 +29,96 @@ platform :ios do
       in_house: false
     )
 
+    # ── 3. Create or download Apple Distribution certificate ──
+    # This generates a private key + CSR on the runner, submits to Apple,
+    # and installs the signed certificate in the CI keychain.
+    cert(
+      api_key: api_key,
+      team_id: team_id,
+      platform: "ios"
+    )
+
+    # ── 4. Deploy each application ──
     apps = [
-      { name: "ApplianceWarrantyManager", scheme: "ApplianceWarrantyManager", bundle_id: "com.nordicassetsuite.appliance" },
-      { name: "SkiGearTracker", scheme: "SkiGearTracker", bundle_id: "com.nordicassetsuite.skigear" },
-      { name: "EBikeServiceTracker", scheme: "EBikeServiceTracker", bundle_id: "com.nordicassetsuite.ebike" },
-      { name: "CoffeeMachineCompanion", scheme: "CoffeeMachineCompanion", bundle_id: "com.nordicassetsuite.coffee" }
+      {
+        scheme: "ApplianceWarrantyManager",
+        bundle_id: "com.nordicassetsuite.appliance",
+        display_name: "Appliance Warranty"
+      },
+      {
+        scheme: "SkiGearTracker",
+        bundle_id: "com.nordicassetsuite.skigear",
+        display_name: "Ski Gear Tracker"
+      },
+      {
+        scheme: "EBikeServiceTracker",
+        bundle_id: "com.nordicassetsuite.ebike",
+        display_name: "E-Bike Service"
+      },
+      {
+        scheme: "CoffeeMachineCompanion",
+        bundle_id: "com.nordicassetsuite.coffee",
+        display_name: "Coffee Companion"
+      }
     ]
 
-    apps.each do |app|
-      UI.header("Deploying #{app[:name]} (#{app[:bundle_id]}) to TestFlight")
+    apps.each_with_index do |app, index|
+      UI.header("#{index + 1}/#{apps.length}  Deploying #{app[:display_name]} (#{app[:bundle_id]})")
 
-      # Download or generate App Store Provisioning Profile automatically via Connect API
-      begin
-        get_provisioning_profile(
-          api_key: api_key,
-          app_identifier: app[:bundle_id],
-          team_id: team_id,
-          adhoc: false
-        )
-      rescue => e
-        UI.message("Automatic profile fetch note: #{e.message}")
-      end
-      
+      # ── 5. Download or create App Store provisioning profile ──
+      sigh(
+        api_key: api_key,
+        app_identifier: app[:bundle_id],
+        team_id: team_id,
+        platform: "ios",
+        force: true   # Always regenerate to include the cert we just created
+      )
+
+      profile_name = lane_context[SharedValues::SIGH_NAME]
+      UI.message("Using profile: #{profile_name}")
+
+      # ── 6. Switch Xcode project to manual signing with our cert+profile ──
+      update_code_signing_settings(
+        path: "NordicAssetSuite.xcodeproj",
+        targets: [app[:scheme]],
+        use_automatic_signing: false,
+        team_id: team_id,
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile_name,
+        bundle_identifier: app[:bundle_id]
+      )
+
+      # ── 7. Archive and create signed IPA ──
       build_app(
         project: "NordicAssetSuite.xcodeproj",
         scheme: app[:scheme],
         output_directory: "build/ipa",
-        output_name: "#{app[:name]}.ipa",
+        output_name: "#{app[:scheme]}.ipa",
+        clean: (index == 0),   # Only clean on first build
         export_method: "app-store",
         export_team_id: team_id,
-        xcargs: (team_id && !team_id.empty?) ? "DEVELOPMENT_TEAM=#{team_id}" : nil,
-        export_xcargs: "-allowProvisioningUpdates",
-        skip_package_dependencies_resolution: false,
-        clean: true,
         export_options: {
           method: "app-store",
-          signingStyle: "automatic",
-          manageAppVersionAndBuildNumber: true,
-          teamID: team_id
+          signingStyle: "manual",
+          teamID: team_id,
+          provisioningProfiles: {
+            app[:bundle_id] => profile_name
+          }
         }
       )
 
+      # ── 8. Upload IPA to Apple TestFlight ──
       upload_to_testflight(
         api_key: api_key,
         app_identifier: app[:bundle_id],
-        ipa: "build/ipa/#{app[:name]}.ipa",
-        skip_waiting_for_build_processing: true
+        ipa: "build/ipa/#{app[:scheme]}.ipa",
+        skip_waiting_for_build_processing: true,
+        distribute_external: false
       )
-      
-      UI.success("Successfully uploaded #{app[:name]} to TestFlight!")
+
+      UI.success("✅ #{app[:display_name]} successfully uploaded to TestFlight!")
     end
+
+    UI.success("🎉 ALL 4 APPS UPLOADED TO TESTFLIGHT!")
   end
 end
