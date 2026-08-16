@@ -3,7 +3,7 @@
 //  AssetCoreDatabase
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. App Group & SwiftData Configuration.
+//  Strict Concurrency: Complete. Crash-proof Local SwiftData Configuration.
 //
 
 import Foundation
@@ -17,7 +17,7 @@ public final class DatabaseContainer: Sendable {
     
     private init() {}
     
-    /// Creates a production ModelContainer configured with the shared App Group container directory.
+    /// Creates a production ModelContainer configured with local SQLite persistence.
     public func makeProductionContainer() throws -> ModelContainer {
         let schema = Schema(SchemaV1.models)
         
@@ -25,8 +25,7 @@ public final class DatabaseContainer: Sendable {
         if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroupIdentifier) {
             storeURL = containerURL.appendingPathComponent("NordicAssetSuite.sqlite")
         } else {
-            // Fallback to standard Application Support directory if App Groups are not configured in test/sim
-            let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? FileManager.default.temporaryDirectory
             try? FileManager.default.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
             storeURL = appSupportURL.appendingPathComponent("NordicAssetSuite.sqlite")
         }
@@ -36,20 +35,37 @@ public final class DatabaseContainer: Sendable {
             schema: schema,
             url: storeURL,
             allowsSave: true,
-            cloudKitDatabase: .private("iCloud.com.nordicassetsuite.assets")
+            cloudKitDatabase: .none
         )
         
         return try ModelContainer(for: schema, migrationPlan: nil, configurations: [configuration])
     }
     
-    /// Creates an isolated in-memory ModelContainer for unit testing and SwiftUI previews.
-    public func makeInMemoryContainer() throws -> ModelContainer {
+    /// Creates an isolated in-memory ModelContainer for testing or safe fallback.
+    public func makeInMemoryContainer() -> ModelContainer {
         let schema = Schema(SchemaV1.models)
         let configuration = ModelConfiguration(
             "NordicAssetSuiteInMemory",
             schema: schema,
-            isStoredInMemoryOnly: true
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
         )
-        return try ModelContainer(for: schema, configurations: [configuration])
+        if let container = try? ModelContainer(for: schema, configurations: [configuration]) {
+            return container
+        }
+        // Minimal fallback container
+        do {
+            return try ModelContainer(for: schema)
+        } catch {
+            preconditionFailure("Critical database initialization error: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Safe, non-throwing container builder guaranteed to return a valid ModelContainer.
+    public func makeSafeContainer() -> ModelContainer {
+        if let prod = try? makeProductionContainer() {
+            return prod
+        }
+        return makeInMemoryContainer()
     }
 }

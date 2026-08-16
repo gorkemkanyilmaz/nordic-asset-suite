@@ -16,13 +16,7 @@ public struct CoffeeMachineApp: App {
     @State private var viewModel: CoffeeViewModel
     
     public init() {
-        let modelContainer: ModelContainer
-        do {
-            modelContainer = try DatabaseContainer.shared.makeProductionContainer()
-        } catch {
-            modelContainer = try! DatabaseContainer.shared.makeInMemoryContainer()
-        }
-        
+        let modelContainer = DatabaseContainer.shared.makeSafeContainer()
         _container = State(initialValue: modelContainer)
         let worker = DatabaseWorker(modelContainer: modelContainer)
         _viewModel = State(initialValue: CoffeeViewModel(databaseWorker: worker))

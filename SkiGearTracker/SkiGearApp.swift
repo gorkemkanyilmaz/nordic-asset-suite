@@ -16,13 +16,7 @@ public struct SkiGearApp: App {
     @State private var viewModel: SkiGearViewModel
     
     public init() {
-        let modelContainer: ModelContainer
-        do {
-            modelContainer = try DatabaseContainer.shared.makeProductionContainer()
-        } catch {
-            modelContainer = try! DatabaseContainer.shared.makeInMemoryContainer()
-        }
-        
+        let modelContainer = DatabaseContainer.shared.makeSafeContainer()
         _container = State(initialValue: modelContainer)
         let worker = DatabaseWorker(modelContainer: modelContainer)
         _viewModel = State(initialValue: SkiGearViewModel(databaseWorker: worker))
