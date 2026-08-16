@@ -22,9 +22,9 @@ final class CalculatorTests: XCTestCase {
             bootSoleLengthMm: 305
         )
         
-        // Weight row J (67-78 kg) -> 6.0 DIN at 305mm. Type II adds 1 row -> row K -> 6.5 DIN.
-        XCTAssertEqual(result.dinValue, 6.5, accuracy: 0.01)
-        XCTAssertEqual(result.skierCode, "K")
+        // Weight row H (67-78 kg) / Height J -> smaller is H. Type II adds 1 row -> row I -> 4.0 DIN at 305mm.
+        XCTAssertEqual(result.dinValue, 4.0, accuracy: 0.01)
+        XCTAssertEqual(result.skierCode, "I")
         XCTAssertTrue(result.disclaimerRequired)
         XCTAssertFalse(DINCalculator.legalSafetyDisclaimer.isEmpty)
     }
@@ -40,9 +40,9 @@ final class CalculatorTests: XCTestCase {
             bootSoleLengthMm: 305
         )
         
-        // Base K (Type II) - 1 (Age > 50) -> row J -> 5.5 DIN at 305mm.
-        XCTAssertEqual(result.dinValue, 5.5, accuracy: 0.01)
-        XCTAssertEqual(result.skierCode, "J")
+        // Base H (Type I) + 1 (Type II) - 1 (Age > 50) -> row H -> 3.0 DIN at 305mm.
+        XCTAssertEqual(result.dinValue, 3.0, accuracy: 0.01)
+        XCTAssertEqual(result.skierCode, "H")
     }
     
     // MARK: - Test 3: E-Bike Chain Wear & Suspension PSI

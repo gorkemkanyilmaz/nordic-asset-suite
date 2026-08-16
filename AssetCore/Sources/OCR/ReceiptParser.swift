@@ -14,9 +14,9 @@ public final class ReceiptParser: Sendable {
     
     private init() {}
     
-    // Currency Regex Patterns
+    // Currency Regex Patterns (supports Swiss apostrophe 1'949.00, EU dot 5.499,00, standard 1250.50)
     private let currencyRegex = try? NSRegularExpression(
-        pattern: #"(CHF|EUR|€|DKK|SEK|NOK|\$)\s*(\d{1,5}(?:[.,]\d{2,3})*(?:[.,]\d{2})?)|(\d{1,5}(?:[.,]\d{2,3})*(?:[.,]\d{2})?)\s*(CHF|EUR|€|DKK|SEK|NOK|kr|.-)"#,
+        pattern: #"(CHF|EUR|€|DKK|SEK|NOK|\$)\s*(\d{1,5}(?:[.,'’\s]\d{2,3})*(?:[.,]\d{2})?)|(\d{1,5}(?:[.,'’\s]\d{2,3})*(?:[.,]\d{2})?)\s*(CHF|EUR|€|DKK|SEK|NOK|kr|.-)"#,
         options: [.caseInsensitive]
     )
     
@@ -67,14 +67,13 @@ public final class ReceiptParser: Sendable {
             let lower = line.lowercased()
             let isTotalLine = totalKeywords.contains(where: { lower.contains($0) })
             
-            if isTotalLine || foundAmount == nil {
-                let (amt, curr) = parseAmountLine(line)
-                if let amt = amt {
+            let (amt, curr) = parseAmountLine(line)
+            if let amt = amt {
+                if isTotalLine {
+                    return (amt, curr)
+                } else if foundAmount == nil {
                     foundAmount = amt
                     foundCurrency = curr
-                    if isTotalLine {
-                        break // Prioritize explicit total keyword line
-                    }
                 }
             }
         }
@@ -115,13 +114,18 @@ public final class ReceiptParser: Sendable {
             normalizedCurrency = "CHF"
         }
         
-        // Clean amount string (e.g. 1'250.50 or 1.250,50 -> 1250.50)
-        let cleanedAmount = amountString
-            .replacingOccurrences(of: "'", with: "")
-            .replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: ",", with: ".")
+        // Parse numbers with comma or dot decimals:
+        // Case 1: 5.499,00 -> 5499.00
+        // Case 2: 1'949.00 -> 1949.00
+        var cleaned = amountString.replacingOccurrences(of: "'", with: "").replacingOccurrences(of: "’", with: "").replacingOccurrences(of: " ", with: "")
+        if cleaned.contains(",") && cleaned.contains(".") {
+            // e.g. 5.499,00
+            cleaned = cleaned.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: ",", with: ".")
+        } else if cleaned.contains(",") {
+            cleaned = cleaned.replacingOccurrences(of: ",", with: ".")
+        }
         
-        let decimal = Decimal(string: cleanedAmount)
+        let decimal = Decimal(string: cleaned)
         return (decimal, normalizedCurrency)
     }
     

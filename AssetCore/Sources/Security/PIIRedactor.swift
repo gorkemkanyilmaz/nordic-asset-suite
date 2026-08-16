@@ -29,24 +29,27 @@ public final class PIIRedactor: Sendable {
     
     private init() {}
     
-    // Regex Patterns
+    // Credit card pattern (supports spaces, dashes, and contiguous 13-19 digits)
     private let creditCardRegex = try? NSRegularExpression(
-        pattern: #"\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})\b"#,
+        pattern: #"\b(?:\d{4}[ -]?){3}\d{4}\b|\b(?:\d{4}[ -]?){2}\d{5}\b"#,
         options: []
     )
     
+    // Email pattern
     private let emailRegex = try? NSRegularExpression(
         pattern: #"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}"#,
         options: []
     )
     
+    // International / European / Swiss phone pattern (e.g. +41 44 123 45 67, +41 79 123 45 67, 079 123 45 67)
     private let phoneRegex = try? NSRegularExpression(
-        pattern: #"(?:\+\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}"#,
+        pattern: #"(?:\+\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?)?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}\b|(?:\+\d{1,3}[\s.-]?)?\d{2,4}[\s.-]?\d{3,4}[\s.-]?\d{3,4}\b"#,
         options: []
     )
     
+    // IBAN pattern (supports spaces or contiguous)
     private let ibanRegex = try? NSRegularExpression(
-        pattern: #"\b[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}\b"#,
+        pattern: #"\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){3,7}(?:[ ]?[A-Z0-9]{1,4})?\b"#,
         options: []
     )
     
@@ -54,24 +57,24 @@ public final class PIIRedactor: Sendable {
     public func redact(text: String, options: PIIRedactionOptions = .all) -> String {
         var sanitized = text
         
-        if options.contains(.creditCards), let regex = creditCardRegex {
-            let range = NSRange(location: 0, length: sanitized.utf16.count)
-            sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "[REDACTED_CARD]")
-        }
-        
         if options.contains(.emailAddresses), let regex = emailRegex {
             let range = NSRange(location: 0, length: sanitized.utf16.count)
             sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "[REDACTED_EMAIL]")
         }
         
-        if options.contains(.phoneNumbers), let regex = phoneRegex {
-            let range = NSRange(location: 0, length: sanitized.utf16.count)
-            sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "[REDACTED_PHONE]")
-        }
-        
         if options.contains(.ibanAndBank), let regex = ibanRegex {
             let range = NSRange(location: 0, length: sanitized.utf16.count)
             sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "[REDACTED_IBAN]")
+        }
+        
+        if options.contains(.creditCards), let regex = creditCardRegex {
+            let range = NSRange(location: 0, length: sanitized.utf16.count)
+            sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "[REDACTED_CARD]")
+        }
+        
+        if options.contains(.phoneNumbers), let regex = phoneRegex {
+            let range = NSRange(location: 0, length: sanitized.utf16.count)
+            sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "[REDACTED_PHONE]")
         }
         
         return sanitized

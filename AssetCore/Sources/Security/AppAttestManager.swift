@@ -3,33 +3,33 @@
 //  AssetCoreSecurity
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Hardware-backed Apple App Attest Key Service.
+//  Strict Concurrency: Complete. Hardware Key Generation & Assertion.
 //
 
 import Foundation
 import DeviceCheck
 import CryptoKit
 
-/// Errors encountered during Apple App Attest operations.
+/// Errors encountered during App Attest token generation and validation.
 public enum AppAttestError: Error, LocalizedError, Sendable {
     case featureUnsupported
     case keyGenerationFailed
-    case attestationFailed(reason: String)
-    case assertionGenerationFailed(reason: String)
-    case invalidChallengeData
+    case attestationFailed
+    case assertionFailed
+    case invalidChallenge
     
     public var errorDescription: String? {
         switch self {
         case .featureUnsupported:
-            return "Apple App Attest is not supported on this hardware environment."
+            return "DCAppAttestService is not supported on this device architecture."
         case .keyGenerationFailed:
-            return "Failed to generate Secure Enclave App Attest cryptographic key."
-        case .attestationFailed(let reason):
-            return "App Attest key attestation failed: \(reason)"
-        case .assertionGenerationFailed(let reason):
-            return "Failed to generate client assertion signature: \(reason)"
-        case .invalidChallengeData:
-            return "Supplied challenge token data is invalid."
+            return "Failed to generate Secure Enclave hardware key pair."
+        case .attestationFailed:
+            return "Apple App Attest certificate validation failed."
+        case .assertionFailed:
+            return "Failed to generate assertion signature for client request."
+        case .invalidChallenge:
+            return "Server challenge nonce is invalid or expired."
         }
     }
 }
@@ -38,75 +38,48 @@ public enum AppAttestError: Error, LocalizedError, Sendable {
 public actor AppAttestManager {
     public static let shared = AppAttestManager()
     
-    private let keyStorageKey = "com.nordicassetsuite.appattest.keyid"
-    private var currentKeyId: String? = nil
+    private let service = DCAppAttestService.shared
+    private var cachedKeyId: String? = nil
     
     private init() {}
     
-    /// Checks if device supports hardware App Attestation.
-    public var isSupported: Bool {
-        #if targetEnvironment(simulator)
+    /// Checks if App Attest hardware service is available on current runtime.
+    public func isHardwareAttestationAvailable() -> Bool {
+        #if targetEnvironment(simulator) || os(macOS)
         return false
         #else
-        return DCAppAttestService.shared.isSupported
+        return service.isSupported
         #endif
     }
     
-    /// Retrieves or generates a persistent App Attest Key ID in the Secure Enclave.
+    /// Retrieves existing hardware key ID or generates a new key in the Secure Enclave.
     public func getOrCreateKeyId() async throws -> String {
-        if let existing = currentKeyId {
+        if let existing = cachedKeyId {
             return existing
         }
         
-        #if targetEnvironment(simulator)
-        // Development / Simulator mock key
-        let mockKey = "SIMULATOR_DEV_APP_ATTEST_KEY_ID"
-        self.currentKeyId = mockKey
-        return mockKey
-        #else
-        guard isSupported else {
+        guard isHardwareAttestationAvailable() else {
             throw AppAttestError.featureUnsupported
         }
         
-        return try await withCheckedThrowingContinuation { continuation in
-            DCAppAttestService.shared.generateKey { keyId, error in
-                if let error = error {
-                    continuation.resume(throwing: AppAttestError.attestationFailed(reason: error.localizedDescription))
-                    return
-                }
-                guard let keyId = keyId else {
-                    continuation.resume(throwing: AppAttestError.keyGenerationFailed)
-                    return
-                }
-                self.currentKeyId = keyId
-                continuation.resume(returning: keyId)
-            }
+        do {
+            let keyId = try await service.generateKey()
+            self.cachedKeyId = keyId
+            return keyId
+        } catch {
+            throw AppAttestError.keyGenerationFailed
         }
-        #endif
     }
     
-    /// Generates a signed cryptographic assertion for a server-provided challenge string.
-    public func generateAssertion(for clientDataHash: Data) async throws -> Data {
+    /// Generates an assertion signature for a request payload hash using the hardware key.
+    public func generateAssertion(for challengeData: Data) async throws -> Data {
         let keyId = try await getOrCreateKeyId()
+        let clientDataHash = Data(SHA256.hash(data: challengeData))
         
-        #if targetEnvironment(simulator)
-        // Mock assertion signature for unit tests and simulator
-        let mockHash = SHA256.hash(data: clientDataHash)
-        return Data(mockHash)
-        #else
-        return try await withCheckedThrowingContinuation { continuation in
-            DCAppAttestService.shared.generateAssertion(keyId, clientDataHash: clientDataHash) { assertion, error in
-                if let error = error {
-                    continuation.resume(throwing: AppAttestError.assertionGenerationFailed(reason: error.localizedDescription))
-                    return
-                }
-                guard let assertion = assertion else {
-                    continuation.resume(throwing: AppAttestError.assertionGenerationFailed(reason: "Null assertion returned"))
-                    return
-                }
-                continuation.resume(returning: assertion)
-            }
+        do {
+            return try await service.generateAssertion(keyId, clientDataHash: clientDataHash)
+        } catch {
+            throw AppAttestError.assertionFailed
         }
-        #endif
     }
 }

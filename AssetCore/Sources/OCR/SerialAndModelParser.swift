@@ -37,15 +37,15 @@ public final class SerialAndModelParser: Sendable {
         "profitec": "Profitec", "gaggia": "Gaggia", "lelit": "Lelit"
     ]
     
-    // Serial Number Regex Patterns
+    // Serial Number Regex Patterns (prioritizes explicit serial keywords)
     private let serialRegex = try? NSRegularExpression(
-        pattern: #"(?:SN|S\/N|Serial|Seriennummer|Serien-Nr|Frame\s*No|Nr\.?)\s*[:.\-]?\s*([A-Z0-9\-_]{5,24})"#,
+        pattern: #"(?:Seriennummer|Serien-Nr|Serial(?:\s*No|\s*Number)?|S\/N|SN|Frame\s*No)\s*[:.\-]?\s*([A-Z0-9\-_]{5,24})"#,
         options: [.caseInsensitive]
     )
     
     // Model Number Regex Patterns
     private let modelRegex = try? NSRegularExpression(
-        pattern: #"(?:Mod(?:el)?|Type|Typ|Modell|Art\.?\s*Nr\.?)\s*[:.\-]?\s*([A-Z0-9\-_]{3,20})"#,
+        pattern: #"(?:Mod(?:el)?|Type|Typ|Modell)\s*[:.\-]?\s*([A-Z0-9\-_]{3,20})"#,
         options: [.caseInsensitive]
     )
     
@@ -67,12 +67,19 @@ public final class SerialAndModelParser: Sendable {
     
     private func detectBrand(from text: String) -> String? {
         let lower = text.lowercased()
+        var earliestIndex = Int.max
+        var foundBrand: String? = nil
+        
         for (key, officialName) in knownBrands {
-            if lower.contains(key) {
-                return officialName
+            if let range = lower.range(of: key) {
+                let index = lower.distance(from: lower.startIndex, to: range.lowerBound)
+                if index < earliestIndex {
+                    earliestIndex = index
+                    foundBrand = officialName
+                }
             }
         }
-        return nil
+        return foundBrand
     }
     
     private func extractSerial(from text: String) -> String? {
@@ -83,7 +90,7 @@ public final class SerialAndModelParser: Sendable {
             return nsText.substring(with: match.range(at: 1)).trimmingCharacters(in: .whitespaces)
         }
         
-        // Fallback: look for standalone alphanumeric strings (6-16 chars with both letters and digits)
+        // Fallback: look for standalone alphanumeric strings (7-18 chars with both letters and digits)
         let words = text.components(separatedBy: .whitespacesAndNewlines)
         for word in words {
             let cleaned = word.trimmingCharacters(in: .punctuationCharacters)
@@ -111,13 +118,13 @@ public final class SerialAndModelParser: Sendable {
     
     private func inferCategory(from text: String, brand: String?) -> String? {
         let lower = text.lowercased()
-        if lower.contains("dishwasher") || lower.contains("geschirrspüler") || lower.contains("waschmaschine") || lower.contains("oven") || lower.contains("backofen") {
+        if lower.contains("dishwasher") || lower.contains("geschirrspüler") || lower.contains("waschmaschine") || lower.contains("adorawaschen") || lower.contains("waschen") || lower.contains("oven") || lower.contains("backofen") || lower.contains("v-zug") || lower.contains("miele") {
             return "Appliance"
         }
-        if lower.contains("ski") || lower.contains("binding") || lower.contains("din") || lower.contains("sole") {
+        if lower.contains("ski") || lower.contains("binding") || lower.contains("din") || lower.contains("sole") || lower.contains("stöckli") || lower.contains("atomic") {
             return "SkiGear"
         }
-        if lower.contains("ebike") || lower.contains("e-bike") || lower.contains("pedelec") || lower.contains("frame") || lower.contains("motor") {
+        if lower.contains("ebike") || lower.contains("e-bike") || lower.contains("pedelec") || lower.contains("frame") || lower.contains("motor") || lower.contains("drive unit") || lower.contains("scott") {
             return "EBike"
         }
         if lower.contains("espresso") || lower.contains("coffee") || lower.contains("barista") || lower.contains("jura") || lower.contains("descaling") {

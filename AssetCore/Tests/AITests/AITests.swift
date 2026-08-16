@@ -30,8 +30,11 @@ final class AITests: XCTestCase {
         XCTAssertFalse(sanitized.contains("4532 1120 4491 8820"), "Credit card must be scrubbed before transmission.")
         XCTAssertFalse(sanitized.contains("max.mustermann@bluewin.ch"), "Email must be scrubbed.")
         XCTAssertFalse(sanitized.contains("+41 44 123 45 67"), "Phone number must be scrubbed.")
+        XCTAssertFalse(sanitized.contains("CH93 0076 2011 6238 5295 7"), "IBAN must be scrubbed.")
         XCTAssertTrue(sanitized.contains("[REDACTED_CARD]"))
         XCTAssertTrue(sanitized.contains("[REDACTED_EMAIL]"))
+        XCTAssertTrue(sanitized.contains("[REDACTED_PHONE]"))
+        XCTAssertTrue(sanitized.contains("[REDACTED_IBAN]"))
         XCTAssertTrue(sanitized.contains("V-ZUG AdoraWaschen V4000"), "Hardware metadata must be preserved.")
     }
     
