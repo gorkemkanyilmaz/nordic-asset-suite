@@ -170,7 +170,8 @@ platform :ios do
         app_identifier: app[:bundle_id],
         ipa: ipa_path,
         skip_waiting_for_build_processing: true,
-        distribute_external: false
+        distribute_external: false,
+        uses_non_exempt_encryption: false
       )
 
       UI.success("✅ #{app[:display]} successfully uploaded to TestFlight!")

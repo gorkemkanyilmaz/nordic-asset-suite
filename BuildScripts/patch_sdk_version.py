@@ -98,7 +98,9 @@ def patch_app_bundle(app_path):
             ["/usr/libexec/PlistBuddy", "-c", "Set :DTSDKBuild 26A5288g", info_plist],
             ["/usr/libexec/PlistBuddy", "-c", "Add :DTSDKBuild string 26A5288g", info_plist],
             ["/usr/libexec/PlistBuddy", "-c", "Set :BuildMachineOSBuild 24A335", info_plist],
-            ["/usr/libexec/PlistBuddy", "-c", "Add :BuildMachineOSBuild string 24A335", info_plist]
+            ["/usr/libexec/PlistBuddy", "-c", "Add :BuildMachineOSBuild string 24A335", info_plist],
+            ["/usr/libexec/PlistBuddy", "-c", "Set :ITSAppUsesNonExemptEncryption false", info_plist],
+            ["/usr/libexec/PlistBuddy", "-c", "Add :ITSAppUsesNonExemptEncryption bool false", info_plist]
         ]
         for cmd in cmds:
             subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
