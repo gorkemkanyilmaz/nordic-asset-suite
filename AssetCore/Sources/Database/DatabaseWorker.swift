@@ -3,7 +3,7 @@
 //  AssetCoreDatabase
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. @ModelActor Pattern with Safe Sendable Insertion.
+//  Strict Concurrency: Complete. @ModelActor Pattern with Safe Sendable & Entity Insertion.
 //
 
 import Foundation
@@ -33,6 +33,11 @@ public actor DatabaseWorker {
                 filterCount: entity.filterSpecifications?.count ?? 0
             )
         }
+    }
+    
+    public func insertAppliance(_ appliance: ApplianceEntity) throws {
+        modelContext.insert(appliance)
+        try modelContext.save()
     }
     
     public func createAndInsertAppliance(
@@ -98,6 +103,11 @@ public actor DatabaseWorker {
         }
     }
     
+    public func insertSkiGear(_ gear: SkiGearEntity) throws {
+        modelContext.insert(gear)
+        try modelContext.save()
+    }
+    
     public func createAndInsertSkiGear(
         id: UUID = UUID(),
         brand: String,
@@ -161,6 +171,11 @@ public actor DatabaseWorker {
         }
     }
     
+    public func insertEBike(_ bike: EBikeEntity) throws {
+        modelContext.insert(bike)
+        try modelContext.save()
+    }
+    
     public func createAndInsertEBike(
         id: UUID = UUID(),
         brand: String,
@@ -221,6 +236,11 @@ public actor DatabaseWorker {
                 daysSinceLastDescale: daysSinceDescale
             )
         }
+    }
+    
+    public func insertCoffeeMachine(_ machine: CoffeeMachineEntity) throws {
+        modelContext.insert(machine)
+        try modelContext.save()
     }
     
     public func createAndInsertCoffeeMachine(
