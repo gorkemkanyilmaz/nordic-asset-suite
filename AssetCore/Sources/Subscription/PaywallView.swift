@@ -162,7 +162,9 @@ public struct PaywallView: View {
                 .padding()
             }
             .background(theme.backgroundGrouped)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }

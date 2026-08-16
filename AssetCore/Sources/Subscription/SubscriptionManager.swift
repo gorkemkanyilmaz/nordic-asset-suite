@@ -17,30 +17,27 @@ public actor SubscriptionManager {
     private var cachedEntitlement: UserEntitlementSnapshot = UserEntitlementSnapshot(level: .free)
     
     public init() {
-        startTransactionListener()
-    }
-    
-    deinit {
-        transactionListenerTask?.cancel()
-    }
-    
-    /// Starts background listening for StoreKit 2 transaction updates.
-    public func startTransactionListener() {
-        guard transactionListenerTask == nil else { return }
-        
-        transactionListenerTask = Task.detached { [weak self] in
+        self.transactionListenerTask = Task.detached {
             for await result in Transaction.updates {
                 do {
-                    let transaction = try self?.checkVerified(result)
-                    if let transaction = transaction {
-                        await self?.updateEntitlementsFromTransaction(transaction)
-                        await transaction.finish()
+                    let transaction: Transaction
+                    switch result {
+                    case .unverified(_, let error):
+                        throw error
+                    case .verified(let safe):
+                        transaction = safe
                     }
+                    await SubscriptionManager.shared.updateEntitlementsFromTransaction(transaction)
+                    await transaction.finish()
                 } catch {
                     // Verification failure or revoked transaction
                 }
             }
         }
+    }
+    
+    deinit {
+        transactionListenerTask?.cancel()
     }
     
     /// Verifies JWS cryptographic signature from Apple StoreKit.
