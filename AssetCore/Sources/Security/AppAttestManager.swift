@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import DeviceCheck
+@preconcurrency import DeviceCheck
 import CryptoKit
 
 /// Errors encountered during App Attest token generation and validation.
@@ -38,7 +38,6 @@ public enum AppAttestError: Error, LocalizedError, Sendable {
 public actor AppAttestManager {
     public static let shared = AppAttestManager()
     
-    private let service = DCAppAttestService.shared
     private var cachedKeyId: String? = nil
     
     private init() {}
@@ -48,7 +47,7 @@ public actor AppAttestManager {
         #if targetEnvironment(simulator) || os(macOS)
         return false
         #else
-        return service.isSupported
+        return DCAppAttestService.shared.isSupported
         #endif
     }
     
@@ -62,13 +61,17 @@ public actor AppAttestManager {
             throw AppAttestError.featureUnsupported
         }
         
+        #if os(iOS)
         do {
-            let keyId = try await service.generateKey()
+            let keyId = try await DCAppAttestService.shared.generateKey()
             self.cachedKeyId = keyId
             return keyId
         } catch {
             throw AppAttestError.keyGenerationFailed
         }
+        #else
+        throw AppAttestError.featureUnsupported
+        #endif
     }
     
     /// Generates an assertion signature for a request payload hash using the hardware key.
@@ -76,10 +79,14 @@ public actor AppAttestManager {
         let keyId = try await getOrCreateKeyId()
         let clientDataHash = Data(SHA256.hash(data: challengeData))
         
+        #if os(iOS)
         do {
-            return try await service.generateAssertion(keyId, clientDataHash: clientDataHash)
+            return try await DCAppAttestService.shared.generateAssertion(keyId, clientDataHash: clientDataHash)
         } catch {
             throw AppAttestError.assertionFailed
         }
+        #else
+        throw AppAttestError.featureUnsupported
+        #endif
     }
 }
