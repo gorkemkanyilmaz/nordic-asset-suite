@@ -15,8 +15,10 @@ jobs:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 2. Setup Xcode 16 Toolchain
-        run: sudo xcode-select -s /Applications/Xcode_16.0.app
+      - name: 2. Setup Xcode Toolchain
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
 
       - name: 3. Audit Swift 6 Concurrency & Run All Unit Tests
         run: |
