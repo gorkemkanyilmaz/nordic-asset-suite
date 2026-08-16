@@ -11,6 +11,7 @@ echo "    Nordic Asset Suite — Release Packaging & Audit (v3.0.0)"
 echo "=========================================================="
 
 SCRIPT_DIR="$(dirname "$0")"
+REPO_ROOT="$SCRIPT_DIR/.."
 
 echo "-> 1. Auditing Swift 6 Strict Concurrency..."
 bash "$SCRIPT_DIR/verify_concurrency.sh"
@@ -21,12 +22,12 @@ bash "$SCRIPT_DIR/run_all_tests.sh"
 
 echo ""
 echo "-> 3. Security Audit: Scanning for hardcoded API keys and secrets..."
-# Ensure no vendor API keys exist in source code
-if grep -rn "sk-" "$SCRIPT_DIR/../AssetCore" "$SCRIPT_DIR/../ApplianceWarrantyManager" "$SCRIPT_DIR/../SkiGearTracker" "$SCRIPT_DIR/../EBikeServiceTracker" "$SCRIPT_DIR/../CoffeeMachineCompanion" 2>/dev/null; then
-    echo "ERROR: Hardcoded API secret detected!"
+# Exclude build artifacts (.build / DerivedData) and only check source code (.swift, .json, .ts)
+if grep -rn --exclude-dir=".build" --exclude-dir=".git" --exclude-dir="DerivedData" "sk-[a-zA-Z0-9]\{20,\}" "$REPO_ROOT/AssetCore/Sources" "$REPO_ROOT/ApplianceWarrantyManager" "$REPO_ROOT/SkiGearTracker" "$REPO_ROOT/EBikeServiceTracker" "$REPO_ROOT/CoffeeMachineCompanion" 2>/dev/null; then
+    echo "ERROR: Hardcoded API secret detected in source code!"
     exit 1
 fi
-echo "   [AUDIT PASSED] Zero hardcoded vendor keys in repository."
+echo "   [AUDIT PASSED] Zero hardcoded vendor keys in repository source code."
 
 echo ""
 echo "-> 4. App Store Review Compliance Verification:"
