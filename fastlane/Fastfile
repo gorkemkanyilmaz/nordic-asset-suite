@@ -1,5 +1,5 @@
 # Fastfile — Nordic Asset Suite
-# CI Pipeline: create_keychain → WWDR certs → cert → sigh → manual signing → build → upload
+# CI Pipeline: keychain → WWDR → revoke stale certs → cert → sigh → manual signing → build → upload
 
 default_platform(:ios)
 
@@ -16,7 +16,7 @@ platform :ios do
     UI.user_error!("Missing APP_STORE_CONNECT_PRIVATE_KEY") if key_content.to_s.empty?
     UI.user_error!("Missing APPLE_TEAM_ID") if team_id.to_s.empty?
 
-    # ── 1. Create a dedicated CI keychain with a known password ──
+    # ── 1. Create a dedicated CI keychain ──
     kc_name     = "ci_signing"
     kc_password = "ci_keychain_password"
     kc_path     = File.expand_path("~/Library/Keychains/#{kc_name}-db")
@@ -32,7 +32,6 @@ platform :ios do
     )
 
     # ── 2. Install Apple WWDR intermediate certificates ──
-    # Required for the signing chain to validate properly.
     ["AppleWWDRCAG3.cer", "AppleWWDRCAG6.cer"].each do |cert_name|
       local = "/tmp/#{cert_name}"
       sh("curl -sL 'https://www.apple.com/certificateauthority/#{cert_name}' -o '#{local}'")
@@ -52,8 +51,33 @@ platform :ios do
       in_house: false
     )
 
-    # ── 4. Generate or download Apple Distribution certificate ──
-    # Explicitly target our CI keychain so the cert+private key are stored there.
+    # ── 4. Revoke all orphaned distribution certificates ──
+    # Previous CI runs created certs whose private keys are lost.
+    # Apple allows max 3 distribution certs. We must clear them first.
+    require 'spaceship'
+    begin
+      token = Spaceship::ConnectAPI::Token.create(
+        key_id: key_id,
+        issuer_id: issuer_id,
+        key: key_content
+      )
+      Spaceship::ConnectAPI.token = token
+
+      all_certs = Spaceship::ConnectAPI::Certificate.all
+      dist_certs = all_certs.select { |c|
+        ["DISTRIBUTION", "IOS_DISTRIBUTION"].include?(c.certificate_type)
+      }
+      UI.message("Found #{dist_certs.length} distribution certificate(s) on Apple Developer portal.")
+      dist_certs.each do |c|
+        UI.message("Revoking orphaned certificate: #{c.id} (#{c.display_name})")
+        c.delete!
+      end
+      UI.success("All stale certificates revoked. Ready to create a fresh one.")
+    rescue => e
+      UI.important("Certificate cleanup note: #{e.message}")
+    end
+
+    # ── 5. Generate fresh Apple Distribution certificate ──
     cert(
       api_key: api_key,
       team_id: team_id,
@@ -62,7 +86,7 @@ platform :ios do
       keychain_password: kc_password
     )
 
-    # ── 5. Deploy each application ──
+    # ── 6. Deploy each application ──
     apps = [
       { scheme: "ApplianceWarrantyManager", bundle_id: "com.nordicassetsuite.appliance", display: "Appliance Warranty" },
       { scheme: "SkiGearTracker",           bundle_id: "com.nordicassetsuite.skigear",   display: "Ski Gear Tracker" },
@@ -73,7 +97,7 @@ platform :ios do
     apps.each_with_index do |app, idx|
       UI.header("#{idx + 1}/#{apps.length}  #{app[:display]} (#{app[:bundle_id]})")
 
-      # ── 6. Download or create App Store provisioning profile ──
+      # ── 7. Download or create App Store provisioning profile ──
       sigh(
         api_key: api_key,
         app_identifier: app[:bundle_id],
@@ -85,7 +109,7 @@ platform :ios do
       profile_name = lane_context[SharedValues::SIGH_NAME]
       UI.message("Profile: #{profile_name}")
 
-      # ── 7. Configure manual signing in the Xcode project ──
+      # ── 8. Configure manual signing in Xcode project ──
       update_code_signing_settings(
         path: "NordicAssetSuite.xcodeproj",
         targets: [app[:scheme]],
@@ -96,7 +120,7 @@ platform :ios do
         bundle_identifier: app[:bundle_id]
       )
 
-      # ── 8. Archive and create signed IPA ──
+      # ── 9. Archive and create signed IPA ──
       build_app(
         project: "NordicAssetSuite.xcodeproj",
         scheme: app[:scheme],
@@ -116,7 +140,7 @@ platform :ios do
         }
       )
 
-      # ── 9. Upload IPA to TestFlight ──
+      # ── 10. Upload IPA to TestFlight ──
       upload_to_testflight(
         api_key: api_key,
         app_identifier: app[:bundle_id],
@@ -128,7 +152,7 @@ platform :ios do
       UI.success("✅ #{app[:display]} uploaded to TestFlight!")
     end
 
-    # ── 10. Cleanup ──
+    # ── Cleanup ──
     delete_keychain(name: kc_name)
     UI.success("🎉 ALL 4 APPS UPLOADED TO TESTFLIGHT!")
   end
