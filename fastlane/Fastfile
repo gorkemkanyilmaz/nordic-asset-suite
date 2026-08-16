@@ -31,6 +31,18 @@ platform :ios do
 
     apps.each do |app|
       UI.header("Deploying #{app[:name]} (#{app[:bundle_id]}) to TestFlight")
+
+      # Download or generate App Store Provisioning Profile automatically via Connect API
+      begin
+        get_provisioning_profile(
+          api_key: api_key,
+          app_identifier: app[:bundle_id],
+          team_id: team_id,
+          adhoc: false
+        )
+      rescue => e
+        UI.message("Automatic profile fetch note: #{e.message}")
+      end
       
       build_app(
         project: "NordicAssetSuite.xcodeproj",
@@ -40,12 +52,14 @@ platform :ios do
         export_method: "app-store",
         export_team_id: team_id,
         xcargs: (team_id && !team_id.empty?) ? "DEVELOPMENT_TEAM=#{team_id}" : nil,
+        export_xcargs: "-allowProvisioningUpdates",
         skip_package_dependencies_resolution: false,
         clean: true,
         export_options: {
           method: "app-store",
           signingStyle: "automatic",
-          manageAppVersionAndBuildNumber: true
+          manageAppVersionAndBuildNumber: true,
+          teamID: team_id
         }
       )
 
