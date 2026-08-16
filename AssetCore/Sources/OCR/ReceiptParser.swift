@@ -68,7 +68,8 @@ public final class ReceiptParser: Sendable {
             let isTotalLine = totalKeywords.contains(where: { lower.contains($0) })
             
             if isTotalLine || foundAmount == nil {
-                if let (amt, curr) = parseAmountLine(line) {
+                let (amt, curr) = parseAmountLine(line)
+                if let amt = amt {
                     foundAmount = amt
                     foundCurrency = curr
                     if isTotalLine {

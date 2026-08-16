@@ -51,6 +51,15 @@ let package = Package(
             ]
         ),
 
+        // MARK: - Core UI Components (Design System Primitives)
+        .target(
+            name: "AssetCoreUIComponents",
+            dependencies: [
+                "AssetCoreLocalization"
+            ],
+            path: "Sources/UIComponents"
+        ),
+
         // MARK: - Core Database (SwiftData & Schema Engine)
         .target(
             name: "AssetCoreDatabase",
@@ -134,7 +143,9 @@ let package = Package(
         .target(
             name: "AssetCoreSubscription",
             dependencies: [
-                "AssetCoreSecurity"
+                "AssetCoreSecurity",
+                "AssetCoreUIComponents",
+                "AssetCoreLocalization"
             ],
             path: "Sources/Subscription"
         ),
@@ -163,15 +174,6 @@ let package = Package(
             name: "AssetCoreAnalytics",
             dependencies: [],
             path: "Sources/Analytics"
-        ),
-
-        // MARK: - Core UI Components (Design System Primitives)
-        .target(
-            name: "AssetCoreUIComponents",
-            dependencies: [
-                "AssetCoreLocalization"
-            ],
-            path: "Sources/UIComponents"
         ),
 
         // MARK: - Test Targets

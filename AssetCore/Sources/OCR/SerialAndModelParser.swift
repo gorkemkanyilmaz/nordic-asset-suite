@@ -51,8 +51,6 @@ public final class SerialAndModelParser: Sendable {
     
     /// Parses raw OCR text lines from a rating badge into structured serial data.
     public func parseBadge(from ocrText: String, confidenceScore: Float) -> ParsedSerialData {
-        let lines = ocrText.components(separatedBy: .newlines).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-        
         let detectedBrand = detectBrand(from: ocrText)
         let detectedSerial = extractSerial(from: ocrText)
         let detectedModel = extractModel(from: ocrText)
