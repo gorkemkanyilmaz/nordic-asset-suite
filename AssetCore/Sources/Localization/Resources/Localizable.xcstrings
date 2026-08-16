@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "action_calculate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Beregn" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Berechnen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Calculate" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Calculer" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Calcola" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Beregn" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Beräkna" } }
+      }
+    },
+    "action_restore_purchases" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Gendan køb" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Käufe wiederherstellen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore Purchases" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Restaurer les achats" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ripristina acquisti" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Gjenopprett kjøp" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Återställ köp" } }
+      }
+    },
+    "ski_safety_disclaimer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Få altid dine bindinger justeret og testet af en certificeret skitekniker." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Lassen Sie Bindungen vor dem Skifahren immer von einem zertifizierten Skitechniker einstellen und prüfen." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Always have bindings adjusted and tested by a certified ski technician before skiing." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Faites toujours ajuster et vérifier vos fixations par un technicien certifié avant de skier." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Fai sempre regolare e controllare gli attacchi da un tecnico certificato prima di sciare." } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Få alltid bindingene justert og testet av en sertifisert skitekniker." } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Låt alltid en certifierad skidtekniker justera och testa dina bindningar." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

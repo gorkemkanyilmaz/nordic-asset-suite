@@ -1,0 +1,188 @@
+{
+  "identifier" : "E2B7A890",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "CHE",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21498101",
+      "localizations" : [
+        {
+          "description" : "Unlock unlimited appliances, AI error diagnosis, and CloudKit sync.",
+          "displayName" : "Appliance Pro",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Unbegrenzte Geräte, KI-Fehlerdiagnose und CloudKit-Synchronisation.",
+          "displayName" : "Haushalt Pro",
+          "locale" : "de_CH"
+        }
+      ],
+      "name" : "Appliance Warranty Pro Group",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "3.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "300101",
+          "introductoryOffer" : {
+            "internalID" : "400101",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Monthly Pro access with 7-day free trial",
+              "displayName" : "Appliance Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.nordicassetsuite.appliance.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Appliance Pro Monthly",
+          "subscriptionGroupID" : "21498101",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "300102",
+          "introductoryOffer" : {
+            "internalID" : "400102",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Annual Pro access with 7-day free trial (Save 37%)",
+              "displayName" : "Appliance Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.nordicassetsuite.appliance.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Appliance Pro Annual",
+          "subscriptionGroupID" : "21498101",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    },
+    {
+      "id" : "21498102",
+      "localizations" : [
+        {
+          "description" : "Full access across all 4 Nordic Asset Suite apps.",
+          "displayName" : "Nordic Suite Pass",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Nordic Suite Universal Group",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "300901",
+          "introductoryOffer" : {
+            "internalID" : "400901",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "All 4 apps unlocked: Appliance, Ski, E-Bike & Coffee",
+              "displayName" : "Nordic Suite Pass Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.nordicassetsuite.all.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Nordic Suite Pass Annual",
+          "subscriptionGroupID" : "21498102",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

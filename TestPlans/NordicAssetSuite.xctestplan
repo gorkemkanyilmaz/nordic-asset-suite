@@ -1,0 +1,71 @@
+{
+  "configurations" : [
+    {
+      "id" : "8F91B12A-1029-4A73-8C21-6D991A89D201",
+      "name" : "Standard (Switzerland de_CH)",
+      "options" : {
+        "codeCoverage" : {
+          "targets" : [
+            {
+              "containerPath" : "container:AssetCore",
+              "identifier" : "AssetCore"
+            }
+          ]
+        },
+        "language" : "de",
+        "region" : "CH"
+      }
+    },
+    {
+      "id" : "8F91B12A-1029-4A73-8C21-6D991A89D202",
+      "name" : "Nordic (Denmark da_DK)",
+      "options" : {
+        "language" : "da",
+        "region" : "DK"
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:AssetCore",
+        "identifier" : "AssetCoreDatabaseTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AssetCore",
+        "identifier" : "AssetCoreSecurityTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AssetCore",
+        "identifier" : "AssetCoreSubscriptionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AssetCore",
+        "identifier" : "AssetCoreOCRTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AssetCore",
+        "identifier" : "AssetCoreAITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AssetCore",
+        "identifier" : "AssetCoreLocalizationTests"
+      }
+    }
+  ],
+  "version" : 1
+}

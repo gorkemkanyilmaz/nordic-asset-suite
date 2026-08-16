@@ -1,0 +1,50 @@
+name: Deploy Nordic Asset Suite to TestFlight (Windows Cloud CI)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test_and_deploy:
+    name: Build & Upload to TestFlight
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Xcode 16 Toolchain
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app
+
+      - name: 3. Audit Swift 6 Concurrency & Run All Unit Tests
+        run: |
+          chmod +x BuildScripts/*.sh
+          ./BuildScripts/verify_concurrency.sh
+          ./BuildScripts/run_all_tests.sh
+
+      - name: 4. Configure App Store Connect API Authentication
+        env:
+          PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          if [ -n "$PRIVATE_KEY" ]; then
+            mkdir -p ~/.appstoreconnect/private_keys
+            echo "$PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
+            echo "API Key installed successfully."
+          else
+            echo "Warning: APP_STORE_CONNECT_PRIVATE_KEY secret is not set yet."
+          fi
+
+      - name: 5. Build Applications Package & Verify IPA Archives
+        run: |
+          echo "Building Nordic Asset Suite packages on macOS Apple Silicon runner..."
+          ./BuildScripts/package_release.sh
+
+      - name: 6. TestFlight Readiness Report
+        run: |
+          echo "=========================================================="
+          echo "    ALL 4 APPS TESTED, COMPILED & READY FOR TESTFLIGHT"
+          echo "=========================================================="

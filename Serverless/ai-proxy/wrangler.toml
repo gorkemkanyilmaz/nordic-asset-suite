@@ -1,0 +1,13 @@
+name = "nordic-asset-suite-ai-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-05-29"
+
+[vars]
+ENVIRONMENT = "production"
+DEFAULT_MODEL = "gemini-1.5-flash"
+FALLBACK_MODEL = "grok-2"
+
+# Secrets required in Cloudflare Worker dashboard (wrangler secret put <NAME>):
+# GEMINI_API_KEY
+# GROK_API_KEY
+# APPLE_APP_ATTEST_KEY

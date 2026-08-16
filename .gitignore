@@ -1,0 +1,38 @@
+# Xcode
+.DS_Store
+*/.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+project.xcworkspace/xcuserdata/
+*.xcuserdatad
+*.moved-aside
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+Packages
+.swiftpm/xcode/
+
+# Secrets & Environment Variables (STRICT SECURITY: Section 11)
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.cer
+*.mobileprovision
+*.keychain
+AuthKey_*.p8
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Temporary files
+*.swp
+*~
