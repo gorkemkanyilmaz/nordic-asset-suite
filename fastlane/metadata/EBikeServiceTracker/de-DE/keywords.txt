@@ -1,0 +1,1 @@
+fahrrad,velo,bremsbelag,federgabel,reifendruck,werkstatt,inspektion,motor,kilometer,serviceheft

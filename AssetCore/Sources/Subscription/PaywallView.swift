@@ -24,7 +24,7 @@ public struct PaywallView: View {
     
     public init(
         theme: any AppDesignTheme,
-        appTitle: String = "Nordic Pro",
+        appTitle: String = "Pro",
         triggerReason: String = "Unlock unlimited assets, AI diagnostics, and CloudKit multi-device sync."
     ) {
         self.theme = theme

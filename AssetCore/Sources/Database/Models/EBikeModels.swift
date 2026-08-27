@@ -14,6 +14,7 @@ import SwiftData
 @Model
 public final class EBikeEntity {
     public var id: UUID = UUID()
+    public var canonicalProductId: String? = nil // References CanonicalProductEntity
     public var brand: String = ""
     public var modelName: String = ""
     public var frameNumber: String = ""
@@ -40,6 +41,7 @@ public final class EBikeEntity {
     
     public init(
         id: UUID = UUID(),
+        canonicalProductId: String? = nil,
         brand: String,
         modelName: String,
         frameNumber: String = "",
@@ -53,6 +55,7 @@ public final class EBikeEntity {
         bikePhotoData: Data? = nil
     ) {
         self.id = id
+        self.canonicalProductId = canonicalProductId
         self.brand = brand
         self.modelName = modelName
         self.frameNumber = frameNumber

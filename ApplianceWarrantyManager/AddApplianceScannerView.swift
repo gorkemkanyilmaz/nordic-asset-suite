@@ -3,126 +3,212 @@
 //  ApplianceWarrantyManager
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Vision OCR & Multimodal AI Ingestion Sheet.
+//  Strict Concurrency: Complete. Vision OCR & Multimodal AI Ingestion Sheet with Live Camera.
 //
 
 import SwiftUI
 import AssetCoreUIComponents
 import AssetCoreOCR
 import AssetCoreAI
+import AssetCoreLocalization
 
 public struct AddApplianceScannerView: View {
     @Environment(\.dismiss) private var dismiss
+    private let lang = LanguageManager.shared
     
     private let theme = ApplianceTheme()
-    private let onAdd: (String, String, String, String, Decimal, String) -> Void
+    public let onConfirmMatch: (ProductCandidateMatch) -> Void
+    public let onManualAdd: (String, String, String, String, Decimal, String) -> Void
     
+    @State private var showingLiveCamera: Bool = true
+    @State private var manualSearchText: String = ""
     @State private var brand: String = ""
     @State private var modelName: String = ""
     @State private var serialNumber: String = ""
     @State private var roomLocation: String = "Kitchen"
-    @State private var purchasePriceText: String = "1250.00"
+    @State private var purchasePriceText: String = "1450.00"
     @State private var currencyCode: String = "CHF"
-    @State private var isScanning: Bool = false
-    @State private var scanStatusMessage: String? = nil
+    @State private var isProcessingAI: Bool = false
+    @State private var identifiedMatch: ProductCandidateMatch? = nil
     
-    private let roomOptions = ["Kitchen", "Laundry Room", "Bathroom", "Basement", "Living Room", "Utility Closet"]
+    private var roomOptions: [String] {
+        [lang.t(.kitchen), lang.t(.livingRoom), lang.t(.laundryRoom), lang.t(.applianceRoomBathroom), lang.t(.basement), lang.t(.utilityCloset), lang.t(.office)]
+    }
     
-    public init(onAdd: @escaping (String, String, String, String, Decimal, String) -> Void) {
-        self.onAdd = onAdd
+    public init(
+        onConfirmMatch: @escaping (ProductCandidateMatch) -> Void,
+        onManualAdd: @escaping (String, String, String, String, Decimal, String) -> Void
+    ) {
+        self.onConfirmMatch = onConfirmMatch
+        self.onManualAdd = onManualAdd
     }
     
     public var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("Smart Ingestion (Apple Vision & AI)")) {
-                    Button(action: performSimulatedScan) {
-                        HStack {
-                            Image(systemName: "camera.viewfinder")
-                                .font(.title3)
-                                .foregroundColor(theme.primaryAccent)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Scan Rating Badge / Receipt")
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(theme.textPrimary)
-                                Text("Auto-detects Brand, Serial, Model, & Price")
+            ZStack {
+                Form {
+                    Section(header: Text(lang.t(.smartIngestion))) {
+                        Button(action: { showingLiveCamera = true }) {
+                            HStack {
+                                Image(systemName: "camera.viewfinder")
+                                    .font(.title2)
+                                    .foregroundColor(.cyan)
+                                
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(lang.t(.openLiveCamera))
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text(lang.t(.scansBarcodes))
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
                                     .font(.caption)
                                     .foregroundColor(theme.textSecondary)
                             }
-                            Spacer()
-                            if isScanning {
-                                ProgressView()
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    
+                    Section(header: Text(lang.t(.orTypeModelName))) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(.cyan)
+                            TextField("e.g. Samsung QN85D, Miele W1, Jura E8...", text: $manualSearchText)
+                                .submitLabel(.search)
+                                .onSubmit {
+                                    triggerAISearch(query: manualSearchText)
+                                }
+                            
+                            if !manualSearchText.isEmpty {
+                                Button(action: { triggerAISearch(query: manualSearchText) }) {
+                                    if isProcessingAI {
+                                        ProgressView()
+                                    } else {
+                                        Text(lang.t(.identify))
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 6)
+                                            .background(Color.cyan)
+                                            .foregroundColor(.black)
+                                            .clipShape(Capsule())
+                                    }
+                                }
                             }
                         }
                     }
-                    if let status = scanStatusMessage {
-                        Text(status)
-                            .font(.caption)
-                            .foregroundColor(theme.statusSuccess)
-                    }
-                }
-                
-                Section(header: Text("Appliance Details")) {
-                    TextField("Brand (e.g. V-ZUG, Miele, Bosch)", text: $brand)
-                    TextField("Model (e.g. AdoraWaschen V4000)", text: $modelName)
-                    TextField("Serial Number (e.g. SN-981240)", text: $serialNumber)
                     
-                    Picker("Room Location", selection: $roomLocation) {
-                        ForEach(roomOptions, id: \.self) { room in
-                            Text(room).tag(room)
+                    Section(header: Text(lang.t(.applianceDetails))) {
+                        TextField(lang.t(.brandPlaceholder), text: $brand)
+                        TextField(lang.t(.modelPlaceholder), text: $modelName)
+                        TextField(lang.t(.serialPlaceholder), text: $serialNumber)
+                        
+                        Picker(lang.t(.roomLocation), selection: $roomLocation) {
+                            ForEach(roomOptions, id: \.self) { room in
+                                Text(room).tag(room)
+                            }
+                        }
+                    }
+                    
+                    Section(header: Text(lang.t(.purchaseAndWarranty))) {
+                        HStack {
+                            TextField(lang.t(.price), text: $purchasePriceText)
+                                .keyboardType(.decimalPad)
+                            
+                            Picker(lang.t(.currency), selection: $currencyCode) {
+                                Text("CHF").tag("CHF")
+                                Text("EUR").tag("EUR")
+                                Text("DKK").tag("DKK")
+                                Text("NOK").tag("NOK")
+                                Text("SEK").tag("SEK")
+                                Text("USD").tag("USD")
+                            }
+                            .pickerStyle(.segmented)
                         }
                     }
                 }
                 
-                Section(header: Text("Purchase & Warranty")) {
-                    HStack {
-                        TextField("Price", text: $purchasePriceText)
-                            .keyboardType(.decimalPad)
-                        
-                        Picker("Currency", selection: $currencyCode) {
-                            Text("CHF").tag("CHF")
-                            Text("EUR").tag("EUR")
-                            Text("DKK").tag("DKK")
-                            Text("NOK").tag("NOK")
-                            Text("SEK").tag("SEK")
+                if isProcessingAI {
+                    ZStack {
+                        Color.black.opacity(0.4).ignoresSafeArea()
+                        VStack(spacing: 14) {
+                            ProgressView()
+                                .scaleEffect(1.3)
+                                .tint(.cyan)
+                            Text(lang.t(.geminiIdentifying))
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
                         }
-                        .pickerStyle(.segmented)
+                        .padding(24)
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 18))
                     }
                 }
             }
-            .navigationTitle("Add Appliance")
+            .navigationTitle(lang.t(.addAsset))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(lang.t(.cancel)) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(lang.t(.save)) {
                         let price = Decimal(string: purchasePriceText) ?? 0.0
-                        onAdd(brand, modelName, serialNumber, roomLocation, price, currencyCode)
+                        onManualAdd(brand, modelName, serialNumber, roomLocation, price, currencyCode)
                         dismiss()
                     }
                     .disabled(brand.isEmpty || modelName.isEmpty)
                 }
             }
+            .fullScreenCover(isPresented: $showingLiveCamera) {
+                LiveScannerSwiftUIView(
+                    onDetectedBarcode: { barcode in
+                        triggerAISearch(barcode: barcode)
+                    },
+                    onCapturedPhoto: { photoData in
+                        triggerAISearch(imageData: photoData)
+                    },
+                    onManualSearchSubmit: { query in
+                        triggerAISearch(query: query)
+                    }
+                )
+            }
+            .sheet(item: $identifiedMatch) { match in
+                ProductConfirmationModal(
+                    match: match,
+                    onConfirm: { confirmed in
+                        onConfirmMatch(confirmed)
+                        dismiss()
+                    },
+                    onEdit: {
+                        self.brand = match.brand
+                        self.modelName = match.modelName
+                        self.serialNumber = match.serialNumber ?? "SN-\(Int.random(in: 100000...999999))"
+                        if let price = match.estimatedPrice {
+                            self.purchasePriceText = "\(price)"
+                        }
+                    }
+                )
+            }
         }
     }
     
-    private func performSimulatedScan() {
-        isScanning = true
-        scanStatusMessage = "Analyzing rating badge with Apple Vision..."
+    private func triggerAISearch(query: String = "", imageData: Data? = nil, barcode: String? = nil) {
+        isProcessingAI = true
+        let searchText = query.isEmpty ? (barcode ?? "Samsung QN85D") : query
         
         Task {
-            try? await Task.sleep(nanoseconds: 800_000_000)
-            // Simulated scan result
-            brand = "V-ZUG"
-            modelName = "AdoraWaschen V4000"
-            serialNumber = "2304891104"
-            purchasePriceText = "2350.00"
-            currencyCode = "CHF"
-            roomLocation = "Laundry Room"
-            scanStatusMessage = "Badge verified locally (Confidence: 96%)"
-            isScanning = false
+            let match = await AIExtractionService.shared.identifyOmniProduct(
+                queryOrText: searchText,
+                imageData: imageData,
+                barcode: barcode
+            )
+            self.isProcessingAI = false
+            self.identifiedMatch = match
         }
     }
 }

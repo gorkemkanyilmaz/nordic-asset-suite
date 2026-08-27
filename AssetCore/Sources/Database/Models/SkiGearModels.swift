@@ -14,6 +14,7 @@ import SwiftData
 @Model
 public final class SkiGearEntity {
     public var id: UUID = UUID()
+    public var canonicalProductId: String? = nil // References CanonicalProductEntity
     public var brand: String = ""
     public var modelName: String = ""
     public var serialNumber: String = ""
@@ -42,6 +43,7 @@ public final class SkiGearEntity {
     
     public init(
         id: UUID = UUID(),
+        canonicalProductId: String? = nil,
         brand: String,
         modelName: String,
         serialNumber: String = "",
@@ -57,6 +59,7 @@ public final class SkiGearEntity {
         gearPhotoData: Data? = nil
     ) {
         self.id = id
+        self.canonicalProductId = canonicalProductId
         self.brand = brand
         self.modelName = modelName
         self.serialNumber = serialNumber

@@ -36,3 +36,12 @@ fastlane/test_output
 # Temporary files
 *.swp
 *~
+
+# Cloudflare Workers / Node
+.dev.vars
+node_modules/
+.wrangler/
+dist/
+
+# Agent working notes
+.agent/

@@ -1,0 +1,1 @@
+haushalt,fehlercode,anleitung,ersatzteil,waschmaschine,backofen,kühlschrank,fust,galaxus,reparatur

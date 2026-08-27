@@ -1,0 +1,12 @@
+E-Bike Service & Maintenance keeps your drivetrain, battery, and suspension in peak condition. Log every ride, measure component wear, and get predictive service reminders before small issues become expensive repairs.
+
+KEY FEATURES:
+- GARAGE DASHBOARD — Track every bike in your household with odometer, motor system, and service history.
+- BATTERY HEALTH — Log charge cycles and range trends to catch degradation early.
+- CHAIN WEAR GAUGE — Enter your chain checker reading (0.5% / 0.75%) and get instant replace/keep guidance with drivetrain lifespan estimates.
+- SUSPENSION SETUP — Sag and PSI calculator tuned to rider weight for fork and shock.
+- BRAKE & TIRE WEAR — Visual wear bars with predictive replacement schedules.
+- RIDE LOGBOOK — Distance, elevation, and per-ride maintenance notes.
+- 100% OFFLINE & PRIVATE — All data stored locally. No accounts, no ads.
+
+FREE TO USE with up to 10 bikes. Upgrade to PRO for unlimited fleet tracking, telemetry exports, and AI diagnostics.

@@ -26,11 +26,22 @@ public actor DatabaseWorker {
                 serialNumber: entity.serialNumber,
                 roomLocation: entity.roomLocation,
                 purchaseDate: entity.purchaseDate,
+                deliveryDate: entity.deliveryDate,
+                purchaseCountry: entity.purchaseCountry,
+                conditionAtPurchase: entity.conditionAtPurchase,
+                sellerType: entity.sellerType,
+                buyerType: entity.buyerType,
+                sellerName: entity.sellerName,
+                manufacturerWarrantyMonths: entity.manufacturerWarrantyMonths,
+                sellerGuaranteeMonths: entity.sellerGuaranteeMonths,
+                extendedWarrantyMonths: entity.extendedWarrantyMonths,
                 warrantyEndDate: entity.warrantyEndDate,
                 purchasePrice: entity.purchasePrice,
                 currencyCode: entity.currencyCode,
                 latestHealthScore: entity.latestHealthScore?.score,
-                filterCount: entity.filterSpecifications?.count ?? 0
+                filterCount: entity.filterSpecifications?.count ?? 0,
+                category: "Appliance",
+                userNotes: entity.userNotes
             )
         }
     }
@@ -47,8 +58,18 @@ public actor DatabaseWorker {
         serialNumber: String = "",
         roomLocation: String = "Kitchen",
         purchaseDate: Date = Date(),
+        deliveryDate: Date? = nil,
+        purchaseCountry: String = "CH",
+        manufacturerWarrantyMonths: Int? = nil,
+        sellerGuaranteeMonths: Int? = nil,
+        extendedWarrantyMonths: Int? = nil,
         purchasePrice: Decimal = 0.0,
-        currencyCode: String = "CHF"
+        currencyCode: String = "CHF",
+        sellerName: String = "",
+        conditionAtPurchase: String = "NEW",
+        sellerType: String = "BUSINESS",
+        buyerType: String = "CONSUMER",
+        userNotes: String = ""
     ) throws -> UUID {
         let appliance = ApplianceEntity(
             id: id,
@@ -57,8 +78,18 @@ public actor DatabaseWorker {
             serialNumber: serialNumber,
             roomLocation: roomLocation,
             purchaseDate: purchaseDate,
+            deliveryDate: deliveryDate,
+            purchaseCountry: purchaseCountry,
+            manufacturerWarrantyMonths: manufacturerWarrantyMonths,
+            sellerGuaranteeMonths: sellerGuaranteeMonths,
+            extendedWarrantyMonths: extendedWarrantyMonths,
             purchasePrice: purchasePrice,
-            currencyCode: currencyCode
+            currencyCode: currencyCode,
+            sellerName: sellerName,
+            conditionAtPurchase: conditionAtPurchase,
+            sellerType: sellerType,
+            buyerType: buyerType,
+            userNotes: userNotes
         )
         modelContext.insert(appliance)
         try modelContext.save()
@@ -233,7 +264,13 @@ public actor DatabaseWorker {
                 totalShotsPulled: entity.totalShotsPulled,
                 latestWaterHardnessDH: entity.latestWaterHardness?.germanDegreesHardnessDH,
                 burrWearPercentage: entity.burrProfiles?.first?.burrWearPercentage,
-                daysSinceLastDescale: daysSinceDescale
+                daysSinceLastDescale: daysSinceDescale,
+                pumpPressureBar: entity.pumpPressureBar,
+                boilerType: entity.boilerType,
+                groupheadDiameterMm: entity.groupheadDiameterMm,
+                hasSteamWand: entity.hasSteamWand,
+                supportedBrewMethods: entity.supportedBrewMethods,
+                machinePhotoData: entity.machinePhotoData
             )
         }
     }
@@ -248,14 +285,24 @@ public actor DatabaseWorker {
         brand: String,
         modelName: String,
         machineType: String = "Superautomatic",
-        totalShotsPulled: Int = 0
+        totalShotsPulled: Int = 0,
+        pumpPressureBar: Double = 15.0,
+        boilerType: String = "Thermoblock",
+        groupheadDiameterMm: Int = 0,
+        hasSteamWand: Bool = true,
+        supportedBrewMethods: [String] = ["Espresso", "Lungo", "Americano"]
     ) throws -> UUID {
         let machine = CoffeeMachineEntity(
             id: id,
             brand: brand,
             modelName: modelName,
             machineType: machineType,
-            totalShotsPulled: totalShotsPulled
+            totalShotsPulled: totalShotsPulled,
+            pumpPressureBar: pumpPressureBar,
+            boilerType: boilerType,
+            groupheadDiameterMm: groupheadDiameterMm,
+            hasSteamWand: hasSteamWand,
+            supportedBrewMethods: supportedBrewMethods
         )
         modelContext.insert(machine)
         try modelContext.save()

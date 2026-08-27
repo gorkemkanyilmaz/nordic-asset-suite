@@ -16,12 +16,24 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
     public let serialNumber: String
     public let roomLocation: String
     public let purchaseDate: Date
+    public let deliveryDate: Date?
+    public let purchaseCountry: String
+    public let conditionAtPurchase: String
+    public let sellerType: String
+    public let buyerType: String
+    public let sellerName: String
+    public let manufacturerWarrantyMonths: Int?
+    public let sellerGuaranteeMonths: Int?
+    public let extendedWarrantyMonths: Int?
     public let warrantyEndDate: Date
     public let purchasePrice: Decimal
     public let currencyCode: String
     public let isWarrantyActive: Bool
     public let latestHealthScore: Int?
     public let filterCount: Int
+    public let category: String
+    public let userNotes: String
+    public let warrantySummary: WarrantySummaryDTO
     
     public init(
         id: UUID,
@@ -30,11 +42,22 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
         serialNumber: String,
         roomLocation: String,
         purchaseDate: Date,
-        warrantyEndDate: Date,
-        purchasePrice: Decimal,
-        currencyCode: String,
+        deliveryDate: Date? = nil,
+        purchaseCountry: String = "CH",
+        conditionAtPurchase: String = "NEW",
+        sellerType: String = "BUSINESS",
+        buyerType: String = "CONSUMER",
+        sellerName: String = "",
+        manufacturerWarrantyMonths: Int? = nil,
+        sellerGuaranteeMonths: Int? = nil,
+        extendedWarrantyMonths: Int? = nil,
+        warrantyEndDate: Date? = nil,
+        purchasePrice: Decimal = 0.0,
+        currencyCode: String = "CHF",
         latestHealthScore: Int? = nil,
-        filterCount: Int = 0
+        filterCount: Int = 0,
+        category: String = "Appliance",
+        userNotes: String = ""
     ) {
         self.id = id
         self.brand = brand
@@ -42,12 +65,45 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
         self.serialNumber = serialNumber
         self.roomLocation = roomLocation
         self.purchaseDate = purchaseDate
-        self.warrantyEndDate = warrantyEndDate
+        self.deliveryDate = deliveryDate ?? purchaseDate
+        self.purchaseCountry = purchaseCountry
+        self.conditionAtPurchase = conditionAtPurchase
+        self.sellerType = sellerType
+        self.buyerType = buyerType
+        self.sellerName = sellerName
+        self.manufacturerWarrantyMonths = manufacturerWarrantyMonths
+        self.sellerGuaranteeMonths = sellerGuaranteeMonths
+        self.extendedWarrantyMonths = extendedWarrantyMonths
         self.purchasePrice = purchasePrice
         self.currencyCode = currencyCode
-        self.isWarrantyActive = warrantyEndDate >= Date()
         self.latestHealthScore = latestHealthScore
         self.filterCount = filterCount
+        self.category = category
+        self.userNotes = userNotes
+        
+        let calculatedSummary = WarrantyCalculator.shared.calculateCoverage(
+            purchaseDate: purchaseDate,
+            deliveryDate: deliveryDate ?? purchaseDate,
+            purchaseCountry: purchaseCountry,
+            brand: brand,
+            category: category,
+            conditionAtPurchase: conditionAtPurchase,
+            sellerType: sellerType,
+            buyerType: buyerType,
+            manufacturerWarrantyMonths: manufacturerWarrantyMonths,
+            sellerGuaranteeMonths: sellerGuaranteeMonths,
+            extendedWarrantyMonths: extendedWarrantyMonths
+        )
+        self.warrantySummary = calculatedSummary
+        self.isWarrantyActive = calculatedSummary.hasActiveProtection
+        
+        if let customEndDate = warrantyEndDate {
+            self.warrantyEndDate = customEndDate
+        } else if let mfr = manufacturerWarrantyMonths {
+            self.warrantyEndDate = Calendar.current.date(byAdding: .month, value: mfr, to: purchaseDate) ?? purchaseDate
+        } else {
+            self.warrantyEndDate = purchaseDate
+        }
     }
 }
 
@@ -138,6 +194,14 @@ public struct CoffeeMachineDTO: Sendable, Identifiable, Codable {
     public let burrWearPercentage: Double?
     public let daysSinceLastDescale: Int?
     
+    // Machine Specifications
+    public let pumpPressureBar: Double
+    public let boilerType: String
+    public let groupheadDiameterMm: Int
+    public let hasSteamWand: Bool
+    public let supportedBrewMethods: [String]
+    public var machinePhotoData: Data? = nil
+    
     public init(
         id: UUID,
         brand: String,
@@ -146,7 +210,13 @@ public struct CoffeeMachineDTO: Sendable, Identifiable, Codable {
         totalShotsPulled: Int,
         latestWaterHardnessDH: Double? = nil,
         burrWearPercentage: Double? = nil,
-        daysSinceLastDescale: Int? = nil
+        daysSinceLastDescale: Int? = nil,
+        pumpPressureBar: Double = 15.0,
+        boilerType: String = "Thermoblock",
+        groupheadDiameterMm: Int = 0,
+        hasSteamWand: Bool = true,
+        supportedBrewMethods: [String] = ["Espresso", "Lungo", "Americano"],
+        machinePhotoData: Data? = nil
     ) {
         self.id = id
         self.brand = brand
@@ -156,5 +226,11 @@ public struct CoffeeMachineDTO: Sendable, Identifiable, Codable {
         self.latestWaterHardnessDH = latestWaterHardnessDH
         self.burrWearPercentage = burrWearPercentage
         self.daysSinceLastDescale = daysSinceLastDescale
+        self.pumpPressureBar = pumpPressureBar
+        self.boilerType = boilerType
+        self.groupheadDiameterMm = groupheadDiameterMm
+        self.hasSteamWand = hasSteamWand
+        self.supportedBrewMethods = supportedBrewMethods
+        self.machinePhotoData = machinePhotoData
     }
 }

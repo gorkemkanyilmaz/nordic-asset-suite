@@ -13,11 +13,37 @@ import CoreGraphics
 import UIKit
 #endif
 
+/// Standardized thumbnail size variants for the 5-tier product imagery system.
+public enum ThumbnailVariant: String, Sendable, CaseIterable {
+    /// 48 x 48 pt — Compact list rows, activity feeds, search results
+    case small
+    /// 80 x 80 pt — Main dashboard cards, room grids
+    case medium
+    /// 160 x 160 pt — Add confirmation modal, category selector cards
+    case large
+    /// 768 x 432 pt (16:9) — Product detail hero header, active digital twin
+    case hero
+    
+    public var targetDimension: CGSize {
+        switch self {
+        case .small:
+            return CGSize(width: 48, height: 48)
+        case .medium:
+            return CGSize(width: 80, height: 80)
+        case .large:
+            return CGSize(width: 160, height: 160)
+        case .hero:
+            return CGSize(width: 768, height: 432)
+        }
+    }
+}
+
 /// Errors encountered during image pre-processing and compression.
 public enum ImageProcessingError: Error, LocalizedError, Sendable {
     case invalidImageData
     case renderingFailed
     case compressionFailed
+    case cacheMiss
     
     public var errorDescription: String? {
         switch self {
@@ -26,12 +52,14 @@ public enum ImageProcessingError: Error, LocalizedError, Sendable {
         case .renderingFailed:
             return "CoreImage filter rendering operation failed."
         case .compressionFailed:
-            return "Failed to compress processed image to target HEIC format."
+            return "Failed to compress processed image to target format."
+        case .cacheMiss:
+            return "Requested image asset is not in cache."
         }
     }
 }
 
-/// High-performance thread-safe image pre-processor for OCR optimization and archival.
+/// High-performance thread-safe image pre-processor for OCR optimization, thumbnail generation, and archival.
 public final class ImageProcessor: @unchecked Sendable {
     public static let shared = ImageProcessor()
     
@@ -39,6 +67,41 @@ public final class ImageProcessor: @unchecked Sendable {
     
     public init() {
         self.ciContext = CIContext(options: [.useSoftwareRenderer: false])
+    }
+    
+    /// Generates a standardized thumbnail variant preserving aspect ratio with center-crop fill.
+    public func generateThumbnail(from imageData: Data, variant: ThumbnailVariant) throws -> Data {
+        #if os(iOS)
+        guard let sourceImage = UIImage(data: imageData) else {
+            throw ImageProcessingError.invalidImageData
+        }
+        
+        let targetSize = variant.targetDimension
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 2.0 // High-DPI retina display
+        
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+        let renderedImage = renderer.image { _ in
+            let aspectWidth = targetSize.width / sourceImage.size.width
+            let aspectHeight = targetSize.height / sourceImage.size.height
+            let scale = max(aspectWidth, aspectHeight)
+            
+            let scaledWidth = sourceImage.size.width * scale
+            let scaledHeight = sourceImage.size.height * scale
+            let x = (targetSize.width - scaledWidth) / 2.0
+            let y = (targetSize.height - scaledHeight) / 2.0
+            
+            sourceImage.draw(in: CGRect(x: x, y: y, width: scaledWidth, height: scaledHeight))
+        }
+        
+        guard let outputData = renderedImage.jpegData(compressionQuality: 0.85) else {
+            throw ImageProcessingError.compressionFailed
+        }
+        
+        return outputData
+        #else
+        return imageData
+        #endif
     }
     
     /// Downsamples an image so its maximum dimension does not exceed 3840 pixels (4K limit), preventing OOM spikes.
@@ -82,15 +145,14 @@ public final class ImageProcessor: @unchecked Sendable {
             throw ImageProcessingError.invalidImageData
         }
         
-        // Apply exposure and contrast adjustments
         let exposureFilter = CIFilter(name: "CIExposureAdjust")
         exposureFilter?.setValue(ciImage, forKey: kCIInputImageKey)
         exposureFilter?.setValue(0.5, forKey: kCIInputEVKey)
         
         let contrastFilter = CIFilter(name: "CIColorControls")
         contrastFilter?.setValue(exposureFilter?.outputImage ?? ciImage, forKey: kCIInputImageKey)
-        contrastFilter?.setValue(1.3, forKey: kCIInputContrastKey) // Boost contrast
-        contrastFilter?.setValue(0.0, forKey: kCIInputSaturationKey) // Convert to Grayscale
+        contrastFilter?.setValue(1.3, forKey: kCIInputContrastKey)
+        contrastFilter?.setValue(0.0, forKey: kCIInputSaturationKey) // Grayscale
         
         guard let outputCI = contrastFilter?.outputImage,
               let cgImage = ciContext.createCGImage(outputCI, from: outputCI.extent) else {
@@ -107,12 +169,10 @@ public final class ImageProcessor: @unchecked Sendable {
             throw ImageProcessingError.invalidImageData
         }
         
-        // HEIC compression on iOS 17+
         if let heicData = uiImage.heicData(compressionQuality: 0.8) {
             return heicData
         }
         
-        // Fallback to JPEG at 0.8 if HEIC hardware encoder is unavailable
         guard let jpegData = uiImage.jpegData(compressionQuality: 0.8) else {
             throw ImageProcessingError.compressionFailed
         }
@@ -120,6 +180,35 @@ public final class ImageProcessor: @unchecked Sendable {
         #else
         return imageData
         #endif
+    }
+}
+
+/// Thread-safe in-memory and disk image cache manager keyed by product identity or image fingerprint.
+public actor ImageCacheManager {
+    public static let shared = ImageCacheManager()
+    
+    private var memoryCache: [String: Data] = [:]
+    private let maxMemoryItems = 100
+    
+    public init() {}
+    
+    public func cacheImage(data: Data, forKey key: String) {
+        if memoryCache.count >= maxMemoryItems {
+            memoryCache.remove(at: memoryCache.startIndex)
+        }
+        memoryCache[key] = data
+    }
+    
+    public func getImage(forKey key: String) -> Data? {
+        return memoryCache[key]
+    }
+    
+    public func removeImage(forKey key: String) {
+        memoryCache.removeValue(forKey: key)
+    }
+    
+    public func clearCache() {
+        memoryCache.removeAll()
     }
 }
 

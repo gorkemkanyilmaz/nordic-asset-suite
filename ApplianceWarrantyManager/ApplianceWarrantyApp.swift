@@ -9,6 +9,7 @@
 import SwiftUI
 import SwiftData
 import AssetCoreDatabase
+import AssetCoreLocalization
 
 @main
 public struct ApplianceWarrantyApp: App {
@@ -20,6 +21,11 @@ public struct ApplianceWarrantyApp: App {
         _container = State(initialValue: modelContainer)
         let worker = DatabaseWorker(modelContainer: modelContainer)
         _viewModel = State(initialValue: ApplianceViewModel(databaseWorker: worker))
+        
+        // Auto-detect device language and currency on first launch
+        Task { @MainActor in
+            LanguageManager.shared.applyDeviceDefaultsIfNeeded()
+        }
     }
     
     public var body: some Scene {

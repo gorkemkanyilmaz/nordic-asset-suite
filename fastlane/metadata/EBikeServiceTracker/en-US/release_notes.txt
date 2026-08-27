@@ -1,0 +1,3 @@
+- Battery health and charge-cycle trend tracking
+- Chain wear gauge with instant replace guidance
+- Multi-language support: English, German, French, Italian, Norwegian, Swedish, Danish, Turkish

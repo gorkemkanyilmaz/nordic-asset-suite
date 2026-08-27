@@ -1,0 +1,1 @@
+lave-linge,lave-vaisselle,réfrigérateur,panne,facture,pièce,détachée,ménager,cuisine,réparation

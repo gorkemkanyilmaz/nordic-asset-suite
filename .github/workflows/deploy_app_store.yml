@@ -1,9 +1,15 @@
-name: Deploy Nordic Asset Suite to TestFlight
+name: Deploy Nordic Asset Suite — TestFlight + App Store
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      submit_for_review:
+        description: 'Submit to App Store Review after metadata upload'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   test:
@@ -31,7 +37,7 @@ jobs:
           ./BuildScripts/verify_concurrency.sh
           ./BuildScripts/run_all_tests.sh
 
-  deploy:
+  deploy_testflight:
     name: Archive, Sign & Upload to TestFlight
     needs: test
     runs-on: macos-14
@@ -60,7 +66,7 @@ jobs:
           echo "✅ Project generated. Available schemes:"
           xcodebuild -project NordicAssetSuite.xcodeproj -list 2>/dev/null | head -20
 
-      - name: Deploy All Apps via Fastlane
+      - name: Deploy All Apps via Fastlane (TestFlight)
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -69,3 +75,24 @@ jobs:
         run: |
           gem install fastlane --no-document
           fastlane deploy_all
+
+  deliver_app_store:
+    name: Upload Metadata & Submit for App Review
+    needs: deploy_testflight
+    if: github.event.inputs.submit_for_review == 'true'
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Fastlane
+        run: gem install fastlane --no-document
+
+      - name: Upload Metadata & Submit for Review
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: fastlane deliver_all

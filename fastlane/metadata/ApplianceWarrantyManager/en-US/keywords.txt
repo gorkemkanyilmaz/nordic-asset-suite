@@ -1,0 +1,1 @@
+guarantee,tracker,miele,bosch,vzug,samsung,lg,dyson,invoice,service,fault,error,code,fix,claim,home

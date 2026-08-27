@@ -1,0 +1,1 @@
+kaffeemaschine,siebträger,bohnen,wasserhärte,brühgruppe,reinigung,filter,lattego,taste,mahlgrad

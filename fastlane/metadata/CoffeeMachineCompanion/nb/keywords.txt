@@ -1,0 +1,1 @@
+kaffemaskin,avkalking,rengjøring,vannhardhet,brenning,ekstraksjon,barista,maling,brygging

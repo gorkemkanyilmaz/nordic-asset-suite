@@ -1,0 +1,1 @@
+lavatrice,lavastoviglie,frigorifero,guasto,manutenzione,ricambio,cucina,riparazione,scontrino

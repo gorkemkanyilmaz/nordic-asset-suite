@@ -1,10 +1,34 @@
+# ──────────────────────────────────────────────────────────────────────────────
 # Fastfile — Nordic Asset Suite
-# Bulletproof CI Pipeline: keychain → WWDR → revoke stale certs → cert → sigh → manual signing → archive → SDK patch → export → TestFlight
+# CI/CD Pipeline for 4 distinct iOS apps
+#
+# Lanes:
+#   • deploy_all     — Build, sign, archive, upload IPA to TestFlight
+#   • deliver_all    — Push App Store metadata + screenshots, then submit for review
+#
+# Display Names (ASO-final, EN):
+#   Appliance Warranty Manager  |  Ski & Snowboard Gear Tuning
+#   E-Bike Service & Maintenance  |  Coffee Brew & Espresso Log
+# ──────────────────────────────────────────────────────────────────────────────
 
 default_platform(:ios)
 
 platform :ios do
-  desc "Build and upload all 4 Nordic Asset Suite apps to Apple TestFlight"
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Shared app registry — single source of truth for both lanes
+  # ════════════════════════════════════════════════════════════════════════════
+  APPS = [
+    { scheme: "ApplianceWarrantyManager", bundle_id: "com.nordicassetsuite.appliance", display: "Appliance Warranty Manager" },
+    { scheme: "SkiGearTracker",           bundle_id: "com.nordicassetsuite.skigear",   display: "Ski & Snowboard Gear Tuning" },
+    { scheme: "EBikeServiceTracker",      bundle_id: "com.nordicassetsuite.ebike",     display: "E-Bike Service & Maintenance" },
+    { scheme: "CoffeeMachineCompanion",   bundle_id: "com.nordicassetsuite.coffee",    display: "Coffee Brew & Espresso Log" }
+  ].freeze
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # LANE: deploy_all — Build & upload all 4 apps to TestFlight
+  # ════════════════════════════════════════════════════════════════════════════
+  desc "Build, sign, archive, and upload all 4 apps to Apple TestFlight"
   lane :deploy_all do
     key_id      = ENV["APP_STORE_CONNECT_KEY_ID"]
     issuer_id   = ENV["APP_STORE_CONNECT_ISSUER_ID"]
@@ -93,17 +117,10 @@ platform :ios do
     )
 
     # ── 6. Deploy each application ──
-    apps = [
-      { scheme: "ApplianceWarrantyManager", bundle_id: "com.nordicassetsuite.appliance", display: "Appliance Warranty" },
-      { scheme: "SkiGearTracker",           bundle_id: "com.nordicassetsuite.skigear",   display: "Ski Gear Tracker" },
-      { scheme: "EBikeServiceTracker",       bundle_id: "com.nordicassetsuite.ebike",     display: "E-Bike Service" },
-      { scheme: "CoffeeMachineCompanion",    bundle_id: "com.nordicassetsuite.coffee",    display: "Coffee Companion" }
-    ]
-
     sh("mkdir -p '#{build_dir}/archives' '#{build_dir}/ipa'")
 
-    apps.each_with_index do |app, idx|
-      UI.header("#{idx + 1}/#{apps.length}  #{app[:display]} (#{app[:bundle_id]})")
+    APPS.each_with_index do |app, idx|
+      UI.header("#{idx + 1}/#{APPS.length}  #{app[:display]} (#{app[:bundle_id]})")
 
       # ── 7. Download or create App Store provisioning profile ──
       sigh(
@@ -181,4 +198,61 @@ platform :ios do
     delete_keychain(name: kc_name)
     UI.success("🎉 ALL 4 APPS UPLOADED TO TESTFLIGHT!")
   end
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # LANE: deliver_all — Upload App Store metadata & submit for review
+  # ════════════════════════════════════════════════════════════════════════════
+  desc "Upload App Store metadata (name, subtitle, keywords, description, screenshots) and submit all 4 apps for App Review"
+  lane :deliver_all do
+    key_id      = ENV["APP_STORE_CONNECT_KEY_ID"]
+    issuer_id   = ENV["APP_STORE_CONNECT_ISSUER_ID"]
+    key_content = ENV["APP_STORE_CONNECT_PRIVATE_KEY"]
+    team_id     = ENV["APPLE_TEAM_ID"]
+
+    UI.user_error!("Missing APP_STORE_CONNECT_KEY_ID") if key_id.to_s.empty?
+    UI.user_error!("Missing APP_STORE_CONNECT_ISSUER_ID") if issuer_id.to_s.empty?
+    UI.user_error!("Missing APP_STORE_CONNECT_PRIVATE_KEY") if key_content.to_s.empty?
+    UI.user_error!("Missing APPLE_TEAM_ID") if team_id.to_s.empty?
+
+    repo_root = File.exist?("NordicAssetSuite.xcodeproj") ? Dir.pwd : File.expand_path("..", Dir.pwd)
+
+    api_key = app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_content: key_content,
+      is_key_content_base64: false,
+      in_house: false
+    )
+
+    APPS.each_with_index do |app, idx|
+      UI.header("📦 #{idx + 1}/#{APPS.length}  Delivering metadata: #{app[:display]}")
+
+      metadata_path = "#{repo_root}/fastlane/metadata/#{app[:scheme]}"
+
+      unless File.directory?(metadata_path)
+        UI.user_error!("Metadata directory not found: #{metadata_path}")
+      end
+
+      deliver(
+        api_key: api_key,
+        app_identifier: app[:bundle_id],
+        metadata_path: metadata_path,
+        skip_binary_upload: true,
+        skip_screenshots: false,
+        overwrite_screenshots: true,
+        submit_for_review: true,
+        automatic_release: false,
+        force: true,                    # Skip interactive HTML preview
+        precheck_include_in_app_purchases: false,
+        submission_information: {
+          add_id_info_uses_idfa: false
+        }
+      )
+
+      UI.success("✅ #{app[:display]} metadata uploaded & submitted for App Review!")
+    end
+
+    UI.success("🎉 ALL 4 APPS SUBMITTED FOR APP STORE REVIEW!")
+  end
 end
+

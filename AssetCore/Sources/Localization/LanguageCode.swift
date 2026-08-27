@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Supported target languages across the DACH and Nordic markets.
+/// Supported target languages across the DACH, Nordic and Turkish markets.
 public enum LanguageCode: String, CaseIterable, Sendable, Codable {
     case english = "en"
     case german = "de"
@@ -17,6 +17,7 @@ public enum LanguageCode: String, CaseIterable, Sendable, Codable {
     case danish = "da"
     case swedish = "sv"
     case norwegian = "nb"
+    case turkish = "tr"
     
     public var localeIdentifier: String {
         switch self {
@@ -27,6 +28,7 @@ public enum LanguageCode: String, CaseIterable, Sendable, Codable {
         case .danish: return "da_DK"
         case .swedish: return "sv_SE"
         case .norwegian: return "nb_NO"
+        case .turkish: return "tr_TR"
         }
     }
     
@@ -39,6 +41,7 @@ public enum LanguageCode: String, CaseIterable, Sendable, Codable {
         case .danish: return "Dansk"
         case .swedish: return "Svenska"
         case .norwegian: return "Norsk"
+        case .turkish: return "Türkçe"
         }
     }
     
@@ -52,6 +55,7 @@ public enum LanguageCode: String, CaseIterable, Sendable, Codable {
         case .danish: return "DKK"
         case .swedish: return "SEK"
         case .norwegian: return "NOK"
+        case .turkish: return "TRY"
         }
     }
 }

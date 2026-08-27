@@ -1,0 +1,3 @@
+- Dial-In Recipe Journal with side-by-side shot comparison
+- Water hardness-based descaling horizon calculator
+- Multi-language support: English, German, French, Italian, Norwegian, Swedish, Danish, Turkish

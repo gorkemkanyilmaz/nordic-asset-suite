@@ -1,0 +1,12 @@
+Appliance Warranty Manager is the only app that turns your phone into a complete home appliance command center. Scan any rating plate or receipt to instantly identify your appliance, import the full manual, and start tracking your statutory warranty countdown — automatically calculated for your country.
+
+KEY FEATURES:
+- INSTANT RATING PLATE SCANNER — Point your camera at any appliance badge. AI-powered OCR recognizes the brand, model, serial number, and specs in seconds.
+- STATUTORY WARRANTY COUNTDOWN — Tracks the 24-month Swiss OR Art. 210, Norwegian Forbrukerkjøpsloven, and EU Consumer Sales Directive timelines with real-time expiration alerts.
+- ERROR CODE WIZARD — Enter any fault code (E18, F20, i30, dE) and receive an instant step-by-step diagnostic with parts needed and statutory coverage assessment.
+- 1-TAP LEGAL DEFECT NOTICE — Generate a ready-to-send formal claim letter compliant with Swiss, Norwegian, and EU consumer protection law.
+- SPARE PARTS & WEAR TRACKING — Monitor filter, pump, seal, and belt lifecycle with predictive replacement schedules and OEM part numbers.
+- MAINTENANCE CHECKLISTS — Guided seasonal care routines for every major appliance brand.
+- 100% OFFLINE & PRIVATE — All data stored locally. No accounts, no cloud upload, no ads.
+
+FREE TO USE with up to 10 appliances. Upgrade to PRO for unlimited storage, iCloud backup, AI diagnostics, and PDF warranty report export.

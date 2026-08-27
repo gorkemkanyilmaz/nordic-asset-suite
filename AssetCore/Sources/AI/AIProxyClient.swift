@@ -41,10 +41,21 @@ public actor AIProxyClient {
     private let urlSession: URLSession
     
     public init(
-        proxyBaseURL: URL = URL(string: "https://ai-proxy.nordicassetsuite.workers.dev")!,
+        proxyBaseURL: URL? = nil,
         sessionConfiguration: URLSessionConfiguration = .default
     ) {
-        self.proxyBaseURL = proxyBaseURL
+        let resolvedURL: URL
+        if let proxyBaseURL {
+            resolvedURL = proxyBaseURL
+        } else if ProcessInfo.processInfo.environment["USE_LOCALHOST_AIPROXY"] == "YES" ||
+                  ProcessInfo.processInfo.arguments.contains("-useLocalhost") {
+            resolvedURL = URL(string: "http://127.0.0.1:8787")!
+        } else if UserDefaults.standard.bool(forKey: "UseLocalhostAIProxy") {
+            resolvedURL = URL(string: "http://127.0.0.1:8787")!
+        } else {
+            resolvedURL = URL(string: "https://ai-proxy.nordicassetsuite.workers.dev")!
+        }
+        self.proxyBaseURL = resolvedURL
         sessionConfiguration.timeoutIntervalForRequest = 15.0 // 15s timeout
         sessionConfiguration.timeoutIntervalForResource = 30.0
         self.urlSession = URLSession(configuration: sessionConfiguration)

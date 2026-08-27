@@ -14,6 +14,7 @@ import SwiftData
 @Model
 public final class CoffeeMachineEntity {
     public var id: UUID = UUID()
+    public var canonicalProductId: String? = nil // References CanonicalProductEntity
     public var brand: String = "" // e.g. Jura, Sage/Breville, La Marzocco, DeLonghi
     public var modelName: String = "" // e.g. E8, Barista Touch, Linea Micra, Magnifica S
     public var serialNumber: String = ""
@@ -25,6 +26,13 @@ public final class CoffeeMachineEntity {
     public var currencyCode: String = "CHF"
     public var userNotes: String = ""
     public var machinePhotoData: Data? = nil
+    
+    // Machine Specification Fields — for recipe compatibility validation
+    public var pumpPressureBar: Double = 15.0           // Max pump pressure (e.g. 15, 19, 20 for espresso; 0 for manual/pour-over)
+    public var boilerType: String = "Thermoblock"       // Thermoblock, Single Boiler, Dual Boiler, Heat Exchanger, None
+    public var groupheadDiameterMm: Int = 0             // 0 = integrated (superauto), 51, 54, 58
+    public var hasSteamWand: Bool = true
+    public var supportedBrewMethods: [String] = ["Espresso", "Lungo", "Americano"] // Methods this machine can perform
     public var createdAt: Date = Date()
     public var updatedAt: Date = Date()
     
@@ -43,6 +51,7 @@ public final class CoffeeMachineEntity {
     
     public init(
         id: UUID = UUID(),
+        canonicalProductId: String? = nil,
         brand: String,
         modelName: String,
         serialNumber: String = "",
@@ -53,9 +62,15 @@ public final class CoffeeMachineEntity {
         purchasePrice: Decimal = 0.0,
         currencyCode: String = "CHF",
         userNotes: String = "",
-        machinePhotoData: Data? = nil
+        machinePhotoData: Data? = nil,
+        pumpPressureBar: Double = 15.0,
+        boilerType: String = "Thermoblock",
+        groupheadDiameterMm: Int = 0,
+        hasSteamWand: Bool = true,
+        supportedBrewMethods: [String] = ["Espresso", "Lungo", "Americano"]
     ) {
         self.id = id
+        self.canonicalProductId = canonicalProductId
         self.brand = brand
         self.modelName = modelName
         self.serialNumber = serialNumber
@@ -67,6 +82,11 @@ public final class CoffeeMachineEntity {
         self.currencyCode = currencyCode
         self.userNotes = userNotes
         self.machinePhotoData = machinePhotoData
+        self.pumpPressureBar = pumpPressureBar
+        self.boilerType = boilerType
+        self.groupheadDiameterMm = groupheadDiameterMm
+        self.hasSteamWand = hasSteamWand
+        self.supportedBrewMethods = supportedBrewMethods
         self.createdAt = Date()
         self.updatedAt = Date()
         self.burrProfiles = []
@@ -182,6 +202,11 @@ public final class BrewRecipe {
     public var sensoryNotes: String = "Jasmine, bergamot, bright citrus acidity"
     public var createdAt: Date = Date()
     
+    // Machine-Aware Brew Parameters
+    public var brewPressureBar: Double = 9.0            // Target extraction pressure for this recipe
+    public var requiredBrewMethod: String = "Espresso"  // Espresso, Lungo, Pour-Over, Aeropress, Cold Brew, Moka
+    public var minimumPumpPressureBar: Double = 8.0     // Minimum machine pump pressure to execute this recipe
+    
     public var coffeeMachine: CoffeeMachineEntity? = nil
     
     public init(
@@ -196,6 +221,9 @@ public final class BrewRecipe {
         waterTemperatureCelsius: Double = 93.0,
         tasteRatingStars: Int = 5,
         sensoryNotes: String = "",
+        brewPressureBar: Double = 9.0,
+        requiredBrewMethod: String = "Espresso",
+        minimumPumpPressureBar: Double = 8.0,
         coffeeMachine: CoffeeMachineEntity? = nil
     ) {
         self.id = id
@@ -209,6 +237,9 @@ public final class BrewRecipe {
         self.waterTemperatureCelsius = waterTemperatureCelsius
         self.tasteRatingStars = max(1, min(5, tasteRatingStars))
         self.sensoryNotes = sensoryNotes
+        self.brewPressureBar = brewPressureBar
+        self.requiredBrewMethod = requiredBrewMethod
+        self.minimumPumpPressureBar = minimumPumpPressureBar
         self.createdAt = Date()
         self.coffeeMachine = coffeeMachine
     }
@@ -248,3 +279,149 @@ public final class DescalingLog {
         self.coffeeMachine = coffeeMachine
     }
 }
+
+// MARK: - Bean Entity (Coffee Cellar & Inventory)
+
+@Model
+public final class BeanEntity {
+    public var id: UUID = UUID()
+    public var coffeeName: String = ""
+    public var roaster: String = ""
+    public var originCountry: String = ""
+    public var region: String = ""
+    public var process: String = "Washed" // Washed, Natural, Honey, Anaerobic
+    public var variety: String = ""
+    public var elevationMeters: Double = 0.0
+    public var roastLevel: String = "Medium-Light"
+    public var roastDate: Date? = nil
+    public var openedDate: Date? = nil
+    public var bagSizeGrams: Double = 250.0
+    public var remainingGrams: Double = 250.0
+    public var isFrozen: Bool = false
+    public var roasterTastingNotes: [String] = []
+    public var userNotes: String = ""
+    public var userRatingStars: Double = 5.0
+    public var bagPhotoData: Data? = nil
+    public var createdAt: Date = Date()
+    
+    public init(
+        id: UUID = UUID(),
+        coffeeName: String,
+        roaster: String,
+        originCountry: String,
+        region: String = "",
+        process: String = "Washed",
+        variety: String = "",
+        elevationMeters: Double = 0.0,
+        roastLevel: String = "Medium-Light",
+        roastDate: Date? = nil,
+        bagSizeGrams: Double = 250.0,
+        remainingGrams: Double = 250.0,
+        roasterTastingNotes: [String] = []
+    ) {
+        self.id = id
+        self.coffeeName = coffeeName
+        self.roaster = roaster
+        self.originCountry = originCountry
+        self.region = region
+        self.process = process
+        self.variety = variety
+        self.elevationMeters = elevationMeters
+        self.roastLevel = roastLevel
+        self.roastDate = roastDate
+        self.bagSizeGrams = bagSizeGrams
+        self.remainingGrams = remainingGrams
+        self.roasterTastingNotes = roasterTastingNotes
+        self.createdAt = Date()
+    }
+}
+
+// MARK: - Grinder Entity (Stand-Alone or Integrated)
+
+@Model
+public final class GrinderEntity {
+    public var id: UUID = UUID()
+    public var brand: String = ""
+    public var modelName: String = ""
+    public var burrType: String = "Conical" // Conical, Flat
+    public var burrDiameterMm: Double = 64.0
+    public var burrMaterial: String = "Hardened Steel"
+    public var isStepped: Bool = false
+    public var currentStep: Double = 14.0
+    public var notes: String = ""
+    
+    public init(
+        id: UUID = UUID(),
+        brand: String,
+        modelName: String,
+        burrType: String = "Conical",
+        burrDiameterMm: Double = 64.0,
+        burrMaterial: String = "Hardened Steel",
+        isStepped: Bool = false,
+        currentStep: Double = 14.0,
+        notes: String = ""
+    ) {
+        self.id = id
+        self.brand = brand
+        self.modelName = modelName
+        self.burrType = burrType
+        self.burrDiameterMm = burrDiameterMm
+        self.burrMaterial = burrMaterial
+        self.isStepped = isStepped
+        self.currentStep = currentStep
+        self.notes = notes
+    }
+}
+
+// MARK: - Brew Log Entity (Extraction Record)
+
+@Model
+public final class BrewLogEntity {
+    public var id: UUID = UUID()
+    public var timestamp: Date = Date()
+    public var recipeName: String = ""
+    public var beanName: String = ""
+    public var roasterName: String = ""
+    public var doseGrams: Double = 18.0
+    public var yieldGrams: Double = 36.0
+    public var extractionTimeSeconds: Double = 27.0
+    public var grindSettingNumber: Double = 3.2
+    public var waterTemperatureCelsius: Double = 93.5
+    public var tasteBalance: String = "Balanced" // Too Sour, Balanced, Too Bitter
+    public var ratingStars: Double = 5.0
+    public var sensoryNotes: String = ""
+    public var userComments: String = ""
+    
+    public init(
+        id: UUID = UUID(),
+        timestamp: Date = Date(),
+        recipeName: String,
+        beanName: String,
+        roasterName: String = "",
+        doseGrams: Double = 18.0,
+        yieldGrams: Double = 36.0,
+        extractionTimeSeconds: Double = 27.0,
+        grindSettingNumber: Double = 3.2,
+        waterTemperatureCelsius: Double = 93.5,
+        tasteBalance: String = "Balanced",
+        ratingStars: Double = 5.0,
+        sensoryNotes: String = "",
+        userComments: String = ""
+    ) {
+        self.id = id
+        self.timestamp = timestamp
+        self.recipeName = recipeName
+        self.beanName = beanName
+        self.roasterName = roasterName
+        self.doseGrams = doseGrams
+        self.yieldGrams = yieldGrams
+        self.extractionTimeSeconds = extractionTimeSeconds
+        self.grindSettingNumber = grindSettingNumber
+        self.waterTemperatureCelsius = waterTemperatureCelsius
+        self.tasteBalance = tasteBalance
+        self.ratingStars = ratingStars
+        self.sensoryNotes = sensoryNotes
+        self.userComments = userComments
+    }
+}
+

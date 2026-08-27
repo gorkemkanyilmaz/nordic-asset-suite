@@ -3,7 +3,7 @@
 //  AssetCoreOCR
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Vision OCR Data Structures.
+//  Strict Concurrency: Complete. Vision OCR & Barcode Data Structures.
 //
 
 import Foundation
@@ -41,7 +41,22 @@ public struct RecognizedTextElement: Sendable, Identifiable {
     public init(id: UUID = UUID(), text: String, confidence: Float, boundingBox: CGRect) {
         self.id = id
         self.text = text
-        self.confidence = confidence
+        self.confidence confidence
+        self.boundingBox = boundingBox
+    }
+}
+
+/// A recognized barcode / QR observation from Vision.
+public struct RecognizedBarcodeElement: Sendable, Identifiable {
+    public let id: UUID
+    public let payloadString: String
+    public let symbology: String // EAN13, EAN8, QRCode, Code128, etc.
+    public let boundingBox: CGRect
+    
+    public init(id: UUID = UUID(), payloadString: String, symbology: String, boundingBox: CGRect) {
+        self.id = id
+        self.payloadString = payloadString
+        self.symbology = symbology
         self.boundingBox = boundingBox
     }
 }
@@ -66,6 +81,27 @@ public struct OCRScanResult: Sendable {
         self.averageConfidence = averageConfidence
         self.target = target
         self.requiresAIFallback = requiresAIFallback
+    }
+}
+
+/// Unified multi-pass scan output combining both barcodes and OCR text.
+public struct UnifiedScanOutput: Sendable {
+    public let barcodes: [RecognizedBarcodeElement]
+    public let ocrResult: OCRScanResult
+    public let primaryBarcode: String?
+    public let rawText: String
+    public let capturedImageData: Data?
+    
+    public init(
+        barcodes: [RecognizedBarcodeElement] = [],
+        ocrResult: OCRScanResult,
+        capturedImageData: Data? = nil
+    ) {
+        self.barcodes = barcodes
+        self.ocrResult = ocrResult
+        self.primaryBarcode = barcodes.first?.payloadString
+        self.rawText = ocrResult.rawText
+        self.capturedImageData = capturedImageData
     }
 }
 

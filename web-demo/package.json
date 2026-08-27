@@ -1,0 +1,15 @@
+{
+  "name": "nordic-asset-suite-web-demo",
+  "version": "3.1.0",
+  "description": "Interactive Live Web Demo & Omni-Identification Companion with Gemini AI",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "^5.2.0"
+  }
+}

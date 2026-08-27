@@ -1,0 +1,1 @@
+alpine,edge,stoeckli,atomic,salomon,head,toko,swix,temperature,radius,slalom,boot,freeride,carve

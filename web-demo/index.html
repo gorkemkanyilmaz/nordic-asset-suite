@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Nordic Asset Suite • 4 Distinct Consumer Applications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=20260822">
+  <script>
+    window.handleImageFallback = function(imgEl, fallbackIcon) {
+      if (!imgEl) return;
+      var parent = imgEl.parentElement;
+      if (parent) {
+        parent.innerHTML = '<i class="fa-solid ' + (fallbackIcon || 'fa-box') + '"></i>';
+      }
+    };
+  </script>
+</head>
+<body class="theme-appliance">
+  <div class="mobile-frame">
+    <!-- Top App Bar with Domain Switcher (Apple Guideline 4.3 Simulator) -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="app-brand" id="appBrandTitle">Appliance Warranty</span>
+      </div>
+      <div class="header-right">
+        <!-- App Switcher Dropdown (Developer / Reviewer Mode) -->
+        <div class="domain-dropdown" id="domainDropdownWrapper">
+          <button id="btnDomainPicker" class="btn-domain" onclick="toggleDomainMenu(event)" title="Switch Standalone Application">
+            <span id="domainCurrentIcon"><i class="fa-solid fa-shield-halved"></i></span>
+            <span id="domainCurrentLabel">Appliance</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+          </button>
+          <div class="domain-menu" id="domainMenu">
+            <div class="domain-menu-header" style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 4px;">
+              <i class="fa-solid fa-code" style="margin-right: 4px;"></i> App Switcher
+            </div>
+            <div class="domain-option active" data-app="appliance" onclick="handleDomainOptionSelect('appliance', event)">
+              <i class="fa-solid fa-shield-halved"></i>
+              <div>
+                <strong>Appliance Warranty</strong>
+                <span>Warranty Vault & Household Value</span>
+              </div>
+            </div>
+            <div class="domain-option" data-app="coffee" onclick="handleDomainOptionSelect('coffee', event)">
+              <i class="fa-solid fa-mug-hot"></i>
+              <div>
+                <strong>Coffee Companion</strong>
+                <span>Barista Deck & Water Chemistry</span>
+              </div>
+            </div>
+            <div class="domain-option" data-app="ebike" onclick="handleDomainOptionSelect('ebike', event)">
+              <i class="fa-solid fa-bicycle"></i>
+              <div>
+                <strong>E-Bike Service</strong>
+                <span>Rides, Chain Wear & Telemetry</span>
+              </div>
+            </div>
+            <div class="domain-option" data-app="skigear" onclick="handleDomainOptionSelect('skigear', event)">
+              <i class="fa-solid fa-person-skiing"></i>
+              <div>
+                <strong>Ski Gear Tracker</strong>
+                <span>Quiver, DIN Release & Waxing</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnSettings" class="btn-header-icon" title="Preferences & Help">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-content" id="mainContent">
+      <!-- ==================== APP 1: APPLIANCE WARRANTY ==================== -->
+      <div class="app-view-container active" id="appContainerAppliance">
+        <!-- 1. Home Pane -->
+        <div class="domain-pane active" id="paneApplianceHome">
+          <section class="section-greeting">
+            <span class="greeting-time" id="homeGreetingTime">Good evening</span>
+            <h1 class="home-title" id="homeGreetingTitle">Your Home</h1>
+            <p class="home-subtitle" id="applianceSubtitle">4 appliances · 3 covered by warranty</p>
+          </section>
+
+          <!-- Warranty Attention Card -->
+          <section class="warranty-attention" id="applianceAttentionCard" onclick="switchDomainTab('appliance', 'warranties')">
+            <div class="attention-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="attention-text">
+              <h4 id="applianceAttentionTitle">1 warranty has expired</h4>
+              <p id="applianceAttentionSubtitle">Miele W1 TwinDos warranty ended 15 Aug 2025</p>
+            </div>
+            <span class="attention-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+          </section>
+
+          <!-- Appliances Section -->
+          <div class="section-header">
+            <h2 id="applianceSectionTitle">My Appliances</h2>
+            <button class="btn-text-link" id="applianceSeeAllBtn" onclick="switchDomainTab('appliance', 'appliances')">See all →</button>
+          </div>
+
+          <div class="asset-list" id="applianceHomeList">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Add Appliance CTA Banner -->
+          <div class="add-cta-banner" onclick="openAddModal('appliance')">
+            <div class="add-cta-icon"><i class="fa-solid fa-plus"></i></div>
+            <div class="add-cta-text">
+              <h4 id="applianceAddCtaTitle">Add an appliance</h4>
+              <p id="applianceAddCtaDesc">Scan barcode, photograph rating plate or search model</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Appliances List Pane -->
+        <div class="domain-pane" id="paneApplianceAppliances">
+          <div class="view-header">
+            <h2 id="applianceAllTitle">All Appliances</h2>
+            <span class="view-header-count" id="applianceTotalCount">4 items</span>
+          </div>
+          <div class="filter-bar" id="applianceRoomFilterBar"></div>
+          <div class="asset-list" id="applianceFullList"></div>
+        </div>
+
+        <!-- 3. Warranties Pane -->
+        <div class="domain-pane" id="paneApplianceWarranties">
+          <div class="view-header">
+            <h2 id="applianceWarrantyTimelineTitle">Warranty Timeline</h2>
+          </div>
+          <div class="warranty-overview-grid">
+            <div class="warranty-stat-card">
+              <span class="warranty-stat-label" id="applianceStatActiveLabel">ACTIVE</span>
+              <div class="warranty-stat-val text-success" id="applianceCountActive">3</div>
+              <span class="warranty-stat-sub" id="applianceStatActiveSub">Fully covered</span>
+            </div>
+            <div class="warranty-stat-card">
+              <span class="warranty-stat-label" id="applianceStatExpiringLabel">EXPIRING SOON</span>
+              <div class="warranty-stat-val text-warning" id="applianceCountExpiring">0</div>
+              <span class="warranty-stat-sub" id="applianceStatExpiringSub">Within 90 days</span>
+            </div>
+            <div class="warranty-stat-card">
+              <span class="warranty-stat-label" id="applianceStatExpiredLabel">EXPIRED</span>
+              <div class="warranty-stat-val text-critical" id="applianceCountExpired">1</div>
+              <span class="warranty-stat-sub" id="applianceStatExpiredSub">Action required</span>
+            </div>
+          </div>
+          <div class="alerts-list" id="applianceWarrantiesList"></div>
+        </div>
+      </div>
+
+      <!-- ==================== APP 2: COFFEE COMPANION ==================== -->
+      <div class="app-view-container" id="appContainerCoffee">
+        <!-- 1. Today Pane -->
+        <div class="domain-pane active" id="paneCoffeeToday">
+          <section class="section-greeting">
+            <span class="greeting-time">Barista Deck</span>
+            <h1 class="home-title">Today's Extraction</h1>
+            <p class="home-subtitle" id="coffeeHomeSubtitle">No Coffee Machine Paired</p>
+          </section>
+
+          <!-- Dynamic Container: Empty State or Machine-Adaptive Deck (Easy / Pro / Filter) -->
+          <div id="coffeeTodayDynamicContainer"></div>
+
+          <!-- Active Bean Freshness Card -->
+          <div id="coffeeActiveBeanContainer" style="margin-top: 16px;"></div>
+
+          <!-- Water Chemistry & Municipal Care Card -->
+          <div id="coffeeWaterChemistryContainer" style="margin-top: 16px;"></div>
+        </div>
+
+        <!-- 2. Brew Recipes Pane -->
+        <div class="domain-pane" id="paneCoffeeRecipes">
+          <div class="view-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Dial-In Recipes & Brew Lab</h2>
+            <button class="btn btn-secondary btn-sm" onclick="openBeanLibraryModal()">
+              <i class="fa-solid fa-seedling"></i> Bean Cellar (<span id="beanCountBadge">3</span>)
+            </button>
+          </div>
+
+          <!-- Filter Pills for Methods -->
+          <div class="filter-bar" id="coffeeMethodFilterBar" style="margin-bottom: 14px;">
+            <button class="filter-pill active" onclick="setCoffeeRecipeFilter('All')">All Methods</button>
+            <button class="filter-pill" onclick="setCoffeeRecipeFilter('Espresso')">Espresso</button>
+            <button class="filter-pill" onclick="setCoffeeRecipeFilter('Pour-Over')">Pour-Over (V60)</button>
+            <button class="filter-pill" onclick="setCoffeeRecipeFilter('Aeropress')">Aeropress</button>
+            <button class="filter-pill" onclick="setCoffeeRecipeFilter('Cold Brew')">Cold Brew</button>
+            <button class="filter-pill" onclick="setCoffeeRecipeFilter('Lungo')">Café Crème</button>
+          </div>
+
+          <!-- Active Bean Dial-In Sequence History -->
+          <div id="coffeeDialInHistoryContainer" style="margin-bottom: 16px;"></div>
+
+          <!-- AI Grind & Extraction Advisor Panel -->
+          <div class="coffee-care-card" style="margin-bottom: 18px; border: 1px solid rgba(56, 189, 248, 0.25);">
+            <div style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; color: var(--accent-primary); font-weight: 800; letter-spacing: 0.08em;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI BARISTA DIAL-IN ADVISOR</span>
+                <span class="badge-pill" style="font-size: 9px;">Specialty Standards</span>
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Calculate exact grind steps, brew ratios, water temperatures, and flow timings calibrated to your coffee origin and local water hardness.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <div>
+                <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px; font-weight: 600;">BREW METHOD</label>
+                <select id="inputBrewMethod" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px;">
+                  <option value="Double Espresso">Double Espresso (Machine)</option>
+                  <option value="Single Ristretto">Italian Ristretto (1:1.5)</option>
+                  <option value="Café Crème">Swiss Café Crème / Lungo</option>
+                  <option value="V60 Pour Over">Hario V60 / Pour-Over</option>
+                  <option value="Aeropress">Aeropress Inverted</option>
+                  <option value="Cold Brew">Cold Brew Concentrate</option>
+                  <option value="Moka Pot">Bialetti Moka Pot</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px; font-weight: 600;">ROAST LEVEL</label>
+                <select id="inputRoastLevel" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px;">
+                  <option value="light">Light Roast (Floral / High Acidity)</option>
+                  <option value="medium-light" selected>Medium-Light (City / Fruit)</option>
+                  <option value="medium">Medium Roast (Balanced Caramel)</option>
+                  <option value="medium-dark">Medium-Dark (Full City / Chocolate)</option>
+                  <option value="dark">Dark Roast (Italian / Intense Body)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px; font-weight: 600;">BEAN ORIGIN & PROCESS</label>
+              <input id="inputBeanOrigin" type="text" value="Ethiopia Yirgacheffe Washed" placeholder="e.g. Ethiopia Yirgacheffe, Colombia Huila, Kenya AA..." style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 12px;" />
+              <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px;">
+                <span style="font-size: 10px; color: var(--text-muted);">Quick pick:</span>
+                <button type="button" class="sample-chip" onclick="document.getElementById('inputBeanOrigin').value='Ethiopia Yirgacheffe Washed'">Yirgacheffe</button>
+                <button type="button" class="sample-chip" onclick="document.getElementById('inputBeanOrigin').value='Colombia Huila Supremo'">Colombia Huila</button>
+                <button type="button" class="sample-chip" onclick="document.getElementById('inputBeanOrigin').value='Kenya Nyeri AA Washed'">Kenya AA</button>
+                <button type="button" class="sample-chip" onclick="document.getElementById('inputBeanOrigin').value='Brazil Cerrado Natural'">Brazil Cerrado</button>
+                <button type="button" class="sample-chip" onclick="document.getElementById('inputBeanOrigin').value='Guatemala Antigua Bourbon'">Guatemala</button>
+                <button type="button" class="sample-chip" onclick="document.getElementById('inputBeanOrigin').value='Panama Geisha Natural'">Panama Geisha</button>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 3px; font-weight: 600;">LOCAL WATER HARDNESS</label>
+              <select id="inputWaterHardness" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px;">
+                <option value="soft">Zurich / Vienna / Soft (&lt; 8.5 °dH)</option>
+                <option value="moderate">Basel / Odense / Moderate (9–13 °dH)</option>
+                <option value="hard" selected>Copenhagen / Bern / Hard (14–16 °dH)</option>
+                <option value="very_hard">Geneva / Graz / Very Hard (&gt; 16 °dH)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary btn-block" onclick="runCoffeeGrindAdvisor()">
+              <i class="fa-solid fa-sliders"></i> Calculate Dial-In & Grind Setting
+            </button>
+            <div id="coffeeGrindResult" style="display:none; margin-top: 12px; background: #131720; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px;"></div>
+          </div>
+
+          <div class="section-header" style="margin-bottom: 12px;">
+            <h3>Specialty Brew Library</h3>
+          </div>
+          <div class="recipe-list" id="coffeeRecipeList"></div>
+        </div>
+
+        <!-- 3. Machine Maintenance Pane -->
+        <div class="domain-pane" id="paneCoffeeMachine">
+          <div class="view-header">
+            <h2>Machine Maintenance & Equipment</h2>
+          </div>
+          <div id="coffeeMachineDetails"></div>
+        </div>
+      </div>
+
+      <!-- ==================== APP 3: E-BIKE SERVICE ==================== -->
+      <div class="app-view-container" id="appContainerEBike">
+        <!-- 1. Ride / Dashboard Pane -->
+        <div class="domain-pane active" id="paneEBikeRide">
+          <section class="section-greeting">
+            <span class="greeting-time">Garage Fleet</span>
+            <h1 class="home-title">Scott Patron eRIDE 900</h1>
+            <p class="home-subtitle">Bosch Performance Line CX (85 Nm)</p>
+          </section>
+
+          <!-- Telemetry Hero Card -->
+          <div class="ebike-hero-card">
+            <div class="ebike-stat-row">
+              <div class="ebike-stat">
+                <span class="ebike-stat-label">BATTERY HEALTH</span>
+                <div class="ebike-stat-val text-success" id="ebikeBatteryDisplay">98%</div>
+                <span class="ebike-stat-sub">32 Cycles · 750 Wh</span>
+              </div>
+              <div class="ebike-stat">
+                <span class="ebike-stat-label">TOTAL ODOMETER</span>
+                <div class="ebike-stat-val text-accent" id="ebikeOdometerDisplay">1,420 km</div>
+                <span class="ebike-stat-sub">Next service: 80 km</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block" style="margin-top: 14px;" onclick="openLogRideModal()">
+              <i class="fa-solid fa-bicycle"></i> Log Completed Ride
+            </button>
+          </div>
+
+          <!-- Component Health Gauges -->
+          <div class="section-header" style="margin-top: 20px;">
+            <h2>Component Wear & Telemetry</h2>
+            <button class="btn-text-link" onclick="switchDomainTab('ebike', 'parts')">All parts →</button>
+          </div>
+
+          <div class="component-gauge-card">
+            <div class="gauge-header">
+              <span>CHAIN ELONGATION GAUGE</span>
+              <strong class="text-success">0.35% (Optimal)</strong>
+            </div>
+            <div class="care-progress-track">
+              <div class="care-progress-fill" style="width: 35%; background: var(--status-success);"></div>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Replace chain when stretch reaches 0.75% (SRAM Eagle 12-Speed)</span>
+          </div>
+
+          <div class="component-gauge-card" style="margin-top: 10px;">
+            <div class="gauge-header">
+              <span>SUSPENSION AIR PRESSURE</span>
+              <strong style="color: var(--accent-primary);">165 PSI / 25% Sag</strong>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Calibrated for 78 kg rider weight on Fox 38 Float 160mm fork</span>
+          </div>
+
+          <!-- Recent Service Log -->
+          <div class="section-header" style="margin-top: 20px;">
+            <h2>Recent Maintenance History</h2>
+          </div>
+          <div class="service-log-item">
+            <div class="service-icon"><i class="fa-solid fa-wrench"></i></div>
+            <div class="service-info">
+              <h4>Ceramic Chain Lubrication</h4>
+              <p>Applied at 1,300 km · Next due at 1,450 km</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Bike Details Pane -->
+        <div class="domain-pane" id="paneEBikeBike">
+          <div class="view-header">
+            <h2>Bike Specifications</h2>
+          </div>
+          <div id="ebikeSpecsContainer"></div>
+        </div>
+
+        <!-- 3. Wear Parts Pane -->
+        <div class="domain-pane" id="paneEBikeParts">
+          <div class="view-header">
+            <h2>Consumables & Wear Parts</h2>
+          </div>
+          <div id="ebikePartsContainer"></div>
+
+          <!-- Motor Error Decoder (E-Bike exclusive AI feature) -->
+          <div class="component-gauge-card" style="margin-top: 16px;">
+            <div style="margin-bottom: 12px;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.08em;">MOTOR ERROR DECODER</span>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Enter a Bosch, Shimano EP8, or Bafang error code to get an AI diagnosis.</p>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+              <input id="inputMotorErrorCode" type="text" placeholder="Error code (e.g. 503, 540, 0x04)"
+                style="flex:1; background: var(--surface-02); border: 1px solid var(--border-subtle); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px; letter-spacing: 0.05em;">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="runEBikeMotorDiagnosis()">
+              <i class="fa-solid fa-circle-exclamation"></i> Decode Motor Error with AI
+            </button>
+            <div id="ebikeMotorDiagResult" style="display:none; margin-top: 12px; background: var(--surface-01); border-radius: 10px; padding: 14px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== APP 4: SKI GEAR TRACKER ==================== -->
+      <div class="app-view-container" id="appContainerSkiGear">
+        <!-- 1. Quiver Pane -->
+        <div class="domain-pane active" id="paneSkiGearQuiver">
+          <section class="section-greeting">
+            <span class="greeting-time">Alpine Quiver</span>
+            <h1 class="home-title">Stöckli Laser SL (165cm)</h1>
+            <p class="home-subtitle">Salomon Freeflex 14 Race Bindings</p>
+          </section>
+
+          <!-- Ski Setup Card -->
+          <div class="ski-hero-card">
+            <div class="ski-metrics-row">
+              <div class="ski-metric">
+                <span>ISO 11088 DIN</span>
+                <strong class="text-accent">DIN 8.5</strong>
+                <p>305mm BSL · 78kg Skier</p>
+              </div>
+              <div class="ski-metric">
+                <span>BASE WAX</span>
+                <strong style="color: var(--status-success);">Toko Blue</strong>
+                <p>-10°C to -30°C Cold Snow</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block" style="margin-top: 14px;" onclick="openDINCalculatorModal()">
+              <i class="fa-solid fa-gauge-high"></i> Recalculate Binding DIN (ISO 11088)
+            </button>
+          </div>
+
+          <!-- Season Readiness -->
+          <div class="section-header" style="margin-top: 20px;">
+            <h2>Season Readiness & Tuning</h2>
+            <button class="btn-text-link" onclick="switchDomainTab('skigear', 'tuning')">Tuning log →</button>
+          </div>
+
+          <div class="ski-readiness-card">
+            <div class="readiness-item">
+              <span>Ski Days This Season</span>
+              <strong>18 Days on Snow</strong>
+            </div>
+            <div class="readiness-item">
+              <span>Side Edge Bevel</span>
+              <strong>88.0° Diamond Honed (4 Days Ago)</strong>
+            </div>
+            <div class="readiness-item">
+              <span>Next Mountain Trip</span>
+              <strong class="text-accent">Zermatt (In 12 Days)</strong>
+            </div>
+          </div>
+
+          <!-- Mountain Trip Gear Checklist -->
+          <div class="section-header" style="margin-top: 20px;">
+            <h2>Trip Packing Checklist</h2>
+          </div>
+          <div class="checklist-card">
+            <div class="checklist-row" onclick="toggleCheckRow(this)">
+              <div class="checklist-check checked"><i class="fa-solid fa-check"></i></div>
+              <span>Stöckli Laser SL Skis & Salomon Freeflex 14</span>
+            </div>
+            <div class="checklist-row" onclick="toggleCheckRow(this)">
+              <div class="checklist-check checked"><i class="fa-solid fa-check"></i></div>
+              <span>Lange RS 130 Ski Boots (305 mm Sole)</span>
+            </div>
+            <div class="checklist-row" onclick="toggleCheckRow(this)">
+              <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+              <span>Avalanche Transceiver & Carbon Probe</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. DIN & Setup Pane -->
+        <div class="domain-pane" id="paneSkiGearSetup">
+          <div class="view-header">
+            <h2>Binding & Boot Setup</h2>
+          </div>
+          <div id="skiSetupContainer"></div>
+        </div>
+
+        <!-- 3. Tuning & Wax Pane -->
+        <div class="domain-pane" id="paneSkiGearTuning">
+          <div class="view-header">
+            <h2>Edge & Wax History</h2>
+          </div>
+          <div id="skiTuningContainer"></div>
+        </div>
+      </div>
+
+      <!-- ==================== SHARED SETTINGS PANE ==================== -->
+      <div class="domain-pane" id="paneCommonSettings">
+        <div class="view-header">
+          <h2>Preferences & Data</h2>
+        </div>
+        <div class="settings-group">
+          <span class="settings-group-title" id="settingGroupRegionalTitle">REGIONAL STANDARDS & LOCALIZATION</span>
+          <div class="settings-row" style="cursor: default;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingLangTitle">Language / Sprache / Sprog</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingLangSub">Nordic & European native interface translation</span>
+            </div>
+            <select id="settingLanguageSelect" onchange="setLanguage(this.value)" class="settings-select" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--accent-primary); font-weight: 700; border-radius: 8px; padding: 6px 28px 6px 10px; font-size: 12px;">
+              <option value="de">🇨🇭 Deutsch (CH / DE / AT)</option>
+              <option value="fr">🇫🇷 Français (CH / FR / BE)</option>
+              <option value="it">🇮🇹 Italiano (CH / IT)</option>
+              <option value="da">🇩🇰 Dansk (Danmark)</option>
+              <option value="sv">🇸🇪 Svenska (Sverige)</option>
+              <option value="no">🇳🇴 Norsk (Norge)</option>
+              <option value="en">🇬🇧 English (Global / UK / US)</option>
+              <option value="tr">🇹🇷 Türkçe (Türkiye)</option>
+            </select>
+          </div>
+          <div class="settings-row" style="cursor: default;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingCurrencyTitle">Currency Format</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingCurrencySub">Applied across asset values, parts & market prices</span>
+            </div>
+            <select id="settingCurrencySelect" onchange="setCurrency(this.value)" class="settings-select" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--accent-primary); font-weight: 700; border-radius: 8px; padding: 6px 28px 6px 10px; font-size: 12px;">
+              <option value="CHF">CHF (Swiss Franc)</option>
+              <option value="EUR">EUR (Euro - €)</option>
+              <option value="USD">USD (US Dollar - $)</option>
+              <option value="TRY">TRY (Turkish Lira - ₺)</option>
+              <option value="GBP">GBP (British Pound - £)</option>
+              <option value="SEK">SEK (Swedish Krona - kr)</option>
+              <option value="NOK">NOK (Norwegian Krone - kr)</option>
+            </select>
+          </div>
+          <div class="settings-row" style="cursor: default;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;">Statutory Legal Warranty</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;">Default policy duration for standard appliances</span>
+            </div>
+            <select id="settingStatutoryWarrantySelect" onchange="setStatutoryWarrantySetting(this.value)" class="settings-select" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--accent-primary); font-weight: 700; border-radius: 8px; padding: 6px 28px 6px 10px; font-size: 12px;">
+              <option value="12">12 Months (1 Year Standard)</option>
+              <option value="24" selected>24 Months (Swiss CO / EU Standard)</option>
+              <option value="36">36 Months (3 Years Extended)</option>
+              <option value="60">60 Months (5 Years Long-term)</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-group">
+          <span class="settings-group-title">DIAGNOSTICS & ONBOARDING</span>
+          <div class="settings-row" onclick="openOnboardingModal()">
+            <span>Guided Onboarding Tour</span>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </div>
+          <div class="settings-row" onclick="reloadInitialData()">
+            <span>Reset Demo Hardware</span>
+            <i class="fa-solid fa-rotate-left text-muted"></i>
+          </div>
+        </div>
+        <div class="settings-group">
+          <span class="settings-group-title" id="settingsNotifHeader">WARRANTY & SERVICE NOTIFICATIONS</span>
+          <div class="settings-row">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingsWarrantyNotifTitle">Warranty Expiry Reminders</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingsWarrantyNotifSub">Notify 30 days, 7 days, and 1 day before statutory warranty cutoff</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleWarrantyNotifications" checked onchange="handleNotificationToggle(this)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingsMaintNotifTitle">Maintenance & Service Reminders</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingsMaintNotifSub">Descaling, filter replacements, and tuning intervals</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleMaintenanceNotifications" checked onchange="handleMaintenanceToggle(this)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row" onclick="openNotificationLogModal()" style="cursor: pointer;">
+            <span id="settingsNotifTimelineBtn"><i class="fa-solid fa-bell text-accent" style="margin-right: 8px;"></i> View Scheduled Alert Timeline</span>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </div>
+        </div>
+        <div class="settings-group">
+          <span class="settings-group-title">APP STORE OPTIMIZATION (ASO)</span>
+          <div class="settings-row" onclick="openAsoInspectorModal()" style="cursor: pointer;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;"><i class="fa-brands fa-app-store-ios text-accent" style="margin-right: 6px;"></i> App Store Keyword & Card Preview</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;">Inspect 30-char titles, 100-char keywords & multi-locale multipliers</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </div>
+        </div>
+        <div class="settings-group">
+          <span class="settings-group-title" id="settingsLegalHeader">LEGAL, PRIVACY & SUPPORT</span>
+          <div class="settings-row" onclick="openPrivacyPolicyModal()" style="cursor: pointer;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingsPrivacyTitle"><i class="fa-solid fa-user-shield text-accent" style="margin-right: 6px;"></i> Privacy Policy</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingsPrivacySub">On-device storage, zero tracking, GDPR & Swiss FADP compliance</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </div>
+          <div class="settings-row" onclick="openTermsOfUseModal()" style="cursor: pointer;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingsTermsTitle"><i class="fa-solid fa-file-contract text-accent" style="margin-right: 6px;"></i> Terms of Use (EULA)</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingsTermsSub">Warranty disclaimers, safety guidelines & Apple standard EULA</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </div>
+          <div class="settings-row" onclick="openSupportModal()" style="cursor: pointer;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600;" id="settingsSupportTitle"><i class="fa-solid fa-headset text-accent" style="margin-right: 6px;"></i> Contact Support & Diagnostics</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingsSupportSub">Email help desk, system telemetry & hardware FAQ</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-muted"></i>
+          </div>
+          <div class="settings-row" onclick="eraseAllDataConfirm()" style="cursor: pointer;">
+            <div style="flex: 1; padding-right: 12px;">
+              <span style="display: block; font-weight: 600; color: var(--status-danger);" id="settingsEraseTitle"><i class="fa-solid fa-trash-can" style="margin-right: 6px;"></i> Erase All Local Data & Reset</span>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px;" id="settingsEraseSub">Permanently delete all stored portfolio assets and custom settings</span>
+            </div>
+            <i class="fa-solid fa-triangle-exclamation" style="color: var(--status-danger);"></i>
+          </div>
+        </div>
+        <p class="settings-footer">Nordic Asset Suite v3.2.0 • Swiss Precision</p>
+      </div>
+    </main>
+
+    <!-- Domain-Specific Bottom Mobile Navigation Bars -->
+    <!-- 1. Appliance Navigation -->
+    <nav class="bottom-nav active" id="navBarAppliance">
+      <button class="nav-item active" data-tab="home" onclick="switchDomainTab('appliance', 'home')">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" data-tab="appliances" onclick="switchDomainTab('appliance', 'appliances')">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>Appliances</span>
+      </button>
+      <button class="nav-item nav-add" onclick="openAddModal('appliance')">
+        <div class="nav-add-btn"><i class="fa-solid fa-plus"></i></div>
+        <span>Add</span>
+      </button>
+      <button class="nav-item" data-tab="warranties" onclick="switchDomainTab('appliance', 'warranties')">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Warranties</span>
+        <span class="nav-badge" id="applianceNavBadge">1</span>
+      </button>
+      <button class="nav-item" data-tab="settings" onclick="openSettingsView()">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- 2. Coffee Navigation -->
+    <nav class="bottom-nav" id="navBarCoffee">
+      <button class="nav-item active" data-tab="today" onclick="switchDomainTab('coffee', 'today')">
+        <i class="fa-solid fa-mug-hot"></i>
+        <span>Today</span>
+      </button>
+      <button class="nav-item" data-tab="recipes" onclick="switchDomainTab('coffee', 'recipes')">
+        <i class="fa-solid fa-book-open"></i>
+        <span>Recipes</span>
+      </button>
+      <button class="nav-item nav-add" onclick="openBrewTimerModal()">
+        <div class="nav-add-btn"><i class="fa-solid fa-play"></i></div>
+        <span>Brew</span>
+      </button>
+      <button class="nav-item" data-tab="machine" onclick="switchDomainTab('coffee', 'machine')">
+        <i class="fa-solid fa-gear"></i>
+        <span>Machine</span>
+      </button>
+      <button class="nav-item" data-tab="settings" onclick="openSettingsView()">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- 3. E-Bike Navigation -->
+    <nav class="bottom-nav" id="navBarEBike">
+      <button class="nav-item active" data-tab="ride" onclick="switchDomainTab('ebike', 'ride')">
+        <i class="fa-solid fa-bicycle"></i>
+        <span>Ride</span>
+      </button>
+      <button class="nav-item" data-tab="bike" onclick="switchDomainTab('ebike', 'bike')">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Bike</span>
+      </button>
+      <button class="nav-item nav-add" onclick="openLogRideModal()">
+        <div class="nav-add-btn"><i class="fa-solid fa-plus"></i></div>
+        <span>Log</span>
+      </button>
+      <button class="nav-item" data-tab="parts" onclick="switchDomainTab('ebike', 'parts')">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span>Parts</span>
+      </button>
+      <button class="nav-item" data-tab="settings" onclick="openSettingsView()">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- 4. Ski Gear Navigation -->
+    <nav class="bottom-nav" id="navBarSkiGear">
+      <button class="nav-item active" data-tab="quiver" onclick="switchDomainTab('skigear', 'quiver')">
+        <i class="fa-solid fa-person-skiing"></i>
+        <span>Quiver</span>
+      </button>
+      <button class="nav-item" data-tab="setup" onclick="switchDomainTab('skigear', 'setup')">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Setup</span>
+      </button>
+      <button class="nav-item nav-add" onclick="openAddModal('skigear')">
+        <div class="nav-add-btn"><i class="fa-solid fa-plus"></i></div>
+        <span>Add Gear</span>
+      </button>
+      <button class="nav-item" data-tab="tuning" onclick="switchDomainTab('skigear', 'tuning')">
+        <i class="fa-solid fa-snowflake"></i>
+        <span>Tuning</span>
+      </button>
+      <button class="nav-item" data-tab="settings" onclick="openSettingsView()">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== MODALS & DRAWERS ==================== -->
+
+  <!-- 1. Add Asset Modal (Domain Specific) -->
+  <div class="modal-overlay" id="addModalOverlay">
+    <div class="modal modal-bottom-sheet">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">
+        <h3 id="addModalTitle">Add Appliance</h3>
+        <button class="modal-close" onclick="closeAddModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="add-options-list">
+        <div class="add-option-card" onclick="startCameraScanner()">
+          <div class="add-option-icon"><i class="fa-solid fa-barcode"></i></div>
+          <div class="add-option-info">
+            <h4 id="addModalScanTitle">Scan Barcode</h4>
+            <p id="addModalScanDesc">EAN-13, UPC, packaging or frame barcode</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-muted"></i>
+        </div>
+
+        <label for="filePhotoInput" class="add-option-card">
+          <div class="add-option-icon"><i class="fa-solid fa-camera"></i></div>
+          <div class="add-option-info">
+            <h4 id="addModalPhotoTitle">Photograph Label / Plate</h4>
+            <p id="addModalPhotoDesc">Extract model specs from rating badge</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-muted"></i>
+          <input type="file" id="filePhotoInput" accept="image/*" style="display: none;">
+        </label>
+
+        <div class="add-option-manual">
+          <label id="addModalManualLabel">Or enter exact product / model number:</label>
+          <div class="manual-input-row">
+            <input type="text" id="manualModelInput" placeholder="e.g. DeLonghi Magnifica Plus, Sage Barista Touch, Jura E8..." />
+            <button class="btn btn-primary" id="btnManualSearch">Identify</button>
+          </div>
+          <div class="manual-quick-samples" id="addModalQuickSamples">
+            <span class="text-muted" id="addModalQuickSamplesLabel">Quick test:</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Grounded Product Intelligence Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModalOverlay">
+    <div class="modal modal-dialog" style="max-height: 90vh; overflow-y: auto;">
+      <div class="confirm-card">
+        <div class="confirm-status-bar" style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="confirm-badge" id="confirmBadge">VERIFIED PRODUCT</span>
+          <span class="badge-pill" id="confirmSourceBadge" style="font-size: 9px;">Manufacturer Sourced</span>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin: 12px 0 10px; align-items: center;">
+          <div class="thumb-wrapper thumb-md" id="confirmProductImageWrapper">
+            <img id="confirmProductImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E" class="product-thumb-img" alt="Product" onerror="handleImageFallback(this, 'fa-box')" />
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <span class="confirm-brand" id="confirmBrand">PHILIPS</span>
+            <h2 class="confirm-title" id="confirmTitle" style="font-size: 16px; margin: 2px 0; line-height: 1.25;">Philips 3300 Series LatteGo</h2>
+            <span style="font-size: 12px; color: var(--accent-primary); font-weight: 700;" id="confirmModelNumber">EP3347/90</span>
+          </div>
+        </div>
+
+        <p class="confirm-desc" id="confirmSummaryDesc" style="font-size: 12px; margin-bottom: 12px;">Fully automatic espresso machine with LatteGo milk system and 12-step ceramic grinder.</p>
+
+        <!-- Technical Specs Box -->
+        <div id="confirmSpecsHeader" style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.05em;">MANUFACTURER SPECIFICATIONS</div>
+        <div class="confirm-specs-box" id="confirmSpecsContainer"></div>
+
+        <!-- Market Price & Policy Meta Row -->
+        <div class="confirm-meta-row">
+          <div>
+            <span class="confirm-meta-label" id="confirmPolicyHeader">MANUFACTURER POLICY / WARRANTY</span>
+            <strong class="text-success" style="display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-shield-check"></i>
+              <span id="confirmWarranty">24 Months</span>
+            </strong>
+          </div>
+          <div style="text-align: right;">
+            <span class="confirm-meta-label" id="confirmMarketValHeader">REGIONAL MARKET VALUE</span>
+            <strong id="confirmPrice" class="text-accent">CHF 649 – 699</strong>
+          </div>
+        </div>
+
+        <!-- User Ownership Section (Personal Instance Details) -->
+        <div style="background: var(--bg-surface-elevated); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; border: 1px solid var(--border-subtle);">
+          <div id="confirmOwnershipHeader" style="font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px;">YOUR PRODUCT OWNERSHIP (OPTIONAL)</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label id="confirmPurchaseDateLabel" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Purchase Date:</label>
+              <input type="date" id="inputUserPurchaseDate" style="width: 100%; box-sizing: border-box; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;" />
+            </div>
+            <div>
+              <label id="confirmDeliveryDateLabel" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Delivery / Handover Date:</label>
+              <input type="date" id="inputUserDeliveryDate" style="width: 100%; box-sizing: border-box; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;" />
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label id="confirmPurchaseCountryLabel" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Purchase Country / Jurisdiction:</label>
+              <select id="inputUserPurchaseCountry" style="width: 100%; box-sizing: border-box; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px; cursor: pointer;">
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;" id="inputUserPurchasePriceLabel">Purchase Price (CHF):</label>
+              <input type="number" id="inputUserPurchasePrice" placeholder="e.g. 649" style="width: 100%; box-sizing: border-box; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;" />
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div>
+              <label id="confirmWarrantyDurationLabel" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Manufacturer Warranty Duration:</label>
+              <select id="inputUserWarrantyMonths" style="width: 100%; box-sizing: border-box; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;">
+              </select>
+            </div>
+            <div>
+              <label id="confirmRoomLocationLabel" style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">Room / Location:</label>
+              <select id="inputUserRoomLocation" style="width: 100%; box-sizing: border-box; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px; cursor: pointer;">
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirm-actions">
+          <button class="btn btn-primary btn-block" id="btnConfirmAndSave">Save to My Products</button>
+          <button class="btn btn-secondary btn-block" id="btnConfirmCancel" onclick="closeConfirmModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Live Camera Scanner Viewfinder -->
+  <div class="modal-overlay" id="cameraScannerOverlay">
+    <div class="camera-fullscreen">
+      <div class="camera-top-bar">
+        <button class="camera-btn-icon" onclick="closeCameraScanner()"><i class="fa-solid fa-xmark"></i></button>
+        <span class="camera-title">Live Barcode & Label Scanner</span>
+        <button class="camera-btn-icon" id="btnTorch" onclick="toggleTorch()"><i class="fa-solid fa-bolt"></i></button>
+      </div>
+      <div class="camera-viewfinder-area">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <div class="reticle-box">
+          <div class="reticle-laser"></div>
+          <div class="corner-marker top-left"></div>
+          <div class="corner-marker top-right"></div>
+          <div class="corner-marker bottom-left"></div>
+          <div class="corner-marker bottom-right"></div>
+        </div>
+        <p class="camera-instruction">Align barcode or serial plate in reticle</p>
+      </div>
+      <div class="camera-sample-bar">
+        <span>Test barcode detection fixtures:</span>
+        <div class="camera-chips" id="cameraSampleChips">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Interactive Brew Timer & Taste Journal Modal (Coffee Companion) -->
+  <div class="modal-overlay" id="brewTimerModalOverlay">
+    <div class="modal modal-dialog" style="text-align: center; max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="brewTimerModalTitle">Live Extraction Timer</h3>
+        <button class="modal-close" onclick="closeBrewTimerModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="font-size: 11px; color: var(--accent-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;" id="brewTimerRecipeName">Double Espresso Standard</div>
+      <div class="brew-timer-display" id="brewTimerSeconds">00:00</div>
+      <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;" id="brewTimerTargetInfo">Target: <strong>27.0 seconds</strong> for 36.0g yield (1:2.0)</p>
+
+      <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 14px;">
+        <button class="btn btn-primary" id="btnToggleTimer" onclick="toggleBrewTimer()"><i class="fa-solid fa-play"></i> Start Timer</button>
+        <button class="btn btn-secondary" onclick="resetBrewTimer()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      </div>
+
+      <!-- Post-Brew Taste Evaluation Section -->
+      <div id="brewTasteEvaluationSection" style="display: none; text-align: left; background: #131720; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; margin-top: 10px;">
+        <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Extraction Finished · How Was The Taste?
+        </div>
+
+        <!-- 3-Button Balance Selector -->
+        <label style="font-size: 10px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">BALANCE EVALUATION</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+          <button type="button" class="btn btn-secondary btn-sm taste-btn" id="btnTasteSour" onclick="setTasteBalance('Too Sour')">
+            🍋 Too Sour
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm taste-btn active" id="btnTasteBalanced" onclick="setTasteBalance('Balanced')">
+            ⚖️ Balanced
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm taste-btn" id="btnTasteBitter" onclick="setTasteBalance('Too Bitter')">
+            ☕ Too Bitter
+          </button>
+        </div>
+
+        <!-- Dynamic Guidance Tip based on Taste -->
+        <div id="tasteFeedbackGuidance" style="font-size: 11px; color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;">
+          <i class="fa-solid fa-circle-check"></i> <strong>Optimal Extraction!</strong> Balanced sweetness and acidity. Saved to bean dial-in memory.
+        </div>
+
+        <!-- 1 to 5 Star Rating -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <label style="font-size: 10px; color: var(--text-muted); font-weight: 700; margin: 0;">RATING</label>
+          <div style="display: flex; gap: 4px; font-size: 18px; color: #fbbf24; cursor: pointer;" id="starRatingContainer">
+            <span onclick="setBrewStarRating(1)">★</span>
+            <span onclick="setBrewStarRating(2)">★</span>
+            <span onclick="setBrewStarRating(3)">★</span>
+            <span onclick="setBrewStarRating(4)">★</span>
+            <span onclick="setBrewStarRating(5)">★</span>
+          </div>
+        </div>
+
+        <!-- Optional Comments -->
+        <input type="text" id="inputBrewUserComments" placeholder="Tasting notes (e.g. sweet peach, silky crema)..." style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 11px; margin-bottom: 10px;" />
+
+        <button class="btn btn-primary btn-block" onclick="saveCompletedBrewToJournal()">
+          <i class="fa-solid fa-floppy-disk"></i> Save to Personal Coffee Memory
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4b. Bean Library & Cellar Inventory Modal (Coffee Companion) -->
+  <div class="modal-overlay" id="beanLibraryModalOverlay">
+    <div class="modal modal-bottom-sheet" style="max-height: 85vh; overflow-y: auto;">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-seedling text-accent"></i> Coffee Bean Cellar</h3>
+        <button class="modal-close" onclick="closeBeanLibraryModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="padding: 0 16px 20px;">
+        <!-- Add Bean Form (Collapsible) -->
+        <div style="background: #131720; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 12px; font-weight: 700; color: #fff;"><i class="fa-solid fa-plus-circle text-accent"></i> Add Coffee Bag to Cellar</span>
+            <button class="btn btn-secondary btn-sm" onclick="simulateBeanBagScan()" style="font-size: 10px; padding: 4px 8px;">
+              <i class="fa-solid fa-camera"></i> AI Bag Scan
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">COFFEE NAME</label>
+              <input type="text" id="inputNewBeanName" placeholder="e.g. Yirgacheffe Idido" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;" />
+            </div>
+            <div>
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">ROASTER</label>
+              <input type="text" id="inputNewBeanRoaster" placeholder="e.g. Miro Coffee Zurich" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+            <div>
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">ORIGIN</label>
+              <input type="text" id="inputNewBeanOrigin" placeholder="e.g. Ethiopia" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;" />
+            </div>
+            <div>
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">PROCESS</label>
+              <select id="inputNewBeanProcess" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 8px; font-size: 11px;">
+                <option value="Washed">Washed</option>
+                <option value="Natural">Natural</option>
+                <option value="Honey">Honey</option>
+                <option value="Anaerobic">Anaerobic</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px;">ROAST DATE</label>
+              <input type="date" id="inputNewBeanRoastDate" style="width: 100%; box-sizing: border-box; background: #1a1e27; border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 5px 6px; font-size: 11px;" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block btn-sm" onclick="addNewBeanToLibrary()">
+            <i class="fa-solid fa-plus"></i> Save to Bean Cellar
+          </button>
+        </div>
+
+        <!-- Bean Inventory List -->
+        <h4 style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">Active Bags in Cellar</h4>
+        <div id="beanCellarList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ISO 11088 DIN Calculator Modal (Ski Gear Tracker) -->
+  <div class="modal-overlay" id="dinModalOverlay">
+    <div class="modal modal-dialog">
+      <div class="modal-header">
+        <h3>ISO 11088 DIN Release</h3>
+        <button class="modal-close" onclick="closeDINModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="font-size: 13px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between;"><span>Skier Weight:</span> <strong>78 kg</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Skier Height:</span> <strong>182 cm</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Boot Sole Length (BSL):</span> <strong>305 mm</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Skier Type:</span> <strong>Type III (Advanced / Race)</strong></div>
+        <div style="background: var(--accent-primary-soft); padding: 10px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+          <span style="font-weight: 700;">Calculated Torque:</span>
+          <strong style="font-size: 18px; color: var(--accent-primary);">DIN 8.5</strong>
+        </div>
+        <div class="disclaimer-box">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span><strong>Mandatory Safety Requirement:</strong> ISO 11088 DIN calculations are informational estimates. Ski binding release values must be physically set and tested by a certified ski technician using a calibrated torque test bench.</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="closeDINModal()">Acknowledge & Apply to Salomon Freeflex 14</button>
+    </div>
+  </div>
+
+  <!-- 6. Log Ride Modal (E-Bike Service) -->
+  <div class="modal-overlay" id="logRideModalOverlay">
+    <div class="modal modal-dialog">
+      <div class="modal-header">
+        <h3>Log E-Bike Ride</h3>
+        <button class="modal-close" onclick="closeLogRideModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <label style="font-size: 12px; color: var(--text-secondary);">Ride Distance (km):</label>
+        <input type="number" id="inputRideKm" value="32.5" class="form-input" style="padding: 10px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px;" />
+        <label style="font-size: 12px; color: var(--text-secondary);">Battery Discharged (%):</label>
+        <input type="number" id="inputRideBattery" value="28" class="form-input" style="padding: 10px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px;" />
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveLoggedRide()">Save Ride & Update Odometer</button>
+    </div>
+  </div>
+
+  <!-- 7. Asset Detail Screen Drawer -->
+  <div class="drawer-overlay" id="detailDrawerOverlay">
+    <div class="detail-drawer">
+      <div class="detail-top-nav">
+        <button class="detail-btn-back" onclick="closeDetailDrawer()"><i class="fa-solid fa-arrow-left"></i></button>
+        <span class="detail-nav-title" id="detailNavTitle">Asset Details</span>
+        <button class="detail-btn-icon" onclick="deleteCurrentAsset()"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+      <div class="detail-scroll-body">
+        <div class="detail-hero">
+          <div class="detail-hero-icon" id="detailHeroIcon"><i class="fa-solid fa-tv"></i></div>
+          <span class="detail-brand" id="detailBrand">SAMSUNG</span>
+          <h1 class="detail-title" id="detailTitle">QN85D Neo QLED TV</h1>
+          <p class="detail-meta-line" id="detailMetaLine">Living Room · Serial •••• 9912</p>
+        </div>
+
+        <!-- Multi-Layer Protection & Warranty Cards Container -->
+        <div id="detailCoverageContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;">
+          <!-- 1. Overall Status Card -->
+          <div class="detail-warranty-card" id="detailWarrantyCard">
+            <div class="detail-warranty-top">
+              <span class="detail-warranty-label" id="detailWarrantyLabel">PROTECTION OVERVIEW</span>
+              <span class="status-pill status-active" id="detailWarrantyPill">Active Protection</span>
+            </div>
+            <div class="detail-warranty-date" id="detailWarrantyDate">Multi-layer protection active</div>
+            <p class="detail-warranty-desc" id="detailWarrantyDesc">Statutory defect rights and manufacturer warranty evaluated independently.</p>
+          </div>
+
+          <!-- 2. Statutory Consumer Rights Card -->
+          <div id="detailStatutoryCard" style="background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: #38bdf8;"><i class="fa-solid fa-scale-balanced"></i> <span id="detailStatutoryTitle">Statutory Consumer Rights</span></span>
+              <span class="status-pill" id="detailStatutoryStatusPill" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10px; padding: 2px 8px;">Active</span>
+            </div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;" id="detailStatutoryDeadline">Valid until 24 Aug 2028</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;" id="detailStatutoryObligor">Claim Obligor: Seller / Retailer</div>
+            <div style="font-size: 10px; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 6px 8px; border-radius: 6px;" id="detailStatutorySource">Source: Official Consumer Authority</div>
+          </div>
+
+          <!-- 3. Manufacturer Commercial Warranty Card -->
+          <div id="detailMfrWarrantyCard" style="background: rgba(168, 85, 247, 0.06); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 12px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: #c084fc;"><i class="fa-solid fa-shield-halved"></i> <span id="detailMfrTitle">Manufacturer Commercial Warranty</span></span>
+              <span class="status-pill" id="detailMfrStatusPill" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 10px; padding: 2px 8px;">Active</span>
+            </div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;" id="detailMfrDeadline">Valid until 24 Aug 2028 (24 Mo)</div>
+            <div style="font-size: 11px; color: var(--text-muted);" id="detailMfrSource">Source: Verified Manufacturer Policy</div>
+          </div>
+
+          <!-- 4. Ownership & Legal Evidence Edit Box -->
+          <div class="detail-purchase-edit-box" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 2px;"><i class="fa-solid fa-file-invoice"></i> Purchase Evidence & Legal Context</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="detailPurchaseDateSpan" style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> <span id="detailPurchaseDateLabel">Purchase Date</span></span>
+              <input type="date" id="detailPurchaseDateInput" onchange="updateSelectedAssetPurchaseDate(this.value)" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px;" />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="detailDeliveryDateSpan" style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-truck" style="margin-right: 4px;"></i> <span id="detailDeliveryDateLabel">Delivery / Handover</span></span>
+              <input type="date" id="detailDeliveryDateInput" onchange="updateSelectedAssetDeliveryDate(this.value)" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px;" />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="detailPurchaseCountrySpan" style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-globe" style="margin-right: 4px;"></i> <span id="detailPurchaseCountryLabel">Purchase Country</span></span>
+              <select id="detailPurchaseCountrySelect" onchange="updateSelectedAssetPurchaseCountry(this.value)" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;">
+              </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="detailRoomLocationSpan" style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-door-open" style="margin-right: 4px;"></i> <span id="detailRoomLocationLabel">Room / Location</span></span>
+              <select id="detailRoomLocationSelect" onchange="updateSelectedAssetRoomLocation(this.value)" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;">
+              </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="detailWarrantyPolicySpan" style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-building" style="margin-right: 4px;"></i> <span id="detailWarrantyPolicyLabel">Mfr. Warranty Policy</span></span>
+              <select id="detailWarrantyMonthsSelect" onchange="updateSelectedAssetWarrantyMonths(this.value)" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px;">
+                <option value="0">None / Not Recorded</option>
+                <option value="12">12 Months (1 Year)</option>
+                <option value="24">24 Months (2 Years)</option>
+                <option value="25">25 Months (Jura CH)</option>
+                <option value="36">36 Months (3 Years)</option>
+                <option value="60">60 Months (5 Years)</option>
+                <option value="120">120 Months (10 Years)</option>
+              </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="detailPurchasePriceSpan" style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><i class="fa-solid fa-tag" style="margin-right: 4px;"></i> <span id="detailPurchasePriceLabel">Purchase Price</span></span>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 11px; color: var(--text-muted);" id="detailPurchaseCurrencyPrefix">CHF</span>
+                <input type="number" id="detailPurchasePriceInput" placeholder="e.g. 450" onchange="updateSelectedAssetPurchasePrice(this.value)" style="width: 80px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 11px; text-align: right;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- High-Value Pro Actions & Legal Power Tools -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+          <button class="btn btn-secondary" onclick="openLegalClaimGeneratorModal()" style="font-size: 11px; padding: 10px 8px; display: flex; align-items: center; justify-content: center; gap: 6px; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08); color: #38bdf8; font-weight: 700;">
+            <i class="fa-solid fa-file-signature"></i> Legal Defect Notice
+          </button>
+          <button class="btn btn-secondary" onclick="openErrorCodeWizardModal()" style="font-size: 11px; padding: 10px 8px; display: flex; align-items: center; justify-content: center; gap: 6px; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.08); color: #c084fc; font-weight: 700;">
+            <i class="fa-solid fa-wrench"></i> Error Code Wizard
+          </button>
+        </div>
+
+        <div class="detail-tab-bar">
+          <button class="detail-tab active" data-pane="detailPaneSpecs">Specs</button>
+          <button class="detail-tab" data-pane="detailPaneMaintenance">Maintenance</button>
+          <button class="detail-tab" data-pane="detailPaneParts">Parts & Wear</button>
+          <button class="detail-tab" data-pane="detailPaneDiagnostics">Diagnostics</button>
+        </div>
+
+        <div class="detail-pane active" id="detailPaneSpecs">
+          <div class="specs-table" id="detailSpecsTable"></div>
+          <div class="specs-value-box" style="margin-top: 14px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;">
+            <div class="value-row" style="display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0;">
+              <span id="detailSpecsMarketValueLabel" style="font-size: 11px; color: var(--text-muted);"><i class="fa-solid fa-chart-line" style="margin-right: 4px;"></i> Estimated Market Value</span>
+              <strong id="detailSpecsMarketValueFormatted" class="text-accent" style="font-size: 12px;">CHF 1'299 – 1'899</strong>
+            </div>
+            <div class="value-row" style="display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0;">
+              <span id="detailSpecsPurchasePriceLabel" style="font-size: 11px; color: var(--text-muted);"><i class="fa-solid fa-receipt" style="margin-right: 4px;"></i> User Purchase Price</span>
+              <strong id="detailSpecsPurchasePriceFormatted" style="font-size: 12px; color: #fff;">Not specified</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-pane" id="detailPaneMaintenance">
+          <p class="pane-intro" id="detailManualSummary">Maintenance protocol recommended by manufacturer.</p>
+          <div class="checklist" id="detailChecklist"></div>
+        </div>
+
+        <div class="detail-pane" id="detailPaneParts">
+          <div class="parts-container" id="detailPartsContainer"></div>
+        </div>
+
+        <div class="detail-pane" id="detailPaneDiagnostics">
+          <div class="diag-form">
+            <label id="detailDiagPrompt">Hardware error code / symptom:</label>
+            <div class="diag-row">
+              <input type="text" id="inputErrorCode" placeholder="e.g. E24, F10, Error 107..." />
+              <button class="btn btn-primary" id="btnDiagnose">Diagnose</button>
+            </div>
+          </div>
+          <div class="diag-result" id="diagResultBox" style="display: none;"></div>
+        </div>
+
+        <!-- Danger Zone: Remove Asset Action -->
+        <div style="margin-top: 24px; margin-bottom: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center;">
+          <button type="button" id="detailDeleteBtn" class="btn btn-secondary" onclick="deleteCurrentAsset()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); width: 100%; justify-content: center; font-size: 12px; font-weight: 700; padding: 10px 16px; border-radius: 8px;">
+            <i class="fa-solid fa-trash-can" style="margin-right: 6px;"></i> <span id="detailDeleteBtnText">Delete Asset from Portfolio</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. App-Specific First-Launch Interactive Onboarding Demo Tour -->
+  <div class="modal-overlay" id="onboardingModalOverlay">
+    <div class="modal tour-modal-dialog">
+      <div class="tour-top-bar">
+        <span class="tour-step-badge" id="tourStepBadge">Step 1 of 4</span>
+        <button class="tour-skip-btn" onclick="skipTour()"><i class="fa-solid fa-xmark"></i> Skip Tour</button>
+      </div>
+
+      <!-- Dynamic App-Specific Slide Content Container -->
+      <div id="tourSlideDynamicContainer"></div>
+
+      <!-- Tour Footer Navigation -->
+      <div class="tour-footer">
+        <div class="tour-dots" id="tourDots"></div>
+        <div class="tour-btn-group">
+          <button class="tour-btn tour-btn-secondary" id="tourBtnBack" onclick="prevTourStep()" style="visibility: hidden;">
+            <i class="fa-solid fa-arrow-left"></i> Back
+          </button>
+          <button class="tour-btn tour-btn-primary" id="tourBtnNext" onclick="nextTourStep()">
+            Next <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. App Store Guideline 5.1.1 Contextual Pre-Permission Notification Modal -->
+  <div class="modal-overlay" id="notificationPromptModalOverlay">
+    <div class="modal modal-dialog" style="text-align: center; max-width: 420px; padding: 24px 20px;">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 14px;">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 6px;" id="notifPromptTitle">Enable Warranty Protection Alerts</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 16px;" id="notifPromptDesc">
+        Nordic Asset Suite protects your household investment by delivering timely local alerts before coverage terminates:
+      </p>
+
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 12px 14px; text-align: left; margin-bottom: 20px; font-size: 12px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <i class="fa-solid fa-calendar-check text-accent" style="margin-top: 2px;"></i>
+          <span id="notifPrompt30d"><strong>30 Days Before Expiry:</strong> Early notification to schedule inspections or file repair claims.</span>
+        </div>
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <i class="fa-solid fa-clock-rotate-left" style="color: #f59e0b; margin-top: 2px;"></i>
+          <span id="notifPrompt7d"><strong>7 Days Before Expiry:</strong> Urgent final claim window alert.</span>
+        </div>
+        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+          <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444; margin-top: 2px;"></i>
+          <span id="notifPrompt1d"><strong>24 Hours Before Expiry:</strong> Final expiration notice.</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <i class="fa-solid fa-screwdriver-wrench text-success" style="margin-top: 2px;"></i>
+          <span id="notifPromptMaint"><strong>Routine Maintenance:</strong> Descaling, filter cleaning, and service prompts.</span>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-primary btn-block" id="btnAllowNotifs" onclick="enableNotifications()"><i class="fa-solid fa-bell"></i> Allow Notifications</button>
+        <button class="btn btn-secondary btn-block" id="btnMaybeLater" onclick="closeNotificationPromptModal()">Maybe Later</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9b. Scheduled Notification Timeline & Log Modal -->
+  <div class="modal-overlay" id="notificationLogModalOverlay">
+    <div class="modal modal-bottom-sheet" style="max-height: 85vh; overflow-y: auto;">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">
+        <h3 id="notifLogModalTitle"><i class="fa-solid fa-bell text-accent"></i> Scheduled Warranty & Service Alerts</h3>
+        <button class="modal-close" onclick="closeNotificationLogModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 0 16px 24px;">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;" id="notifLogModalDesc">
+          All notifications are evaluated locally on-device. Below is your active warranty protection schedule:
+        </p>
+        <div id="notificationLogListContainer">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Persistent Product Search & Identification Loading Overlay -->
+  <div class="modal-overlay" id="searchLoadingOverlay" style="z-index: 1200;">
+    <div class="modal modal-dialog" style="text-align: center; max-width: 400px; padding: 32px 24px;">
+      <div class="search-loading-spinner"></div>
+      <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;" id="searchLoadingTitle">Searching Product Catalog...</h3>
+      <p style="font-size: 12px; color: var(--text-muted); margin: 0;" id="searchLoadingSub">Retrieving verified manufacturer specifications & clean imagery</p>
+    </div>
+  </div>
+
+  <!-- 11. Interactive App Store Optimization (ASO) & Card Preview Modal -->
+  <div class="modal-overlay" id="asoInspectorModalOverlay">
+    <div class="modal modal-bottom-sheet" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-grabber"></div>
+      <div class="modal-header" style="padding-bottom: 12px;">
+        <div>
+          <span style="font-size: 10px; font-weight: 800; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.08em;"><i class="fa-brands fa-app-store-ios"></i> App Store Optimization Engine</span>
+          <h3 style="margin: 2px 0 0 0; font-size: 17px;">Organic Keyword & Card Inspector</h3>
+        </div>
+        <button class="modal-close" onclick="closeAsoInspectorModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="padding: 0 16px 24px;">
+        <!-- App Selector Tabs -->
+        <div style="display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px;">
+          <button type="button" class="filter-pill active" id="asoTabAppliance" onclick="switchAsoApp('appliance')"><i class="fa-solid fa-shield-halved"></i> Appliance</button>
+          <button type="button" class="filter-pill" id="asoTabCoffee" onclick="switchAsoApp('coffee')"><i class="fa-solid fa-mug-hot"></i> Coffee</button>
+          <button type="button" class="filter-pill" id="asoTabEBike" onclick="switchAsoApp('ebike')"><i class="fa-solid fa-bicycle"></i> E-Bike</button>
+          <button type="button" class="filter-pill" id="asoTabSkiGear" onclick="switchAsoApp('skigear')"><i class="fa-solid fa-person-skiing"></i> Ski Gear</button>
+        </div>
+
+        <!-- Language Selector -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 8px; margin-bottom: 16px;">
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Active Storefront Locale:</span>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn btn-secondary btn-sm" id="asoLangEN" style="padding: 4px 8px; font-size: 11px;" onclick="switchAsoLang('en')">🇺🇸 English (Global)</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="asoLangDE" style="padding: 4px 8px; font-size: 11px;" onclick="switchAsoLang('de')">🇨🇭 Deutsch (CH/DE)</button>
+          </div>
+        </div>
+
+        <!-- App Store Search Result Card Mockup -->
+        <div style="background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 16px; margin-bottom: 18px;">
+          <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 12px;">
+            <div style="width: 60px; height: 60px; border-radius: 14px; background: var(--bg-surface-elevated); display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--accent-primary); border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;" id="asoMockIcon">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 2px 0; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="asoMockTitle">Appliance Warranty & Receipt</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="asoMockSubtitle">Home Manual, Repair & Expiry</p>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted);">
+                <span style="color: #fbbf24;"><i class="fa-solid fa-star"></i> 4.9</span>
+                <span>• 1.4K Ratings</span>
+                <span class="badge-pill" style="font-size: 9px; padding: 2px 6px;">Utilities #4</span>
+              </div>
+            </div>
+            <div>
+              <button style="background: rgba(56, 189, 248, 0.2); color: var(--accent-primary); border: none; font-weight: 700; font-size: 12px; padding: 6px 16px; border-radius: 20px;">GET</button>
+              <span style="display: block; font-size: 8px; color: var(--text-muted); text-align: center; margin-top: 2px;">In-App Purchases</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-Click Copy Ready Metadata Section -->
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+          <!-- Title Row -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">APP TITLE (MAX 30 CHARS)</span>
+              <span style="font-size: 10px; font-weight: 800; color: var(--status-success);" id="asoCharCountTitle">30 / 30</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <input type="text" id="asoInputTitle" readonly style="flex: 1; background: transparent; border: none; color: #fff; font-size: 13px; font-weight: 600;" value="Appliance Warranty & Receipt" />
+              <button class="btn btn-secondary btn-sm" onclick="copyAsoField('asoInputTitle', 'App Title')"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+
+          <!-- Subtitle Row -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">SUBTITLE (MAX 30 CHARS)</span>
+              <span style="font-size: 10px; font-weight: 800; color: var(--status-success);" id="asoCharCountSubtitle">30 / 30</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <input type="text" id="asoInputSubtitle" readonly style="flex: 1; background: transparent; border: none; color: #fff; font-size: 13px; font-weight: 600;" value="Home Manual, Repair & Expiry" />
+              <button class="btn btn-secondary btn-sm" onclick="copyAsoField('asoInputSubtitle', 'Subtitle')"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+
+          <!-- Keyword Field Row -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">KEYWORD FIELD (MAX 100 CHARS - COMMA SEPARATED)</span>
+              <span style="font-size: 10px; font-weight: 800; color: var(--status-success);" id="asoCharCountKeywords">99 / 100</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <textarea id="asoInputKeywords" readonly rows="2" style="flex: 1; background: transparent; border: none; color: #fff; font-size: 11px; font-family: monospace; resize: none;">guarantee,tracker,miele,bosch,vzug,samsung,lg,dyson,invoice,service,fault,error,code,fix,claim,inventory</textarea>
+              <button class="btn btn-secondary btn-sm" onclick="copyAsoField('asoInputKeywords', 'Keyword String')"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+
+          <!-- Promotional Text Row -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted);">PROMOTIONAL TEXT (170 CHARS - EDITABLE WITHOUT APP SUBMISSION)</span>
+              <span style="font-size: 10px; font-weight: 800; color: var(--status-success);" id="asoCharCountPromo">168 / 170</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+              <p id="asoInputPromo" style="flex: 1; font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Never lose an appliance warranty or receipt again. Scan rating plates for instant manuals, maintenance schedules, error codes, and Swiss statutory protection alerts.</p>
+              <button class="btn btn-secondary btn-sm" onclick="copyAsoField('asoInputPromo', 'Promotional Text')"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cross-Localization Multiplier Callout -->
+        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px; font-size: 12px; line-height: 1.5;">
+          <strong style="color: var(--accent-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+            <i class="fa-solid fa-lightbulb"></i> The 400% Cross-Localization Hack
+          </strong>
+          <p style="margin: 0; color: var(--text-secondary);">
+            In App Store Connect, configure <strong>English (UK)</strong> alongside <strong>German (Switzerland)</strong> and <strong>French (Switzerland)</strong>. Apple cross-indexes keywords from all 3 languages in Switzerland, giving you <strong>300+ characters of free keyword space</strong> per product!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Privacy Policy Modal (App Store Guideline 5.1.1 Compliant) -->
+  <div class="modal-overlay" id="privacyPolicyModalOverlay">
+    <div class="modal modal-bottom-sheet" style="max-height: 85vh; overflow-y: auto;">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">
+        <h3 id="privacyModalTitle"><i class="fa-solid fa-user-shield text-accent"></i> Privacy Policy & Data Transparency</h3>
+        <button class="modal-close" onclick="closePrivacyPolicyModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 0 16px 24px;" id="privacyModalContent">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. Terms of Use / EULA Modal (App Store Guideline 3.1.2 & 1.2 Compliant) -->
+  <div class="modal-overlay" id="termsOfUseModalOverlay">
+    <div class="modal modal-bottom-sheet" style="max-height: 85vh; overflow-y: auto;">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">
+        <h3 id="termsModalTitle"><i class="fa-solid fa-file-contract text-accent"></i> Terms of Use & Standard EULA</h3>
+        <button class="modal-close" onclick="closeTermsOfUseModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 0 16px 24px;" id="termsModalContent">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. Customer Support & Diagnostics Modal (App Store Guideline 2.1 Compliant) -->
+  <div class="modal-overlay" id="supportModalOverlay">
+    <div class="modal modal-bottom-sheet" style="max-height: 85vh; overflow-y: auto;">
+      <div class="modal-grabber"></div>
+      <div class="modal-header">
+        <h3 id="supportModalTitle"><i class="fa-solid fa-headset text-accent"></i> Customer Support & System Diagnostics</h3>
+        <button class="modal-close" onclick="closeSupportModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 0 16px 24px;" id="supportModalContent">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. 1-Tap Legal Defect Claim Notice Generator Modal -->
+  <div class="modal-overlay" id="legalClaimModalOverlay">
+    <div class="modal modal-dialog" style="max-width: 580px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-scale-balanced" style="color: #38bdf8;"></i> Official Legal Defect Notice</h3>
+        <button class="modal-close" onclick="closeLegalClaimGeneratorModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 4px 16px 20px;">
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+          Generate a legally binding defect notice (*Mängelrüge / Reklamasjon / Reklamation*) to claim free repair, replacement, or refund from the seller under statutory consumer law.
+        </p>
+
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <div>
+            <label style="font-size: 10px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 3px;">DEFECT SYMPTOM / FAILURE CATEGORY</label>
+            <select id="selectClaimDefectType" onchange="renderLegalClaimNotice()" style="width: 100%; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+              <option value="ELECTRONIC_CONTROL">Electronic Control Board / Display Failure</option>
+              <option value="MOTOR_INVERTER">Motor / Inverter / Compressor Failure</option>
+              <option value="HEATING_PUMP">Heating Element / Water Pump Malfunction</option>
+              <option value="DOOR_SEAL">Premature Seal / Gasket / Hydraulic Leakage</option>
+              <option value="UNRESPONSIVE_POWER">Device completely unresponsive / Power failure</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 10px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 3px;">REMEDY DEMANDED</label>
+            <select id="selectClaimRemedy" onchange="renderLegalClaimNotice()" style="width: 100%; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+              <option value="REPAIR">Free Repair / Rectification without Cost (Nachbesserung)</option>
+              <option value="REPLACEMENT">Free Delivery of Non-Defective Replacement (Ersatzlieferung)</option>
+              <option value="REFUND">Contract Rescission / Full Purchase Refund (Wandelung / Heving)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: #0d1117; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 10px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-envelope"></i> Formal Notice Draft</span>
+            <span class="badge-pill" id="claimLegalFrameworkBadge" style="font-size: 9px;">Swiss OR Art. 210</span>
+          </div>
+          <pre id="legalClaimDraftContent" style="white-space: pre-wrap; font-family: monospace; font-size: 11px; color: #e2e8f0; line-height: 1.45; max-height: 220px; overflow-y: auto; margin: 0;"></pre>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button class="btn btn-primary btn-block" onclick="copyLegalClaimDraft()"><i class="fa-regular fa-copy"></i> Copy Claim Letter</button>
+          <button class="btn btn-secondary btn-block" onclick="sendLegalClaimEmail()"><i class="fa-solid fa-paper-plane"></i> Send via Email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. Appliance Vault Pro Paywall Modal (High-Conversion Monetization) -->
+  <div class="modal-overlay" id="proPaywallModalOverlay">
+    <div class="modal modal-dialog" style="max-width: 480px; max-height: 90vh; overflow-y: auto; text-align: center;">
+      <div style="padding: 8px 12px 20px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 12px; box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);">
+          <i class="fa-solid fa-crown"></i>
+        </div>
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px; color: #fff;">Appliance Vault PRO</h2>
+        <p style="font-size: 12px; color: var(--text-secondary); max-width: 320px; margin: 0 auto 16px;">
+          Protect your household assets, enforce statutory rights, and save hundreds on appliance repairs.
+        </p>
+
+        <!-- Pro Features List -->
+        <div style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #fff;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+            <span><strong>Unlimited Appliances & Rooms</strong> (Track entire household)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #fff;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+            <span><strong>1-Tap Official Legal Defect Notices</strong> (Swiss OR 210 / Nordic 5-Yr)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #fff;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+            <span><strong>AI Typenschild Metal Plate Scanner</strong> (Instant model extraction)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #fff;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+            <span><strong>Live Error Code Diagnostics Wizard</strong> (Avoid costly callout fees)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #fff;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 14px;"></i>
+            <span><strong>Insurance-Ready Household PDF Report</strong> (1-Tap Export)</span>
+          </div>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+          <!-- Annual Best Value -->
+          <div class="pro-plan-card selected" id="planAnnual" onclick="selectProPlan('annual')" style="border: 2px solid #fbbf24; background: rgba(251, 191, 36, 0.08); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong style="font-size: 14px; color: #fff;">Annual Plan</strong>
+                <span class="badge-pill" style="background: #fbbf24; color: #000; font-weight: 800; font-size: 9px;">3 DAYS FREE TRIAL</span>
+              </div>
+              <span style="font-size: 11px; color: var(--text-muted);">CHF 29.99 / year (CHF 2.50 / mo)</span>
+            </div>
+            <strong style="font-size: 16px; color: #fbbf24;">SAVE 50%</strong>
+          </div>
+
+          <!-- Lifetime -->
+          <div class="pro-plan-card" id="planLifetime" onclick="selectProPlan('lifetime')" style="border: 1px solid var(--border-subtle); background: var(--bg-surface); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left;">
+            <div>
+              <strong style="font-size: 14px; color: #fff;">Lifetime Vault Access</strong>
+              <div style="font-size: 11px; color: var(--text-muted);">One-time payment · Never pay again</div>
+            </div>
+            <strong style="font-size: 15px; color: #fff;">CHF 59.99</strong>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" onclick="executeProSubscription()" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: 800; font-size: 14px; padding: 12px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);">
+          Start 3-Day Free Trial & Upgrade
+        </button>
+
+        <div style="display: flex; justify-content: center; gap: 16px; font-size: 11px; color: var(--text-muted); margin-top: 12px;">
+          <a href="#" onclick="restorePurchasesSim(); return false;" style="color: var(--text-muted); text-decoration: none;">Restore Purchases</a>
+          <span>·</span>
+          <a href="#" onclick="openTermsOfUseModal(); return false;" style="color: var(--text-muted); text-decoration: none;">Terms of Use</a>
+          <span>·</span>
+          <a href="#" onclick="openPrivacyPolicyModal(); return false;" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17. Live Error Code Diagnostics Wizard Modal -->
+  <div class="modal-overlay" id="errorCodeWizardModalOverlay">
+    <div class="modal modal-dialog" style="max-width: 520px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-wrench" style="color: #c084fc;"></i> Error Code Diagnostic Wizard</h3>
+        <button class="modal-close" onclick="closeErrorCodeWizardModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 4px 16px 20px;">
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+          Select or enter the error code displayed on your appliance to resolve the issue before paying expensive technician fees.
+        </p>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="text" id="inputWizardErrorCode" onkeydown="if(event.key==='Enter') runWizardErrorDiagnosis()" placeholder="e.g. E18, F20, i30, dE, 4C..." style="flex: 1; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 13px;" />
+          <button class="btn btn-primary" onclick="runWizardErrorDiagnosis()">Diagnose</button>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <span style="font-size: 10px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 4px;">COMMON CODES FOR THIS MODEL:</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="wizardCommonErrorChips">
+            <button class="filter-pill" onclick="selectWizardErrorCode('E18')">E18 (Drain Blockage)</button>
+            <button class="filter-pill" onclick="selectWizardErrorCode('F20')">F20 (Heating Element)</button>
+            <button class="filter-pill" onclick="selectWizardErrorCode('i30')">i30 (AquaStop Flood)</button>
+            <button class="filter-pill" onclick="selectWizardErrorCode('dE')">dE (Door Latch)</button>
+          </div>
+        </div>
+
+        <div id="wizardDiagnosticResultBox" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; display: none;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="appToast"></div>
+
+  <script type="module" src="/app.js?v=20260822_01"></script>
+</body>
+</html>

@@ -55,7 +55,9 @@ let package = Package(
         .target(
             name: "AssetCoreUIComponents",
             dependencies: [
-                "AssetCoreLocalization"
+                "AssetCoreLocalization",
+                "AssetCoreAI",
+                "AssetCoreImageEngine"
             ],
             path: "Sources/UIComponents"
         ),

@@ -3,20 +3,25 @@
 //  CoffeeMachineCompanion
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Barista Deck & Machine Companion Navigation.
+//  Strict Concurrency: Complete. Barista Deck & Machine Companion Navigation with Gemini AI.
 //
 
 import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
+import AssetCoreLocalization
+import AssetCoreAI
+import AssetCoreOCR
 
 public struct BaristaDeckView: View {
     @Bindable var viewModel: CoffeeViewModel
     private let theme = CoffeeTheme()
+    private let lang = LanguageManager.shared
     
     @State private var showingHardnessSheet: Bool = false
     @State private var showingRecipeJournal: Bool = false
     @State private var showingAddMachine: Bool = false
+    @State private var selectedTab: Int = 0
     
     public init(viewModel: CoffeeViewModel) {
         self.viewModel = viewModel
@@ -25,19 +30,40 @@ public struct BaristaDeckView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 18) {
+                    // Top Interactive Demo Bar
+                    InteractiveDemoBar(
+                        theme: theme,
+                        onOpenGuide: {
+                            viewModel.showingOnboardingGuide = true
+                        },
+                        onQuickDemoAdd: {
+                            Task {
+                                await viewModel.injectDemoMachine()
+                            }
+                        }
+                    )
+                    
                     if let machine = viewModel.currentMachine {
                         // Hero Barista Machine Card
                         BaseCardView(theme: theme) {
                             VStack(alignment: .leading, spacing: 12) {
-                                HStack {
+                                HStack(spacing: 14) {
+                                    ProductThumbnailView(
+                                        userImageData: machine.machinePhotoData,
+                                        categoryIconName: "mug.fill",
+                                        variant: .medium,
+                                        cornerRadius: 12,
+                                        theme: theme
+                                    )
+                                    
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(machine.brand.uppercased())
                                             .font(.caption)
                                             .fontWeight(.bold)
                                             .foregroundColor(theme.secondaryAccent)
                                         Text(machine.modelName)
-                                            .font(.title2)
+                                            .font(.title3)
                                             .fontWeight(.bold)
                                             .foregroundColor(theme.textPrimary)
                                     }
@@ -81,7 +107,7 @@ public struct BaristaDeckView: View {
                             }
                         }
                         
-                        // Interactive Deck Action Cards
+                        // Interactive Quick Actions
                         HStack(spacing: 12) {
                             Button(action: { showingHardnessSheet = true }) {
                                 BaseCardView(theme: theme) {
@@ -91,7 +117,7 @@ public struct BaristaDeckView: View {
                                             .foregroundColor(theme.secondaryAccent)
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text("WATER SCALE")
-                                                .font(.caption)
+                                                .font(.caption2)
                                                 .fontWeight(.bold)
                                                 .foregroundColor(theme.textSecondary)
                                             Text("Calibrate")
@@ -112,7 +138,7 @@ public struct BaristaDeckView: View {
                                             .foregroundColor(theme.primaryAccent)
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text("RECIPES")
-                                                .font(.caption)
+                                                .font(.caption2)
                                                 .fontWeight(.bold)
                                                 .foregroundColor(theme.textSecondary)
                                             Text("Dial-In")
@@ -125,6 +151,19 @@ public struct BaristaDeckView: View {
                             }
                             .buttonStyle(.plain)
                         }
+                        
+                        // Segmented View: Protocol vs Parts
+                        Picker("Companion Tab", selection: $selectedTab) {
+                            Text("Maintenance Guide").tag(0)
+                            Text("Filters & Gaskets").tag(1)
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        if selectedTab == 0 {
+                            MaintenanceManualCardView(manual: viewModel.getCoffeeManual(), theme: theme)
+                        } else {
+                            SparePartsWearView(schedule: viewModel.getCoffeeParts(), theme: theme) { _ in }
+                        }
                     } else {
                         VStack(spacing: 12) {
                             Image(systemName: "cup.and.saucer")
@@ -133,22 +172,41 @@ public struct BaristaDeckView: View {
                             Text("No Coffee Machine Paired")
                                 .font(.headline)
                                 .foregroundColor(theme.textSecondary)
-                            Text("Pair your espresso machine or superautomatic to track water scale and dial in extraction recipes.")
+                            Text("Scan barcode or type your espresso machine to track water scale and maintenance.")
                                 .font(.caption)
                                 .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
+                            
+                            Button(action: { Task { await viewModel.injectDemoMachine() } }) {
+                                Text("Load Demo Jura E8")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(theme.primaryAccent)
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
                         }
-                        .padding(.top, 40)
+                        .padding(.top, 30)
                     }
                 }
                 .padding()
             }
             .background(theme.backgroundGrouped)
-            .navigationTitle("Barista Companion")
+            .navigationTitle(lang.t(.coffeeBrewEspressoLog))
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { viewModel.showingOnboardingGuide = true }) {
+                        Image(systemName: "questionmark.circle")
+                            .font(.title3)
+                            .foregroundColor(theme.primaryAccent)
+                    }
+                }
+                
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddMachine = true }) {
-                        Image(systemName: "plus.circle.fill")
+                    Button(action: { viewModel.showingLiveScanner = true }) {
+                        Image(systemName: "camera.viewfinder")
                             .font(.title3)
                             .foregroundColor(theme.primaryAccent)
                     }
@@ -158,48 +216,41 @@ public struct BaristaDeckView: View {
                 WaterHardnessCalibrationView(viewModel: viewModel)
             }
             .sheet(isPresented: $showingRecipeJournal) {
-                BrewRecipeJournalView()
+                BrewRecipeJournalView(machine: viewModel.currentMachine)
             }
-            .sheet(isPresented: $showingAddMachine) {
-                AddMachineQuickSheet { brand, model, machineType in
-                    Task {
-                        await viewModel.addMachine(brand: brand, model: model, machineType: machineType)
+            .sheet(isPresented: $viewModel.showingOnboardingGuide) {
+                InteractiveOnboardingView(
+                    appName: lang.t(.coffeeBrewEspressoLog),
+                    theme: theme,
+                    onStartDemo: {
+                        Task { await viewModel.injectDemoMachine() }
                     }
-                }
+                )
+            }
+            .fullScreenCover(isPresented: $viewModel.showingLiveScanner) {
+                LiveScannerSwiftUIView(
+                    onDetectedBarcode: { barcode in
+                        Task {
+                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "Espresso Machine", barcode: barcode)
+                            await viewModel.addMachine(brand: match.brand, model: match.modelName, machineType: match.subCategory ?? "Superautomatic")
+                        }
+                    },
+                    onCapturedPhoto: { photoData in
+                        Task {
+                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "Coffee Machine", imageData: photoData)
+                            await viewModel.addMachine(brand: match.brand, model: match.modelName, machineType: match.subCategory ?? "Espresso")
+                        }
+                    },
+                    onManualSearchSubmit: { query in
+                        Task {
+                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: query)
+                            await viewModel.addMachine(brand: match.brand, model: match.modelName, machineType: match.subCategory ?? "Espresso")
+                        }
+                    }
+                )
             }
             .task {
                 await viewModel.loadMachines()
-            }
-        }
-    }
-}
-
-struct AddMachineQuickSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    let onAdd: (String, String, String) -> Void
-    
-    @State private var brand: String = "Jura"
-    @State private var model: String = "E8 Piano Black"
-    @State private var machineType: String = "Superautomatic"
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Espresso Machine Setup")) {
-                    TextField("Brand (e.g. Jura, Sage, La Marzocco)", text: $brand)
-                    TextField("Model (e.g. E8, Barista Touch)", text: $model)
-                    TextField("Type", text: $machineType)
-                }
-            }
-            .navigationTitle("Add Coffee Machine")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        onAdd(brand, model, machineType)
-                        dismiss()
-                    }
-                }
             }
         }
     }

@@ -66,4 +66,22 @@ public final class RegionalFormatter: Sendable {
         let frenchDegrees = dH * 1.78
         return String(format: "%.1f °dH (%.1f °fH)", dH, frenchDegrees)
     }
+    
+    /// Formats ISO 11088 DIN binding release torque setting.
+    public func formatDINRelease(_ din: Double) -> String {
+        return String(format: "DIN %.1f", din)
+    }
+    
+    /// Formats ski length in centimeters.
+    public func formatSkiLength(cm: Double) -> String {
+        return String(format: "%.0f cm", cm)
+    }
+    
+    /// Formats espresso extraction brew ratio (e.g., 18g dose to 36g yield -> "1:2.0").
+    public func formatBrewRatio(dose: Double, yield: Double) -> String {
+        guard dose > 0 else { return "1:2.0" }
+        let ratio = yield / dose
+        return String(format: "1:%.1f", ratio)
+    }
 }
+

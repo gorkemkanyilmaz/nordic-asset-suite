@@ -1,0 +1,1 @@
+sykkel,sykling,brems,gaffel,demper,dekktrykk,bremseklosser,kilometerteller,tur,motor,rekkevidde

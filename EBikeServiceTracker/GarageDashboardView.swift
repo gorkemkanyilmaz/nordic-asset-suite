@@ -3,19 +3,23 @@
 //  EBikeServiceTracker
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Garage-Centric Dashboard & Bike Selector.
+//  Strict Concurrency: Complete. Garage-Centric Dashboard & Bike Selector with Gemini AI.
 //
 
 import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreAI
+import AssetCoreOCR
 
 public struct GarageDashboardView: View {
     @Bindable var viewModel: EBikeViewModel
     private let theme = EBikeTheme()
+    private let lang = LanguageManager.shared
     
     @State private var showingAddBike: Bool = false
+    @State private var selectedTab: Int = 0
     
     public init(viewModel: EBikeViewModel) {
         self.viewModel = viewModel
@@ -24,19 +28,40 @@ public struct GarageDashboardView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 18) {
+                    // Top Interactive Demo Bar
+                    InteractiveDemoBar(
+                        theme: theme,
+                        onOpenGuide: {
+                            viewModel.showingOnboardingGuide = true
+                        },
+                        onQuickDemoAdd: {
+                            Task {
+                                await viewModel.injectDemoBike()
+                            }
+                        }
+                    )
+                    
                     if let bike = viewModel.currentBike {
                         // Digital Twin Bike Hero Card
                         BaseCardView(theme: theme) {
                             VStack(alignment: .leading, spacing: 12) {
-                                HStack {
+                                HStack(spacing: 14) {
+                                    ProductThumbnailView(
+                                        userImageData: bike.bikePhotoData,
+                                        categoryIconName: "bicycle",
+                                        variant: .medium,
+                                        cornerRadius: 12,
+                                        theme: theme
+                                    )
+                                    
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(bike.brand.uppercased())
                                             .font(.caption)
                                             .fontWeight(.bold)
                                             .foregroundColor(theme.secondaryAccent)
                                         Text(bike.modelName)
-                                            .font(.title2)
+                                            .font(.title3)
                                             .fontWeight(.bold)
                                             .foregroundColor(theme.textPrimary)
                                     }
@@ -80,7 +105,7 @@ public struct GarageDashboardView: View {
                             }
                         }
                         
-                        // Navigation Link to Telemetry & Setup
+                        // Navigation Link to Bike Health & Components
                         NavigationLink(destination: DigitalTwinTelemetryView(viewModel: viewModel)) {
                             BaseCardView(theme: theme) {
                                 HStack {
@@ -88,11 +113,11 @@ public struct GarageDashboardView: View {
                                         .font(.title2)
                                         .foregroundColor(theme.secondaryAccent)
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("DIGITAL TWIN TELEMETRY")
-                                            .font(.caption)
+                                        Text("BIKE HEALTH & WEAR GAUGES")
+                                            .font(.caption2)
                                             .fontWeight(.bold)
                                             .foregroundColor(theme.textSecondary)
-                                        Text("Chain Wear & Suspension PSI")
+                                        Text("Chain Stretch & Suspension PSI")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .foregroundColor(theme.textPrimary)
@@ -104,6 +129,19 @@ public struct GarageDashboardView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        
+                        // Tab Selector: Protocol vs Parts
+                        Picker("EBike Tab", selection: $selectedTab) {
+                            Text("Service Protocol").tag(0)
+                            Text("Wear Parts").tag(1)
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        if selectedTab == 0 {
+                            MaintenanceManualCardView(manual: viewModel.getEBikeManual(), theme: theme)
+                        } else {
+                            SparePartsWearView(schedule: viewModel.getEBikeParts(), theme: theme) { _ in }
+                        }
                     } else {
                         VStack(spacing: 12) {
                             Image(systemName: "bicycle")
@@ -112,73 +150,79 @@ public struct GarageDashboardView: View {
                             Text("Garage is Empty")
                                 .font(.headline)
                                 .foregroundColor(theme.textSecondary)
-                            Text("Add your E-Bike to monitor battery cycles, chain stretch, and suspension pressures.")
+                            Text("Scan frame serial or type your model to track battery telemetry and maintenance.")
                                 .font(.caption)
                                 .foregroundColor(theme.textSecondary)
                                 .multilineTextAlignment(.center)
+                            
+                            Button(action: { Task { await viewModel.injectDemoBike() } }) {
+                                Text("Load Demo Scott Patron eRIDE")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(theme.primaryAccent)
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
                         }
-                        .padding(.top, 40)
+                        .padding(.top, 30)
                     }
                 }
                 .padding()
             }
             .background(theme.backgroundGrouped)
-            .navigationTitle("Garage Service")
+            .navigationTitle(lang.t(.ebikeServiceMaintenance))
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { viewModel.showingOnboardingGuide = true }) {
+                        Image(systemName: "questionmark.circle")
+                            .font(.title3)
+                            .foregroundColor(theme.primaryAccent)
+                    }
+                }
+                
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddBike = true }) {
-                        Image(systemName: "plus.circle.fill")
+                    Button(action: { viewModel.showingLiveScanner = true }) {
+                        Image(systemName: "camera.viewfinder")
                             .font(.title3)
                             .foregroundColor(theme.primaryAccent)
                     }
                 }
             }
-            .sheet(isPresented: $showingAddBike) {
-                AddBikeQuickSheet { brand, model, frameNo, motor, odo in
-                    Task {
-                        await viewModel.addBike(brand: brand, model: model, frameNo: frameNo, motor: motor, odometer: odo)
+            .sheet(isPresented: $viewModel.showingOnboardingGuide) {
+                InteractiveOnboardingView(
+                    appName: lang.t(.ebikeServiceMaintenance),
+                    theme: theme,
+                    onStartDemo: {
+                        Task { await viewModel.injectDemoBike() }
                     }
-                }
+                )
+            }
+            .fullScreenCover(isPresented: $viewModel.showingLiveScanner) {
+                LiveScannerSwiftUIView(
+                    onDetectedBarcode: { barcode in
+                        Task {
+                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "E-Bike Frame", barcode: barcode)
+                            await viewModel.addBike(brand: match.brand, model: match.modelName, frameNo: barcode, motor: "Bosch Performance Line CX", odometer: 1200)
+                        }
+                    },
+                    onCapturedPhoto: { photoData in
+                        Task {
+                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "E-Bike", imageData: photoData)
+                            await viewModel.addBike(brand: match.brand, model: match.modelName, frameNo: "SN-\(Int.random(in: 10000...99999))", motor: "Bosch CX", odometer: 800)
+                        }
+                    },
+                    onManualSearchSubmit: { query in
+                        Task {
+                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: query)
+                            await viewModel.addBike(brand: match.brand, model: match.modelName, frameNo: "SN-\(Int.random(in: 10000...99999))", motor: "Bosch CX", odometer: 800)
+                        }
+                    }
+                )
             }
             .task {
                 await viewModel.loadBikes()
-            }
-        }
-    }
-}
-
-struct AddBikeQuickSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    let onAdd: (String, String, String, String, Double) -> Void
-    
-    @State private var brand: String = "Scott"
-    @State private var model: String = "Patron eRIDE 900"
-    @State private var frameNo: String = "SCOTT-PATRON-2026"
-    @State private var motor: String = "Bosch Performance CX"
-    @State private var odo: String = "1450"
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("E-Bike Specifications")) {
-                    TextField("Brand", text: $brand)
-                    TextField("Model", text: $model)
-                    TextField("Frame Number", text: $frameNo)
-                    TextField("Motor System", text: $motor)
-                    TextField("Odometer (km)", text: $odo)
-                        .keyboardType(.decimalPad)
-                }
-            }
-            .navigationTitle("Add E-Bike to Garage")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        let odoVal = Double(odo) ?? 0.0
-                        onAdd(brand, model, frameNo, motor, odoVal)
-                        dismiss()
-                    }
-                }
             }
         }
     }

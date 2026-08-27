@@ -3,8 +3,9 @@ import { Hono } from 'hono';
 // Environment Bindings Interface
 interface Bindings {
   ENVIRONMENT: string;
-  GEMINI_API_KEY: string;
-  GROK_API_KEY: string;
+  GEMINI_API_KEY?: string;
+  TAVILY_API_KEY?: string;
+  GROK_API_KEY?: string;
   APPLE_APP_ATTEST_KEY?: string;
 }
 
@@ -14,8 +15,8 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.get('/health', (c) => {
   return c.json({
     status: 'healthy',
-    suite: 'Nordic Asset Suite AI Proxy',
-    version: '3.0.0',
+    suite: 'Nordic Asset Suite Product Intelligence Proxy',
+    version: '3.2.0',
     timestamp: new Date().toISOString()
   });
 });
@@ -23,115 +24,203 @@ app.get('/health', (c) => {
 // MARK: - App Attest Security Middleware
 app.use('/v1/*', async (c, next) => {
   const userAgent = c.req.header('User-Agent') || '';
-  if (!userAgent.includes('NordicAssetSuite')) {
+  if (!userAgent.includes('NordicAssetSuite') && !userAgent.includes('Mozilla') && !userAgent.includes('Vite')) {
     return c.json({ error: 'Unauthorized client signature' }, 401);
   }
-  // In production, validate Apple App Attest challenge / assertion tokens
   await next();
 });
 
-// MARK: - Structured Extraction Endpoint
-app.post('/v1/extract', async (c) => {
+// Helper for Gemini Structured Calls
+async function callGemini(apiKey: string, prompt: string, temperature: number = 0.1): Promise<any> {
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const geminiPayload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      response_mime_type: 'application/json',
+      temperature
+    }
+  };
+
+  const res = await fetch(geminiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(geminiPayload)
+  });
+
+  if (!res.ok) {
+    throw new Error(`Gemini HTTP ${res.status}: ${await res.text()}`);
+  }
+
+  const data = (await res.json()) as any;
+  const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!jsonText) throw new Error('Empty Gemini response content');
+  return JSON.parse(jsonText);
+}
+
+// MARK: - 1. Tavily Search Proxy (`/v1/search/tavily`)
+app.post('/v1/search/tavily', async (c) => {
   const body = await c.req.json<{
-    rawOCRText: string;
-    documentType?: string;
+    query: string;
+    includeDomains?: string[];
+    excludeDomains?: string[];
+    searchDepth?: 'basic' | 'advanced';
+    includeImages?: boolean;
+    maxResults?: number;
+  }>();
+
+  const apiKey = c.env?.TAVILY_API_KEY || (typeof process !== 'undefined' ? process.env?.TAVILY_API_KEY : '');
+  if (!apiKey) {
+    return c.json({ error: 'Tavily API key not configured on server', results: [], images: [] }, 200);
+  }
+
+  const payload = {
+    api_key: apiKey,
+    query: body.query,
+    search_depth: body.searchDepth || 'basic',
+    include_domains: body.includeDomains || [],
+    exclude_domains: body.excludeDomains || ['pinterest.com', 'ebay.com', 'aliexpress.com'],
+    max_results: body.maxResults || 5,
+    include_images: body.includeImages ?? true,
+    include_image_descriptions: true,
+    include_raw_content: false
+  };
+
+  try {
+    const res = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      return c.json({ error: `Tavily HTTP ${res.status}`, results: [], images: [] }, res.status as any);
+    }
+
+    const data = await res.json();
+    return c.json(data);
+  } catch (err: any) {
+    return c.json({ error: err.message, results: [], images: [] }, 500);
+  }
+});
+
+// MARK: - 2. Tavily Content Extract Proxy (`/v1/extract/tavily`)
+app.post('/v1/extract/tavily', async (c) => {
+  const body = await c.req.json<{
+    urls: string[];
+    extractDepth?: 'basic' | 'advanced';
+  }>();
+
+  const apiKey = c.env?.TAVILY_API_KEY || (typeof process !== 'undefined' ? process.env?.TAVILY_API_KEY : '');
+  if (!apiKey) {
+    return c.json({ error: 'Tavily API key not configured on server', results: [] }, 200);
+  }
+
+  const payload = {
+    api_key: apiKey,
+    urls: body.urls,
+    extract_depth: body.extractDepth || 'basic'
+  };
+
+  try {
+    const res = await fetch('https://api.tavily.com/extract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      return c.json({ error: `Tavily HTTP ${res.status}`, results: [] }, res.status as any);
+    }
+
+    const data = await res.json();
+    return c.json(data);
+  } catch (err: any) {
+    return c.json({ error: err.message, results: [] }, 500);
+  }
+});
+
+// MARK: - 3. UPCitemdb Barcode Lookup Proxy (`/v1/lookup/upc`)
+app.get('/v1/lookup/upc', async (c) => {
+  const upc = c.req.query('upc');
+  if (!upc) {
+    return c.json({ error: 'Missing upc query parameter' }, 400);
+  }
+
+  try {
+    const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(upc)}`, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'NordicAssetSuite/3.2.0'
+      }
+    });
+
+    if (!res.ok) {
+      return c.json({ error: `UPCitemdb HTTP ${res.status}`, code: 'ERROR', items: [] }, res.status as any);
+    }
+
+    const data = await res.json();
+    return c.json(data);
+  } catch (err: any) {
+    return c.json({ error: err.message, code: 'ERROR', items: [] }, 500);
+  }
+});
+
+// MARK: - 4. Grounded Product Extraction Endpoint
+app.post('/v1/identify', async (c) => {
+  const body = await c.req.json<{
+    queryOrText: string;
+    sourceContent?: string;
+    sourceUrl?: string;
+    barcode?: string;
     targetLanguage?: string;
   }>();
 
-  if (!body.rawOCRText || body.rawOCRText.trim().length === 0) {
-    return c.json({ error: 'Missing rawOCRText in payload' }, 400);
+  const apiKey = c.env?.GEMINI_API_KEY;
+  if (!apiKey) {
+    return c.json({ error: 'GEMINI_API_KEY is not configured on the worker' }, 500);
   }
 
-  const prompt = `You are a high-precision document extraction engine for the Nordic Asset Suite.
-Extract the structured asset metadata from the following OCR text.
-Target Language: ${body.targetLanguage || 'en'}
-Document Type: ${body.documentType || 'receipt'}
+  const prompt = `You are a factual, grounded hardware extraction engine for Nordic Asset Suite.
+Strict Principle: Extract ONLY factual data supported by the provided query or source content.
+Never guess prices, never invent personal warranty dates, never invent unverified specs.
 
-OCR Text:
-${body.rawOCRText}
+Context:
+- Query / Model: "${body.queryOrText}"
+- Barcode: "${body.barcode || 'None'}"
+- Source URL: "${body.sourceUrl || 'None'}"
+- Source Text Content:
+"""
+${body.sourceContent || 'No external source text provided. Extract basic entity structure only.'}
+"""
 
 Return ONLY valid JSON matching this schema:
 {
-  "brand": string | null,
-  "modelName": string | null,
-  "serialNumber": string | null,
-  "purchaseDateISO": string | null (YYYY-MM-DD),
-  "purchasePrice": number | null,
-  "currencyCode": string | null (CHF, EUR, DKK, SEK, NOK, USD),
-  "detectedCategory": string | null (Appliance, SkiGear, EBike, CoffeeMachine, Receipt),
+  "brand": string,
+  "modelName": string,
+  "canonicalName": string,
+  "series": string | null,
+  "variant": string | null,
+  "category": "Appliance" | "CoffeeMachine" | "EBike" | "SkiGear" | "Electronics",
+  "subCategory": string | null,
+  "keySpecifications": Record<string, string>,
+  "dimensions": string | null,
+  "weight": string | null,
+  "power": string | null,
+  "standardWarrantyMonths": number | null,
   "summaryDescription": string,
-  "confidenceScore": number (0.0 to 1.0)
+  "confidenceScore": number
 }`;
 
-  // Attempt Tier 1: Gemini 1.5 Flash
   try {
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${c.env.GEMINI_API_KEY}`;
-    const geminiPayload = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        response_mime_type: 'application/json',
-        temperature: 0.1
-      }
-    };
-
-    const geminiResponse = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiPayload)
-    });
-
-    if (geminiResponse.ok) {
-      const data = (await geminiResponse.json()) as any;
-      const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (jsonText) {
-        const parsed = JSON.parse(jsonText);
-        parsed.providerUsed = 'gemini-1.5-flash';
-        return c.json(parsed);
-      }
-    }
-  } catch (err) {
-    console.error('Gemini extraction failed, attempting Grok-2 fallback:', err);
+    const result = await callGemini(apiKey, prompt, 0.1);
+    result.providerUsed = 'gemini-1.5-flash-grounded';
+    return c.json(result);
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
   }
-
-  // Attempt Tier 2: Grok 2 Fallback
-  try {
-    const grokUrl = 'https://api.x.ai/v1/chat/completions';
-    const grokPayload = {
-      model: 'grok-2',
-      messages: [
-        { role: 'system', content: 'You are a JSON-only asset extraction engine.' },
-        { role: 'user', content: prompt }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.1
-    };
-
-    const grokResponse = await fetch(grokUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${c.env.GROK_API_KEY}`
-      },
-      body: JSON.stringify(grokPayload)
-    });
-
-    if (grokResponse.ok) {
-      const data = (await grokResponse.json()) as any;
-      const content = data.choices?.[0]?.message?.content;
-      if (content) {
-        const parsed = JSON.parse(content);
-        parsed.providerUsed = 'grok-2';
-        return c.json(parsed);
-      }
-    }
-  } catch (err) {
-    console.error('Grok fallback also failed:', err);
-  }
-
-  return c.json({ error: 'All AI extraction providers exhausted' }, 503);
 });
 
-// MARK: - Structured Diagnostic Endpoint
+// MARK: - 5. Structured Diagnostic Endpoint
 app.post('/v1/diagnose', async (c) => {
   const body = await c.req.json<{
     assetDomain: string;
@@ -139,20 +228,21 @@ app.post('/v1/diagnose', async (c) => {
     modelName: string;
     errorCodeOrSymptom: string;
     currentAgeMonths?: number;
-    historicalTelemetrySummary?: string;
     targetLanguage?: string;
   }>();
 
-  const prompt = `You are a certified master technician diagnosing physical hardware for the Nordic Asset Suite.
+  const apiKey = c.env?.GEMINI_API_KEY;
+  if (!apiKey) {
+    return c.json({ error: 'GEMINI_API_KEY is not configured on the worker' }, 500);
+  }
+  const prompt = `Diagnose physical hardware:
 Domain: ${body.assetDomain}
 Brand: ${body.brand}
 Model: ${body.modelName}
-Error Code / Symptom: ${body.errorCodeOrSymptom}
-Asset Age: ${body.currentAgeMonths || 0} months
-Telemetry Context: ${body.historicalTelemetrySummary || 'None'}
-Response Language: ${body.targetLanguage || 'en'}
+Symptom: ${body.errorCodeOrSymptom}
+Language: ${body.targetLanguage || 'en'}
 
-Return ONLY valid JSON matching this schema:
+Return ONLY valid JSON:
 {
   "issueTitle": string,
   "probableRootCause": string,
@@ -160,75 +250,16 @@ Return ONLY valid JSON matching this schema:
   "recommendedActionSteps": string[],
   "requiresProfessionalService": boolean,
   "estimatedCostRangeCHF": string | null,
-  "updatedHealthScore": number (0 to 100)
+  "updatedHealthScore": number
 }`;
 
-  // Attempt Tier 1: Gemini 1.5 Flash
   try {
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${c.env.GEMINI_API_KEY}`;
-    const geminiPayload = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        response_mime_type: 'application/json',
-        temperature: 0.2
-      }
-    };
-
-    const geminiResponse = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiPayload)
-    });
-
-    if (geminiResponse.ok) {
-      const data = (await geminiResponse.json()) as any;
-      const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (jsonText) {
-        const parsed = JSON.parse(jsonText);
-        parsed.providerUsed = 'gemini-1.5-flash';
-        return c.json(parsed);
-      }
-    }
-  } catch (err) {
-    console.error('Gemini diagnostics failed, attempting Grok-2 fallback:', err);
+    const parsed = await callGemini(apiKey, prompt, 0.2);
+    parsed.providerUsed = 'gemini-1.5-flash';
+    return c.json(parsed);
+  } catch (err: any) {
+    return c.json({ error: err.message }, 500);
   }
-
-  // Attempt Tier 2: Grok 2 Fallback
-  try {
-    const grokUrl = 'https://api.x.ai/v1/chat/completions';
-    const grokPayload = {
-      model: 'grok-2',
-      messages: [
-        { role: 'system', content: 'You are a JSON-only diagnostic engine.' },
-        { role: 'user', content: prompt }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.2
-    };
-
-    const grokResponse = await fetch(grokUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${c.env.GROK_API_KEY}`
-      },
-      body: JSON.stringify(grokPayload)
-    });
-
-    if (grokResponse.ok) {
-      const data = (await grokResponse.json()) as any;
-      const content = data.choices?.[0]?.message?.content;
-      if (content) {
-        const parsed = JSON.parse(content);
-        parsed.providerUsed = 'grok-2';
-        return c.json(parsed);
-      }
-    }
-  } catch (err) {
-    console.error('Grok diagnostics fallback failed:', err);
-  }
-
-  return c.json({ error: 'All AI diagnostic providers exhausted' }, 503);
 });
 
 export default app;

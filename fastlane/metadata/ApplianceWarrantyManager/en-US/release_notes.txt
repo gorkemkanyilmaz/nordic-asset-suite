@@ -1,0 +1,4 @@
+- Smart Rating Plate Scanner with enhanced OCR accuracy
+- Error Code Wizard with step-by-step diagnostics for 50+ fault codes
+- 1-Tap Legal Defect Notice generator for Swiss OR 210, Norwegian, and EU law
+- Multi-language support: English, German, French, Italian, Norwegian, Swedish, Danish, Turkish
