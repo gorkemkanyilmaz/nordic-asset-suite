@@ -31,7 +31,7 @@ public final class CameraBarcodeScannerController: NSObject, ObservableObject {
     @Published public var detectedSymbology: String? = nil
     @Published public var hasCameraPermission: Bool = false
     
-    public let captureSession = AVCaptureSession()
+    nonisolated(unsafe) public let captureSession = AVCaptureSession()
     private var photoOutput = AVCapturePhotoOutput()
     private var metadataOutput = AVCaptureMetadataOutput()
     private var currentCameraPosition: AVCaptureDevice.Position = .back
