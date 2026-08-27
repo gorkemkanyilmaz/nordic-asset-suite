@@ -173,6 +173,21 @@ public final class CoffeeViewModel {
         )
     }
     
+    public func getCoffeeParts() -> SparePartsScheduleData {
+        let brand = currentMachine?.brand ?? "Jura"
+        let model = currentMachine?.modelName ?? "E8 Piano Black"
+        return SparePartsScheduleData(
+            brand: brand,
+            modelName: model,
+            parts: [
+                SparePartItem(partNumber: "JUR-CLARIS-SMART", name: "Claris Smart Water Filter", category: "Filter", replacementIntervalDays: 60, estimatedCostCHF: 14, wearDegradationRateMonthly: 50.0, description: "Ion-exchange cartridge reducing limescale and chlorine for stable extraction"),
+                SparePartItem(partNumber: "JUR-BREW-GASKET", name: "Brew Group O-Ring Set", category: "Gasket", replacementIntervalDays: 365, estimatedCostCHF: 12, wearDegradationRateMonthly: 8.0, description: "Silicone seals maintaining 15 bar pump pressure across the brew unit"),
+                SparePartItem(partNumber: "JUR-SHOWER-SCREEN", name: "Shower Screen & Dispersion Block", category: "General", replacementIntervalDays: 540, estimatedCostCHF: 18, wearDegradationRateMonthly: 5.0, description: "Stainless diffusion screen ensuring even water distribution over the puck"),
+                SparePartItem(partNumber: "JUR-MILK-SPOUT", name: "Milk System Spout & Tube Set", category: "General", replacementIntervalDays: 180, estimatedCostCHF: 22, wearDegradationRateMonthly: 16.0, description: "Hygienic milk path components preventing fat residue buildup")
+            ]
+        )
+    }
+    
     // MARK: — Coffee-Specific Gemini AI: Grind Advisor (Phase 7)
     /// Asks Gemini for a grind size recommendation based on bean origin, roast level, and local water hardness.
     /// This is Coffee Companion's exclusive AI pipeline — no other app uses this domain schema.
