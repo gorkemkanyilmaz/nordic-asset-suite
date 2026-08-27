@@ -205,3 +205,35 @@ public final class SuspensionPSI {
         self.ebike = ebike
     }
 }
+
+// MARK: - Ride Session (Append-Only Ride Journal)
+
+@Model
+public final class RideSessionEntity {
+    public var id: UUID = UUID()
+    public var rideDate: Date = Date()
+    public var distanceKm: Double = 0.0
+    public var elevationGainM: Double = 0.0
+    public var batteryUsedPct: Double = 0.0
+    public var trailType: String = "" // Commute, Enduro, Alpine Trail, Gravel
+    
+    public var ebike: EBikeEntity? = nil
+    
+    public init(
+        id: UUID = UUID(),
+        rideDate: Date = Date(),
+        distanceKm: Double,
+        elevationGainM: Double,
+        batteryUsedPct: Double,
+        trailType: String = "",
+        ebike: EBikeEntity? = nil
+    ) {
+        self.id = id
+        self.rideDate = rideDate
+        self.distanceKm = distanceKm
+        self.elevationGainM = elevationGainM
+        self.batteryUsedPct = batteryUsedPct
+        self.trailType = trailType
+        self.ebike = ebike
+    }
+}

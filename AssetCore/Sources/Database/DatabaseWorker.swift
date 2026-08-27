@@ -263,6 +263,28 @@ public actor DatabaseWorker {
         try modelContext.save()
     }
     
+    public func recordRideSession(
+        ebikeID: UUID,
+        distanceKm: Double,
+        elevationGainM: Double,
+        batteryUsedPct: Double,
+        trailType: String
+    ) throws {
+        let descriptor = FetchDescriptor<EBikeEntity>(predicate: #Predicate { $0.id == ebikeID })
+        guard let bike = try modelContext.fetch(descriptor).first else { return }
+        
+        let session = RideSessionEntity(
+            distanceKm: distanceKm,
+            elevationGainM: elevationGainM,
+            batteryUsedPct: batteryUsedPct,
+            trailType: trailType,
+            ebike: bike
+        )
+        bike.totalOdometerKm += distanceKm
+        modelContext.insert(session)
+        try modelContext.save()
+    }
+    
     // MARK: - Coffee Machine Operations
     
     public func fetchCoffeeMachines() throws -> [CoffeeMachineDTO] {
@@ -340,6 +362,31 @@ public actor DatabaseWorker {
             coffeeMachine: machine
         )
         modelContext.insert(log)
+        try modelContext.save()
+    }
+    
+    public func recordBrewSession(
+        machineID: UUID,
+        beanOrigin: String,
+        doseGrams: Double,
+        yieldGrams: Double,
+        extractionTimeSec: Double,
+        grindSetting: Double,
+        tastingNotes: String
+    ) throws {
+        let descriptor = FetchDescriptor<CoffeeMachineEntity>(predicate: #Predicate { $0.id == machineID })
+        guard try modelContext.fetch(descriptor).first != nil else { return }
+        
+        let brew = BrewLogEntity(
+            recipeName: "Manual Session",
+            beanName: beanOrigin,
+            doseGrams: doseGrams,
+            yieldGrams: yieldGrams,
+            extractionTimeSeconds: extractionTimeSec,
+            grindSettingNumber: grindSetting,
+            sensoryNotes: tastingNotes
+        )
+        modelContext.insert(brew)
         try modelContext.save()
     }
 }

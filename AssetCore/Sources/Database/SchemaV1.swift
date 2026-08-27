@@ -35,6 +35,7 @@ public enum SchemaV1: VersionedSchema {
             BatteryHealthMetrics.self,
             ComponentMileage.self,
             SuspensionPSI.self,
+            RideSessionEntity.self,
             
             // Coffee Machine Companion
             CoffeeMachineEntity.self,
