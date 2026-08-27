@@ -220,14 +220,14 @@ public final class SkiGearViewModel {
         content.body = "Have your Salomon Freeflex 14 bindings torque-tested to ISO 11088 before skiing. DIN values shift after summer storage."
         content.sound = .default
         content.categoryIdentifier = "SKI_DIN_CHECK"
-        content.userInfo = ["gearID": skis.first?.id?.uuidString ?? "", "standardISO": "11088"]
+        content.userInfo = ["gearID": skis.first?.id.uuidString ?? "", "standardISO": "11088"]
 
         let trigger = UNTimeIntervalNotificationTrigger(
             timeInterval: max(60, Double(max(1, daysUntilSeason - 7)) * 86_400),
             repeats: false
         )
         let request = UNNotificationRequest(
-            identifier: "ski.din.\(skis.first?.id?.uuidString ?? "default")",
+            identifier: "ski.din.\(skis.first?.id.uuidString ?? "default")",
             content: content,
             trigger: trigger
         )

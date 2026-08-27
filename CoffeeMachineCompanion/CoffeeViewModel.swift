@@ -232,7 +232,7 @@ public final class CoffeeViewModel {
             repeats: false
         )
         let request = UNNotificationRequest(
-            identifier: "coffee.descale.\(currentMachine?.id?.uuidString ?? "default")",
+            identifier: "coffee.descale.\(currentMachine?.id.uuidString ?? "default")",
             content: content,
             trigger: trigger
         )

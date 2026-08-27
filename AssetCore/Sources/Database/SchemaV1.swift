@@ -28,6 +28,7 @@ public enum SchemaV1: VersionedSchema {
             DINSettings.self,
             WaxProfile.self,
             SafetyInspectionLog.self,
+            TripChecklistEntity.self,
             
             // E-Bike Service Tracker
             EBikeEntity.self,

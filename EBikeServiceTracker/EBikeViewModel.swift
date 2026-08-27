@@ -215,11 +215,11 @@ public final class EBikeViewModel {
         content.body = "\(currentBike?.modelName ?? "Your e-bike") chain is at \(pct)% elongation. Replace before reaching 0.75% to protect cassette and chainring."
         content.sound = .default
         content.categoryIdentifier = "EBIKE_CHAIN_WEAR"
-        content.userInfo = ["elongationPct": measuredChainWear, "bikeID": currentBike?.id?.uuidString ?? ""]
+        content.userInfo = ["elongationPct": measuredChainWear, "bikeID": currentBike?.id.uuidString ?? ""]
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: false)
         let request = UNNotificationRequest(
-            identifier: "ebike.chain.\(currentBike?.id?.uuidString ?? "default")",
+            identifier: "ebike.chain.\(currentBike?.id.uuidString ?? "default")",
             content: content,
             trigger: trigger
         )

@@ -218,3 +218,34 @@ public final class SafetyInspectionLog {
         self.skiGear = skiGear
     }
 }
+
+// MARK: - Trip Checklist (Append-Only Packing List Snapshot)
+
+@Model
+public final class TripChecklistEntity {
+    public var id: UUID = UUID()
+    public var gearID: UUID = UUID()
+    public var destination: String = ""
+    public var tripDateISO: String = ""
+    public var checkedItems: [String] = []
+    public var uncheckedItems: [String] = []
+    public var savedAt: Date = Date()
+    
+    public init(
+        id: UUID = UUID(),
+        gearID: UUID,
+        destination: String,
+        tripDateISO: String,
+        checkedItems: [String] = [],
+        uncheckedItems: [String] = [],
+        savedAt: Date = Date()
+    ) {
+        self.id = id
+        self.gearID = gearID
+        self.destination = destination
+        self.tripDateISO = tripDateISO
+        self.checkedItems = checkedItems
+        self.uncheckedItems = uncheckedItems
+        self.savedAt = savedAt
+    }
+}

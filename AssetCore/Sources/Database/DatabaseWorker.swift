@@ -182,6 +182,24 @@ public actor DatabaseWorker {
         try modelContext.save()
     }
     
+    public func recordTripChecklist(
+        gearID: UUID,
+        destination: String,
+        tripDateISO: String,
+        checkedItems: [String],
+        uncheckedItems: [String]
+    ) throws {
+        let checklist = TripChecklistEntity(
+            gearID: gearID,
+            destination: destination,
+            tripDateISO: tripDateISO,
+            checkedItems: checkedItems,
+            uncheckedItems: uncheckedItems
+        )
+        modelContext.insert(checklist)
+        try modelContext.save()
+    }
+    
     // MARK: - E-Bike Operations
     
     public func fetchEBikes() throws -> [EBikeDTO] {
