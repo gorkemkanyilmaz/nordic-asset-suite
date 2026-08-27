@@ -31,12 +31,18 @@ public final class CameraBarcodeScannerController: NSObject, ObservableObject {
     @Published public var detectedSymbology: String? = nil
     @Published public var hasCameraPermission: Bool = false
     
-    nonisolated(unsafe) public let captureSession = AVCaptureSession()
+    public let captureSession = AVCaptureSession()
     private var photoOutput = AVCapturePhotoOutput()
     private var metadataOutput = AVCaptureMetadataOutput()
     private var currentCameraPosition: AVCaptureDevice.Position = .back
     
     public weak var delegate: CameraScannerDelegate?
+    
+    /// AVCaptureSession is internally thread-safe for start/stop on a dedicated queue,
+    /// but is not marked Sendable. This box lets us hand it to a detached task legally.
+    private struct SessionBox: @unchecked Sendable {
+        let session: AVCaptureSession
+    }
     
     public override init() {
         super.init()
@@ -99,16 +105,16 @@ public final class CameraBarcodeScannerController: NSObject, ObservableObject {
         
         captureSession.commitConfiguration()
         
-        Task.detached { [session = captureSession] in
-            session.startRunning()
+        Task.detached { [box = SessionBox(session: captureSession)] in
+            box.session.startRunning()
         }
         self.isCameraReady = true
     }
     
     public func startScanning() {
         guard !captureSession.isRunning else { return }
-        Task.detached { [session = captureSession] in
-            session.startRunning()
+        Task.detached { [box = SessionBox(session: captureSession)] in
+            box.session.startRunning()
         }
         isScanningPaused = false
     }
@@ -125,8 +131,8 @@ public final class CameraBarcodeScannerController: NSObject, ObservableObject {
     
     public func stopScanning() {
         guard captureSession.isRunning else { return }
-        Task.detached { [session = captureSession] in
-            session.stopRunning()
+        Task.detached { [box = SessionBox(session: captureSession)] in
+            box.session.stopRunning()
         }
     }
     
