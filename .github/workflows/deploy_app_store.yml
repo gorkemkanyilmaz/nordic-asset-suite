@@ -15,7 +15,7 @@ jobs:
   test:
     name: Swift 6 Audit & Unit Tests
     runs-on: macos-14
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,11 +38,16 @@ jobs:
           ./BuildScripts/verify_concurrency.sh 2>&1 | tee build_audit.log
           ./BuildScripts/run_all_tests.sh 2>&1 | tee -a build_audit.log
 
-      - name: iOS Compile Check (AssetCore for device triple)
+      - name: iOS Compile Check (all app targets for device)
         run: |
           set -o pipefail
-          cd AssetCore
-          swift build --sdk "$(xcrun --sdk iphoneos --show-sdk-path)" --triple arm64-apple-ios17.0 2>&1 | tee -a ../build_audit.log
+          brew install xcodegen
+          xcodegen generate 2>&1 | tee -a build_audit.log
+          DERIVED=$(mktemp -d)
+          for scheme in ApplianceWarrantyManager SkiGearTracker EBikeServiceTracker CoffeeMachineCompanion; do
+            echo "=== iOS compile check: $scheme ==="
+            xcodebuild build -project NordicAssetSuite.xcodeproj -scheme "$scheme" -destination 'generic/platform=iOS' -derivedDataPath "$DERIVED" CODE_SIGNING_ALLOWED=NO GEMINI_API_KEY=dummy 2>&1 | tee -a build_audit.log
+          done
 
       - name: Surface build errors
         if: failure()
