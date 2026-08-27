@@ -33,17 +33,19 @@ public final class LanguageManager: Sendable {
     }
     
     private init() {
+        let resolvedLanguage: LanguageCode
         if let savedLang = UserDefaults.standard.string(forKey: languageKey),
            let lang = LanguageCode(rawValue: savedLang) {
-            self.currentLanguage = lang
+            resolvedLanguage = lang
         } else {
-            self.currentLanguage = LanguageManager.detectDeviceLanguage()
+            resolvedLanguage = LanguageManager.detectDeviceLanguage()
         }
+        self.currentLanguage = resolvedLanguage
         
         if let savedCurrency = UserDefaults.standard.string(forKey: currencyKey) {
             self.currentCurrencyCode = savedCurrency
         } else {
-            self.currentCurrencyCode = self.currentLanguage.defaultCurrencyCode
+            self.currentCurrencyCode = resolvedLanguage.defaultCurrencyCode
         }
     }
     

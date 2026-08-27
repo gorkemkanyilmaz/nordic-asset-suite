@@ -7,6 +7,44 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+// MARK: - Adaptive Platform Colors
+public extension Color {
+    static var adaptiveSecondaryBackground: Color {
+        #if canImport(UIKit)
+        Color(uiColor: .secondarySystemBackground)
+        #elseif canImport(AppKit)
+        Color(nsColor: .underPageBackground)
+        #else
+        Color.gray.opacity(0.12)
+        #endif
+    }
+    
+    static var adaptiveSystemBackground: Color {
+        #if canImport(UIKit)
+        Color(uiColor: .systemBackground)
+        #elseif canImport(AppKit)
+        Color(nsColor: .windowBackground)
+        #else
+        Color.white
+        #endif
+    }
+    
+    static var adaptiveGroupedBackground: Color {
+        #if canImport(UIKit)
+        Color(uiColor: .systemGroupedBackground)
+        #elseif canImport(AppKit)
+        Color(nsColor: .windowBackground)
+        #else
+        Color.gray.opacity(0.06)
+        #endif
+    }
+}
 
 /// Defines the mandatory semantic visual token contract for all 4 Nordic Asset Suite client apps.
 public protocol AppDesignTheme: Sendable {

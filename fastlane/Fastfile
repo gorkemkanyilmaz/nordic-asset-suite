@@ -151,7 +151,8 @@ platform :ios do
 
       # ── 9. Clean Archive via xcodebuild ──
       clean_flag = (idx == 0) ? "clean" : ""
-      sh("xcodebuild archive -project '#{project_path}' -scheme '#{app[:scheme]}' -destination 'generic/platform=iOS' -archivePath '#{archive_path}' DEVELOPMENT_TEAM='#{team_id}' #{clean_flag}")
+      gemini_key = ENV.fetch("GEMINI_API_KEY", "")
+      sh("xcodebuild archive -project '#{project_path}' -scheme '#{app[:scheme]}' -destination 'generic/platform=iOS' -archivePath '#{archive_path}' DEVELOPMENT_TEAM='#{team_id}' GEMINI_API_KEY='#{gemini_key}' #{clean_flag}")
 
       # ── 10. Patch Archive Mach-O binaries & Info.plist with iOS 26 SDK metadata ──
       sh("python3 '#{repo_root}/BuildScripts/patch_sdk_version.py' '#{archive_path}'")

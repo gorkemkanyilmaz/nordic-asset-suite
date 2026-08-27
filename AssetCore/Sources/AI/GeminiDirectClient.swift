@@ -13,8 +13,14 @@ import AssetCoreSecurity
 public actor GeminiDirectClient {
     public static let shared = GeminiDirectClient()
     
-    // Gemini API key must be injected at runtime via setApiKey(_:) — never commit keys to source control
-    public static let defaultApiKey = ""
+    // Gemini API key is injected at build time into the host app's Info.plist (GEMINI_API_KEY build setting)
+    // and can be overridden at runtime via setApiKey(_:). Never commit keys to source control.
+    public static let defaultApiKey: String = {
+        if let key = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String, !key.isEmpty {
+            return key
+        }
+        return ""
+    }()
     
     private var customApiKey: String?
     private let urlSession: URLSession

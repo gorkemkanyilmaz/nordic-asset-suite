@@ -121,7 +121,7 @@ public struct SparePartsWearView: View {
                         }
                     }
                     .padding(12)
-                    .background(Color(.secondarySystemBackground))
+                    .background(Color.adaptiveSecondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }

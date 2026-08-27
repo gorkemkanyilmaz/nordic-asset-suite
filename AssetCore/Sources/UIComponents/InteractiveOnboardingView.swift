@@ -142,7 +142,7 @@ public struct InteractiveOnboardingView: View {
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(.secondarySystemBackground))
+                            .background(Color.adaptiveSecondaryBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                             
                             Spacer()

@@ -43,5 +43,8 @@ node_modules/
 .wrangler/
 dist/
 
+# Local API key overrides (never commit real keys)
+web-demo/gemini-key.local.js
+
 # Agent working notes
 .agent/

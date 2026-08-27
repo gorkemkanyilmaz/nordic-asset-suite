@@ -93,7 +93,8 @@ let package = Package(
             name: "AssetCoreOCR",
             dependencies: [
                 "AssetCoreImageEngine",
-                "AssetCoreSecurity"
+                "AssetCoreSecurity",
+                "AssetCoreLocalization"
             ],
             path: "Sources/OCR"
         ),
@@ -103,7 +104,9 @@ let package = Package(
             name: "AssetCoreAI",
             dependencies: [
                 "AssetCoreSecurity",
-                "AssetCoreOCR"
+                "AssetCoreOCR",
+                "AssetCoreSearch",
+                "AssetCoreDatabase"
             ],
             path: "Sources/AI"
         ),

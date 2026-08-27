@@ -122,7 +122,7 @@ public struct MaintenanceManualCardView: View {
                         }
                     }
                     .padding(10)
-                    .background(Color(.secondarySystemBackground))
+                    .background(Color.adaptiveSecondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }

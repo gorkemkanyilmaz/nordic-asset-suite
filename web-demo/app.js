@@ -1578,7 +1578,7 @@ function handleImageFallback(imgEl, fallbackIcon) {
 }
 
 function getApiKey() {
-  return localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
+  return localStorage.getItem('gemini_api_key') || window.GEMINI_API_KEY_LOCAL || DEFAULT_GEMINI_KEY;
 }
 
 function saveSuiteDataToStorage() {
@@ -2658,8 +2658,8 @@ async function callGeminiCached(prompt) {
   return parsedResult;
 }
 
-// Live Tavily Web Intelligence Integration
-const TAVILY_API_KEY = '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';
+// Live Tavily Web Intelligence Integration (key loaded from gitignored gemini-key.local.js)
+const TAVILY_API_KEY = window.TAVILY_API_KEY_LOCAL || '';
 
 async function fetchProductViaTavily(queryText, barcode = null) {
   const cleanInput = sanitizeProductSearchQueryAndTitle(queryText || barcode);

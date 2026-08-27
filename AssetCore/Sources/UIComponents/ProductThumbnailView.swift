@@ -8,6 +8,11 @@
 
 import SwiftUI
 import AssetCoreImageEngine
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 /// Standardized SwiftUI component implementing the 5-tier product imagery resolution hierarchy.
 public struct ProductThumbnailView: View {
@@ -37,8 +42,8 @@ public struct ProductThumbnailView: View {
     public var body: some View {
         ZStack {
             // Tier 1: User-Provided Photo
-            if let data = userImageData, let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
+            if let data = userImageData, let photo = platformImage(from: data) {
+                photo
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: variant.targetDimension.width, height: variant.targetDimension.height)
@@ -80,6 +85,15 @@ public struct ProductThumbnailView: View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .stroke(theme.borderSubtle, lineWidth: 1)
         )
+    }
+    
+    private func platformImage(from data: Data) -> Image? {
+        #if canImport(UIKit)
+        if let image = UIImage(data: data) { return Image(uiImage: image) }
+        #elseif canImport(AppKit)
+        if let image = NSImage(data: data) { return Image(nsImage: image) }
+        #endif
+        return nil
     }
     
     private var fallbackCategoryIcon: some View {

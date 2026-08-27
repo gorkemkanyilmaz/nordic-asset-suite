@@ -57,7 +57,7 @@ public struct ProductConfirmationModal: View {
                                 .font(.system(size: 32))
                                 .foregroundColor(.primary)
                                 .padding(10)
-                                .background(Color(.secondarySystemBackground))
+                                .background(Color.adaptiveSecondaryBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         
@@ -86,7 +86,7 @@ public struct ProductConfirmationModal: View {
                                             }
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                             .padding(8)
-                                            .background(Color(.secondarySystemBackground))
+                                            .background(Color.adaptiveSecondaryBackground)
                                             .clipShape(RoundedRectangle(cornerRadius: 8))
                                         }
                                     }
@@ -113,7 +113,7 @@ public struct ProductConfirmationModal: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .padding(18)
-                    .background(Color(.systemBackground))
+                    .background(Color.adaptiveSystemBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
@@ -152,9 +152,11 @@ public struct ProductConfirmationModal: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Color.adaptiveGroupedBackground)
             .navigationTitle(lang.t(.confirmAsset))
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(lang.t(.cancel)) { dismiss() }

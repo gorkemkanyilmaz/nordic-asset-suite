@@ -45,7 +45,7 @@ public struct InteractiveDemoBar: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Color(.secondarySystemBackground))
+                    .background(Color.adaptiveSecondaryBackground)
                     .foregroundColor(theme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
             }
