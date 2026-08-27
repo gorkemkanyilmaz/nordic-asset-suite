@@ -232,8 +232,8 @@ public struct RoomsDashboardView: View {
         NavigationLink(destination: ApplianceDetailView(appliance: appliance, viewModel: viewModel)) {
             HStack(spacing: 14) {
                 ProductThumbnailView(
-                    userImageData: appliance.appliancePhotoData,
-                    categoryIconName: iconForCategory(appliance.category ?? "Appliance"),
+                    userImageData: nil,
+                    categoryIconName: iconForCategory(appliance.category),
                     variant: .small,
                     cornerRadius: 10,
                     theme: theme
@@ -246,12 +246,10 @@ public struct RoomsDashboardView: View {
                             .fontWeight(.bold)
                             .foregroundColor(theme.textMuted)
                         Spacer()
-                        if let price = appliance.purchasePrice {
-                            Text(LocalizedCurrencyFormatter.shared.format(amount: price, currencyCode: appliance.currencyCode))
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(theme.textPrimary)
-                        }
+                        Text(LocalizedCurrencyFormatter.shared.format(amount: appliance.purchasePrice, currencyCode: appliance.currencyCode))
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
                     }
                     
                     Text(appliance.modelName)

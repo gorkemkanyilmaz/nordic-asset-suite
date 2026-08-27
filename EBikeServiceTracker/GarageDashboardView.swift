@@ -48,7 +48,7 @@ public struct GarageDashboardView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack(spacing: 14) {
                                     ProductThumbnailView(
-                                        userImageData: bike.bikePhotoData,
+                                        userImageData: nil,
                                         categoryIconName: "bicycle",
                                         variant: .medium,
                                         cornerRadius: 12,

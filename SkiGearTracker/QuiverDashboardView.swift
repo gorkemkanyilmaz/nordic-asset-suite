@@ -129,7 +129,7 @@ public struct QuiverDashboardView: View {
                                 BaseCardView(theme: theme) {
                                     HStack(spacing: 14) {
                                         ProductThumbnailView(
-                                            userImageData: ski.gearPhotoData,
+                                            userImageData: nil,
                                             categoryIconName: "figure.skiing.downhill",
                                             variant: .small,
                                             cornerRadius: 10,
