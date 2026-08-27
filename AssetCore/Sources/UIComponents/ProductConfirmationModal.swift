@@ -176,6 +176,7 @@ public struct ProductConfirmationModal: View {
     }
 }
 
+@MainActor
 private enum LocalizedCurrencyFormatter {
     static func format(amount: Double, currencyCode: String) -> String {
         RegionalFormatter.shared.formatCurrency(amount: Decimal(amount), currencyCode: currencyCode, locale: LanguageManager.shared.currentLocale)

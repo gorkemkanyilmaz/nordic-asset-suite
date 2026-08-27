@@ -41,7 +41,7 @@ public struct RecognizedTextElement: Sendable, Identifiable {
     public init(id: UUID = UUID(), text: String, confidence: Float, boundingBox: CGRect) {
         self.id = id
         self.text = text
-        self.confidence confidence
+        self.confidence = confidence
         self.boundingBox = boundingBox
     }
 }

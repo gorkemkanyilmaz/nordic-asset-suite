@@ -27,6 +27,7 @@ public enum ScannerIntakeMode: String, CaseIterable, Identifiable {
         }
     }
     
+    @MainActor
     public func localizedName(using lang: LanguageManager) -> String {
         switch self {
         case .barcode: return lang.t(.barcodeQR)
@@ -294,7 +295,9 @@ public struct LiveScannerSwiftUIView: View {
                     )
                 }
             }
+            #if os(iOS)
             .toolbar(.hidden, for: .navigationBar)
+            #endif
             .onAppear {
                 #if os(iOS)
                 Task {
