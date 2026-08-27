@@ -71,9 +71,9 @@ jobs:
 
       - name: Generate Xcode Project
         run: |
-          xcodegen generate
+          xcodegen generate 2>&1 | tee xcodegen.log
           echo "✅ Project generated. Available schemes:"
-          xcodebuild -project NordicAssetSuite.xcodeproj -list 2>/dev/null | head -20
+          xcodebuild -project NordicAssetSuite.xcodeproj -list 2>&1 | tee -a xcodegen.log | head -20
 
       - name: Deploy All Apps via Fastlane (TestFlight)
         env:
@@ -84,7 +84,18 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           gem install fastlane --no-document
-          fastlane deploy_all
+          fastlane deploy_all 2>&1 | tee fastlane.log
+
+      - name: Surface deploy errors
+        if: failure()
+        run: |
+          for f in xcodegen.log fastlane.log; do
+            if [ -f "$f" ]; then
+              grep -E "error|Error|ERROR|Missing|failed|Failed|fatal|❌" "$f" | head -30 | while read -r line; do
+                echo "::error::${line}"
+              done
+            fi
+          done
 
   deliver_app_store:
     name: Upload Metadata & Submit for App Review
