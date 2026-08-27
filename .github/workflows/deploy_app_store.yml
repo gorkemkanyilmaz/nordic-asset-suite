@@ -34,8 +34,17 @@ jobs:
       - name: Run Concurrency Audit & Tests
         run: |
           chmod +x BuildScripts/*.sh
-          ./BuildScripts/verify_concurrency.sh
-          ./BuildScripts/run_all_tests.sh
+          ./BuildScripts/verify_concurrency.sh 2>&1 | tee build_audit.log
+          ./BuildScripts/run_all_tests.sh 2>&1 | tee -a build_audit.log
+
+      - name: Surface build errors
+        if: failure()
+        run: |
+          if [ -f build_audit.log ]; then
+            grep -E "error:|failed|XCTAssert" build_audit.log | head -40 | while read -r line; do
+              echo "::error::${line}"
+            done
+          fi
 
   deploy_testflight:
     name: Archive, Sign & Upload to TestFlight
