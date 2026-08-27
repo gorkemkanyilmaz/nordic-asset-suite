@@ -32,123 +32,9 @@ public struct ProductConfirmationModal: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
-                    // Calm Product Hero Card
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(lang.t(.productDetected))
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.secondary)
-                                    .tracking(0.5)
-                                
-                                Text(match.fullTitle)
-                                    .font(.title3)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.primary)
-                                
-                                Text(lang.t(.confirmThisMatches))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            
-                            Image(systemName: iconForCategory(match.category))
-                                .font(.system(size: 32))
-                                .foregroundColor(.primary)
-                                .padding(10)
-                                .background(Color.adaptiveSecondaryBackground)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        
-                        Divider()
-                        
-                        // Key Specifications Grid
-                        if !match.keySpecifications.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(lang.t(.specifications))
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.secondary)
-                                    .tracking(0.5)
-                                
-                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                                    ForEach(Array(match.keySpecifications.keys.sorted()), id: \.self) { key in
-                                        if let value = match.keySpecifications[key] {
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(key)
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                                Text(value)
-                                                    .font(.caption)
-                                                    .fontWeight(.semibold)
-                                                    .foregroundColor(.primary)
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(8)
-                                            .background(Color.adaptiveSecondaryBackground)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Statutory Warranty & Value
-                        HStack {
-                            Label(String(format: lang.t(.monthsWarranty), match.defaultWarrantyMonths), systemImage: "shield.checkmark.fill")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.green)
-                            Spacer()
-                            if let price = match.estimatedPrice {
-                                Text(LocalizedCurrencyFormatter.format(amount: price, currencyCode: match.currencyCode))
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                        .padding(10)
-                        .background(Color.green.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                    .padding(18)
-                    .background(Color.adaptiveSystemBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.black.opacity(0.06), lineWidth: 1)
-                    )
-                    
-                    // Action Buttons
-                    VStack(spacing: 10) {
-                        Button(action: {
-                            onConfirm(match)
-                            dismiss()
-                        }) {
-                            Text(lang.t(.confirmAndSaveAsset))
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(Color.accentColor)
-                                .foregroundColor(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                        }
-                        
-                        Button(action: {
-                            onEdit()
-                            dismiss()
-                        }) {
-                            Text(lang.t(.editDetailsManually))
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                        }
-                    }
-                    .padding(.top, 6)
+                    heroCard
+                    actionButtons
+                        .padding(.top, 6)
                 }
                 .padding()
             }
@@ -161,6 +47,135 @@ public struct ProductConfirmationModal: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(lang.t(.cancel)) { dismiss() }
                 }
+            }
+        }
+    }
+    
+    private var heroCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            headerRow
+            
+            Divider()
+            
+            if !match.keySpecifications.isEmpty {
+                specGrid
+            }
+            
+            warrantyRow
+        }
+        .padding(18)
+        .background(Color.adaptiveSystemBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+        )
+    }
+    
+    private var headerRow: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(lang.t(.productDetected))
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.secondary)
+                    .tracking(0.5)
+                
+                Text(match.fullTitle)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text(lang.t(.confirmThisMatches))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            
+            Image(systemName: iconForCategory(match.category))
+                .font(.system(size: 32))
+                .foregroundColor(.primary)
+                .padding(10)
+                .background(Color.adaptiveSecondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    
+    private var specGrid: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(lang.t(.specifications))
+                .font(.caption2)
+                .fontWeight(.bold)
+                .foregroundColor(.secondary)
+                .tracking(0.5)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                ForEach(Array(match.keySpecifications.keys.sorted()), id: \.self) { key in
+                    if let value = match.keySpecifications[key] {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(key)
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                            Text(value)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(8)
+                        .background(Color.adaptiveSecondaryBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+            }
+        }
+    }
+    
+    private var warrantyRow: some View {
+        HStack {
+            Label(String(format: lang.t(.monthsWarranty), match.defaultWarrantyMonths), systemImage: "shield.checkmark.fill")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.green)
+            Spacer()
+            if let price = match.estimatedPrice {
+                Text(LocalizedCurrencyFormatter.format(amount: price, currencyCode: match.currencyCode))
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+            }
+        }
+        .padding(10)
+        .background(Color.green.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private var actionButtons: some View {
+        VStack(spacing: 10) {
+            Button(action: {
+                onConfirm(match)
+                dismiss()
+            }) {
+                Text(lang.t(.confirmAndSaveAsset))
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            
+            Button(action: {
+                onEdit()
+                dismiss()
+            }) {
+                Text(lang.t(.editDetailsManually))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
             }
         }
     }

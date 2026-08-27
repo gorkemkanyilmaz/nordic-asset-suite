@@ -181,7 +181,6 @@ public struct WarrantyCalculator: Sendable {
         
         let jurisdiction = LegalJurisdiction(rawValue: purchaseCountry.uppercased()) ?? .switzerland
         let isConsumer = buyerType.uppercased() != "BUSINESS"
-        let isNewGoods = conditionAtPurchase.uppercased() == "NEW"
         let isBusinessSeller = sellerType.uppercased() != "PRIVATE"
         
         // 1. Calculate Statutory Defect Rights (Against Seller)

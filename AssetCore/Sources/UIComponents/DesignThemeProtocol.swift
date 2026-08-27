@@ -19,7 +19,7 @@ public extension Color {
         #if canImport(UIKit)
         Color(uiColor: .secondarySystemBackground)
         #elseif canImport(AppKit)
-        Color(nsColor: .underPageBackground)
+        Color(nsColor: .underPageBackgroundColor)
         #else
         Color.gray.opacity(0.12)
         #endif
@@ -29,7 +29,7 @@ public extension Color {
         #if canImport(UIKit)
         Color(uiColor: .systemBackground)
         #elseif canImport(AppKit)
-        Color(nsColor: .windowBackground)
+        Color(nsColor: .windowBackgroundColor)
         #else
         Color.white
         #endif
@@ -39,7 +39,7 @@ public extension Color {
         #if canImport(UIKit)
         Color(uiColor: .systemGroupedBackground)
         #elseif canImport(AppKit)
-        Color(nsColor: .windowBackground)
+        Color(nsColor: .windowBackgroundColor)
         #else
         Color.gray.opacity(0.06)
         #endif

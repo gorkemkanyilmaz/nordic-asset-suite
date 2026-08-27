@@ -96,7 +96,7 @@ public actor GeminiDirectClient {
         
         let decoder = JSONDecoder()
         do {
-            var match = try decoder.decode(ProductCandidateMatch.self, from: jsonResponse)
+            let match = try decoder.decode(ProductCandidateMatch.self, from: jsonResponse)
             return match
         } catch {
             // Fallback heuristics if parsing specific fields fails

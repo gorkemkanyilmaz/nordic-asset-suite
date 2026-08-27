@@ -103,7 +103,7 @@ public final class QueryNormalizer: Sendable {
         
         // 3. Extract variant if pattern like /90 or /50 exists
         var variant: String? = nil
-        var modelNumber = remaining
+        let modelNumber = remaining
         if let slashIndex = remaining.firstIndex(of: "/") {
             variant = String(remaining[slashIndex...]).trimmingCharacters(in: .whitespaces)
         }
