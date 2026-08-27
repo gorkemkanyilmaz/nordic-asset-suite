@@ -36,6 +36,9 @@ public actor VisionOCRService {
     
     /// Recognizes barcodes / QR codes from raw image data.
     public func recognizeBarcodes(from imageData: Data) async throws -> [RecognizedBarcodeElement] {
+        guard #available(iOS 18.0, macOS 15.0, *) else {
+            return []
+        }
         return try await withCheckedThrowingContinuation { continuation in
             let requestHandler = VNImageRequestHandler(data: imageData, options: [:])
             

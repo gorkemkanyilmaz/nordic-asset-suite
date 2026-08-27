@@ -294,7 +294,7 @@ public struct LiveScannerSwiftUIView: View {
                     )
                 }
             }
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .onAppear {
                 #if os(iOS)
                 Task {

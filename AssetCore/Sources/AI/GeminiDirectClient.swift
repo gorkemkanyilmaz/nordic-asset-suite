@@ -252,7 +252,7 @@ public actor GeminiDirectClient {
     
     // MARK: - Core HTTP Dispatcher to Gemini REST API
     
-    private func executeGeminiGeneration(
+    public func executeGeminiGeneration(
         prompt: String,
         imageData: Data? = nil,
         temperature: Double = 0.1

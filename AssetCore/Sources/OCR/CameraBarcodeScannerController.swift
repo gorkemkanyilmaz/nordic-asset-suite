@@ -155,7 +155,7 @@ public final class CameraBarcodeScannerController: NSObject, ObservableObject {
 
 // MARK: - AVCaptureMetadataOutputObjectsDelegate
 
-extension CameraBarcodeScannerController: AVCaptureMetadataOutputObjectsDelegate {
+extension CameraBarcodeScannerController: @preconcurrency AVCaptureMetadataOutputObjectsDelegate {
     public func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
@@ -178,7 +178,7 @@ extension CameraBarcodeScannerController: AVCaptureMetadataOutputObjectsDelegate
 
 // MARK: - AVCapturePhotoCaptureDelegate
 
-extension CameraBarcodeScannerController: AVCapturePhotoCaptureDelegate {
+extension CameraBarcodeScannerController: @preconcurrency AVCapturePhotoCaptureDelegate {
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
             delegate?.didEncounterCameraError(error: error)

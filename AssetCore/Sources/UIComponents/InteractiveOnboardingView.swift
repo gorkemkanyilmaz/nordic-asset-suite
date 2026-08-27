@@ -151,7 +151,9 @@ public struct InteractiveOnboardingView: View {
                         .tag(idx)
                     }
                 }
+                #if os(iOS)
                 .tabViewStyle(.page(indexDisplayMode: .always))
+                #endif
                 .frame(maxHeight: 460)
                 
                 Spacer()
