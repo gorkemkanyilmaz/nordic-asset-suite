@@ -20,10 +20,6 @@ targets:
     dependencies:
       - package: AssetCore
         product: AssetCore
-    info:
-      properties:
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.appliance
@@ -48,10 +44,6 @@ targets:
     dependencies:
       - package: AssetCore
         product: AssetCore
-    info:
-      properties:
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.skigear
@@ -76,10 +68,6 @@ targets:
     dependencies:
       - package: AssetCore
         product: AssetCore
-    info:
-      properties:
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.ebike
@@ -104,10 +92,6 @@ targets:
     dependencies:
       - package: AssetCore
         product: AssetCore
-    info:
-      properties:
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.coffee

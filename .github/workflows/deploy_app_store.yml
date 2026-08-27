@@ -33,6 +33,7 @@ jobs:
 
       - name: Run Concurrency Audit & Tests
         run: |
+          set -o pipefail
           chmod +x BuildScripts/*.sh
           ./BuildScripts/verify_concurrency.sh 2>&1 | tee build_audit.log
           ./BuildScripts/run_all_tests.sh 2>&1 | tee -a build_audit.log
@@ -71,9 +72,10 @@ jobs:
 
       - name: Generate Xcode Project
         run: |
+          set -o pipefail
           xcodegen generate 2>&1 | tee xcodegen.log
           echo "✅ Project generated. Available schemes:"
-          xcodebuild -project NordicAssetSuite.xcodeproj -list 2>&1 | tee -a xcodegen.log | head -20
+          xcodebuild -project NordicAssetSuite.xcodeproj -list 2>&1 | tee -a xcodegen.log
 
       - name: Deploy All Apps via Fastlane (TestFlight)
         env:
@@ -83,6 +85,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
+          set -o pipefail
           set -x
           which fastlane || gem install fastlane --no-document
           fastlane --version
