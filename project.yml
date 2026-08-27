@@ -29,7 +29,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.appliance
         GENERATE_INFOPLIST_FILE: YES
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "3"
         INFOPLIST_KEY_CFBundleDisplayName: "Appliance Warranty Manager"
         INFOPLIST_KEY_CFBundleIconName: "AppIcon"
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
@@ -57,7 +57,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.skigear
         GENERATE_INFOPLIST_FILE: YES
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "3"
         INFOPLIST_KEY_CFBundleDisplayName: "Ski & Snowboard Gear Tuning"
         INFOPLIST_KEY_CFBundleIconName: "AppIcon"
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
@@ -85,7 +85,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.ebike
         GENERATE_INFOPLIST_FILE: YES
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "3"
         INFOPLIST_KEY_CFBundleDisplayName: "E-Bike Service & Maintenance"
         INFOPLIST_KEY_CFBundleIconName: "AppIcon"
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
@@ -113,7 +113,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nordicassetsuite.coffee
         GENERATE_INFOPLIST_FILE: YES
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "3"
         INFOPLIST_KEY_CFBundleDisplayName: "Coffee Brew & Espresso Log"
         INFOPLIST_KEY_CFBundleIconName: "AppIcon"
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"

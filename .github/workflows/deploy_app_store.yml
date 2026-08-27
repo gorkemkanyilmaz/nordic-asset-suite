@@ -83,19 +83,40 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          gem install fastlane --no-document
+          set -x
+          which fastlane || gem install fastlane --no-document
+          fastlane --version
+          set +x
           fastlane deploy_all 2>&1 | tee fastlane.log
+          echo "=== Verifying IPA artifacts ==="
+          ls -la build/ipa/ || true
+          test -s build/ipa/ApplianceWarrantyManager.ipa
+          test -s build/ipa/SkiGearTracker.ipa
+          test -s build/ipa/EBikeServiceTracker.ipa
+          test -s build/ipa/CoffeeMachineCompanion.ipa
+          echo "=== All 4 IPAs verified ==="
 
       - name: Surface deploy errors
         if: failure()
         run: |
           for f in xcodegen.log fastlane.log; do
             if [ -f "$f" ]; then
-              grep -E "error|Error|ERROR|Missing|failed|Failed|fatal|❌" "$f" | head -30 | while read -r line; do
+              echo "::error::===== Last 40 lines of $f ====="
+              tail -40 "$f" | while read -r line; do
                 echo "::error::${line}"
               done
             fi
           done
+
+      - name: Upload deploy logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-logs
+          path: |
+            xcodegen.log
+            fastlane.log
+          if-no-files-found: ignore
 
   deliver_app_store:
     name: Upload Metadata & Submit for App Review
