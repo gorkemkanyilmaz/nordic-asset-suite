@@ -246,6 +246,19 @@ public actor GeminiDirectClient {
         return try JSONDecoder().decode(AIDiagnosticResponse.self, from: jsonResponse)
     }
     
+    // MARK: - 6. Generic Domain-Specific Generation
+    
+    /// Generates an arbitrary domain JSON object from a fully-formed prompt.
+    /// Used by each app's exclusive AI pipelines (wax advisor, grind advisor, motor decoder).
+    public func generate<T: Decodable & Sendable>(
+        prompt: String,
+        responseType: T.Type,
+        temperature: Double = 0.2
+    ) async throws -> T {
+        let jsonResponse = try await executeGeminiGeneration(prompt: prompt, temperature: temperature)
+        return try JSONDecoder().decode(T.self, from: jsonResponse)
+    }
+    
     // MARK: - In-Memory Cache & In-Flight Deduplication
     private var responseCache: [String: Data] = [:]
     private var inFlightTasks: [String: Task<Data, Error>] = [:]
@@ -413,3 +426,6 @@ public actor GeminiDirectClient {
         )
     }
 }
+
+/// Convenience alias used by app-level view models.
+public typealias GeminiClient = GeminiDirectClient

@@ -268,7 +268,7 @@ public final class CoffeeViewModel {
 }
 
 // MARK: — Coffee Companion Exclusive Domain Types
-public struct GrindAdviceResult: Codable {
+public struct GrindAdviceResult: Codable, Sendable {
     public let recommendedGrindSetting: Double
     public let doseGrams: Double
     public let yieldGrams: Double

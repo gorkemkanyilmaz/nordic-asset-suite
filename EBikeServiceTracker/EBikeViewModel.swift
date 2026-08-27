@@ -251,7 +251,7 @@ public final class EBikeViewModel {
 }
 
 // MARK: — E-Bike Service Exclusive Domain Types
-public struct MotorDiagnosisResult: Codable {
+public struct MotorDiagnosisResult: Codable, Sendable {
     public let errorTitle: String
     public let motorSystem: String
     public let probableCause: String

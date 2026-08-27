@@ -259,7 +259,7 @@ public final class SkiGearViewModel {
 }
 
 // MARK: — Ski Gear Tracker Exclusive Domain Types
-public struct WaxRecommendationResult: Codable {
+public struct WaxRecommendationResult: Codable, Sendable {
     public let waxBrand: String
     public let waxModel: String
     public let waxTemperatureRange: String
