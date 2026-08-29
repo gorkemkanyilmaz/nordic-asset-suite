@@ -89,6 +89,7 @@ public struct WaxingGuideView: View {
                     .padding(.vertical, 4)
                 }
             }
+            .preferredColorScheme(.dark)
             .navigationTitle("Wax & Structure Advisor")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

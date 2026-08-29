@@ -25,6 +25,7 @@ public struct SkiGearApp: App {
     public var body: some Scene {
         WindowGroup {
             QuiverDashboardView(viewModel: viewModel)
+                .preferredColorScheme(.dark)
         }
         .modelContainer(container)
     }

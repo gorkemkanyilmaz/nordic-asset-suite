@@ -25,10 +25,10 @@ public struct BaseCardView<Content: View>: View {
         .padding(theme.standardPadding)
         .background(theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadiusCard, style: .continuous))
-        .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 3)
+        .shadow(color: Color.black.opacity(0.35), radius: 10, x: 0, y: 4)
         .overlay(
             RoundedRectangle(cornerRadius: theme.cornerRadiusCard, style: .continuous)
-                .stroke(Color.black.opacity(0.04), lineWidth: 1)
+                .stroke(theme.borderSubtle, lineWidth: 1)
         )
     }
 }

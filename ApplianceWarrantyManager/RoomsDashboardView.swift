@@ -34,7 +34,7 @@ public struct RoomsDashboardView: View {
             ScrollView {
                 dashboardContent
             }
-            .background(theme.backgroundGrouped)
+            .background(theme.backgroundGrouped.ignoresSafeArea())
             .navigationTitle(lang.t(.applianceWarrantyManager))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

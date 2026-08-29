@@ -209,6 +209,7 @@ public struct BrewRecipeJournalView: View {
                     }
                 }
             }
+            .preferredColorScheme(.dark)
             .navigationTitle("Dial-In Recipe Log")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -193,7 +193,7 @@ public struct BaristaDeckView: View {
                 }
                 .padding()
             }
-            .background(theme.backgroundGrouped)
+            .background(theme.backgroundGrouped.ignoresSafeArea())
             .navigationTitle(lang.t(.coffeeBrewEspressoLog))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

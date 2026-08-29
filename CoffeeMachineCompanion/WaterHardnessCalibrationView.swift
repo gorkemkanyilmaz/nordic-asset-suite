@@ -96,6 +96,7 @@ public struct WaterHardnessCalibrationView: View {
                     .padding(.vertical, 4)
                 }
             }
+            .preferredColorScheme(.dark)
             .navigationTitle("Water Chemistry & Scale")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

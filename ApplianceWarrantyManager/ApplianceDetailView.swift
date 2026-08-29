@@ -417,7 +417,7 @@ public struct ApplianceDetailView: View {
                                                 .foregroundColor(theme.textPrimary)
                                         }
                                         .padding(8)
-                                        .background(Color(.secondarySystemBackground))
+                                        .background(theme.surfaceElevated)
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
                                     }
                                 }
@@ -428,7 +428,7 @@ public struct ApplianceDetailView: View {
             }
             .padding()
         }
-        .background(theme.backgroundGrouped)
+        .background(theme.backgroundGrouped.ignoresSafeArea())
         .navigationTitle(appliance.modelName)
         .navigationBarTitleDisplayMode(.inline)
     }

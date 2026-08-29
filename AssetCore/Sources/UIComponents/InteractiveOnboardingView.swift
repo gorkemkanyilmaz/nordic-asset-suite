@@ -187,7 +187,8 @@ public struct InteractiveOnboardingView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
             }
-            .background(theme.backgroundGrouped)
+            .background(theme.backgroundGrouped.ignoresSafeArea())
+            .preferredColorScheme(.dark)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(lang.t(.skip)) { dismiss() }

@@ -161,7 +161,8 @@ public struct PaywallView: View {
                 }
                 .padding()
             }
-            .background(theme.backgroundGrouped)
+            .background(theme.backgroundGrouped.ignoresSafeArea())
+            .preferredColorScheme(.dark)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

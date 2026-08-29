@@ -38,7 +38,8 @@ public struct ProductConfirmationModal: View {
                 }
                 .padding()
             }
-            .background(Color.adaptiveGroupedBackground)
+            .background(Color.adaptiveGroupedBackground.ignoresSafeArea())
+            .preferredColorScheme(.dark)
             .navigationTitle(lang.t(.confirmAsset))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -68,7 +69,7 @@ public struct ProductConfirmationModal: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }
     

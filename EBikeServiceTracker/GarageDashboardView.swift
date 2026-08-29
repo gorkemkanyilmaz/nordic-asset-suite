@@ -171,7 +171,7 @@ public struct GarageDashboardView: View {
                 }
                 .padding()
             }
-            .background(theme.backgroundGrouped)
+            .background(theme.backgroundGrouped.ignoresSafeArea())
             .navigationTitle(lang.t(.ebikeServiceMaintenance))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

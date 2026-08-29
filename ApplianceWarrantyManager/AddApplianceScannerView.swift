@@ -144,11 +144,16 @@ public struct AddApplianceScannerView: View {
                                 .foregroundColor(.white)
                         }
                         .padding(24)
-                        .background(Color(.systemGray6))
+                        .background(theme.cardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 18))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(theme.borderSubtle, lineWidth: 1)
+                        )
                     }
                 }
             }
+            .preferredColorScheme(.dark)
             .navigationTitle(lang.t(.addAsset))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

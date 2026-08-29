@@ -16,33 +16,15 @@ import AppKit
 // MARK: - Adaptive Platform Colors
 public extension Color {
     static var adaptiveSecondaryBackground: Color {
-        #if canImport(UIKit)
-        Color(uiColor: .secondarySystemBackground)
-        #elseif canImport(AppKit)
-        Color(nsColor: .underPageBackgroundColor)
-        #else
-        Color.gray.opacity(0.12)
-        #endif
+        Color(red: 26/255.0, green: 34/255.0, blue: 50/255.0)
     }
     
     static var adaptiveSystemBackground: Color {
-        #if canImport(UIKit)
-        Color(uiColor: .systemBackground)
-        #elseif canImport(AppKit)
-        Color(nsColor: .windowBackgroundColor)
-        #else
-        Color.white
-        #endif
+        Color(red: 16/255.0, green: 22/255.0, blue: 34/255.0)
     }
     
     static var adaptiveGroupedBackground: Color {
-        #if canImport(UIKit)
-        Color(uiColor: .systemGroupedBackground)
-        #elseif canImport(AppKit)
-        Color(nsColor: .windowBackgroundColor)
-        #else
-        Color.gray.opacity(0.06)
-        #endif
+        Color(red: 8/255.0, green: 12/255.0, blue: 20/255.0)
     }
 }
 
@@ -80,94 +62,94 @@ public protocol AppDesignTheme: Sendable {
 public extension AppDesignTheme {
     var surfaceElevated: Color { cardBackground }
     var textMuted: Color { textSecondary.opacity(0.7) }
-    var borderSubtle: Color { Color.black.opacity(0.06) }
-    var borderDefault: Color { Color.black.opacity(0.12) }
+    var borderSubtle: Color { Color.white.opacity(0.08) }
+    var borderDefault: Color { Color.white.opacity(0.16) }
 }
 
-// MARK: - 1. Appliance Warranty Manager (Clean Swiss Minimalist Slate)
+// MARK: - 1. Appliance Warranty Manager (Dark Obsidian Slate & Neon Cyan)
 public struct ApplianceTheme: AppDesignTheme {
     public init() {}
-    public let primaryAccent = Color(red: 0.15, green: 0.22, blue: 0.32) // Swiss Slate
-    public let secondaryAccent = Color(red: 0.25, green: 0.45, blue: 0.70) // Alpine Cobalt
-    public let backgroundGrouped = Color(red: 0.96, green: 0.97, blue: 0.98)
-    public let cardBackground = Color.white
-    public let surfaceElevated = Color(red: 0.98, green: 0.99, blue: 1.0)
-    public let textPrimary = Color(red: 0.08, green: 0.12, blue: 0.17)
-    public let textSecondary = Color(red: 0.40, green: 0.46, blue: 0.54)
-    public let textMuted = Color(red: 0.60, green: 0.65, blue: 0.72)
-    public let statusSuccess = Color(red: 0.12, green: 0.68, blue: 0.38)
-    public let statusWarning = Color(red: 0.92, green: 0.55, blue: 0.05)
-    public let statusCritical = Color(red: 0.88, green: 0.25, blue: 0.20)
-    public let borderSubtle = Color(red: 0.90, green: 0.92, blue: 0.94)
-    public let borderDefault = Color(red: 0.82, green: 0.85, blue: 0.88)
-    
-    public let cornerRadiusCard: CGFloat = 14
-    public let cornerRadiusButton: CGFloat = 10
-    public let standardPadding: CGFloat = 16
-}
-
-// MARK: - 2. Ski Gear Tracker (High-Vis Alpine Navy & Orange)
-public struct SkiGearTheme: AppDesignTheme {
-    public init() {}
-    public let primaryAccent = Color(red: 0.06, green: 0.18, blue: 0.30) // Deep Glacier Navy
-    public let secondaryAccent = Color(red: 0.96, green: 0.45, blue: 0.10) // Alpine High-Vis Orange
-    public let backgroundGrouped = Color(red: 0.94, green: 0.96, blue: 0.98)
-    public let cardBackground = Color.white
-    public let surfaceElevated = Color(red: 0.97, green: 0.98, blue: 1.0)
-    public let textPrimary = Color(red: 0.05, green: 0.10, blue: 0.16)
-    public let textSecondary = Color(red: 0.35, green: 0.44, blue: 0.52)
-    public let textMuted = Color(red: 0.55, green: 0.62, blue: 0.70)
-    public let statusSuccess = Color(red: 0.10, green: 0.65, blue: 0.50)
-    public let statusWarning = Color(red: 0.95, green: 0.55, blue: 0.10)
-    public let statusCritical = Color(red: 0.85, green: 0.20, blue: 0.25)
-    public let borderSubtle = Color(red: 0.88, green: 0.91, blue: 0.95)
-    public let borderDefault = Color(red: 0.80, green: 0.84, blue: 0.90)
-    
-    public let cornerRadiusCard: CGFloat = 12
-    public let cornerRadiusButton: CGFloat = 8
-    public let standardPadding: CGFloat = 16
-}
-
-// MARK: - 3. E-Bike Service Tracker (Industrial Graphite & Electric Teal)
-public struct EBikeTheme: AppDesignTheme {
-    public init() {}
-    public let primaryAccent = Color(red: 0.10, green: 0.12, blue: 0.15) // Stealth Graphite
-    public let secondaryAccent = Color(red: 0.08, green: 0.65, blue: 0.60) // Electric Teal
-    public let backgroundGrouped = Color(red: 0.93, green: 0.95, blue: 0.96)
-    public let cardBackground = Color.white
-    public let surfaceElevated = Color(red: 0.97, green: 0.98, blue: 0.99)
-    public let textPrimary = Color(red: 0.08, green: 0.10, blue: 0.12)
-    public let textSecondary = Color(red: 0.38, green: 0.44, blue: 0.48)
-    public let textMuted = Color(red: 0.58, green: 0.64, blue: 0.68)
-    public let statusSuccess = Color(red: 0.12, green: 0.68, blue: 0.40)
-    public let statusWarning = Color(red: 0.94, green: 0.60, blue: 0.12)
-    public let statusCritical = Color(red: 0.90, green: 0.22, blue: 0.18)
-    public let borderSubtle = Color(red: 0.88, green: 0.90, blue: 0.92)
-    public let borderDefault = Color(red: 0.80, green: 0.83, blue: 0.86)
-    
-    public let cornerRadiusCard: CGFloat = 12
-    public let cornerRadiusButton: CGFloat = 8
-    public let standardPadding: CGFloat = 16
-}
-
-// MARK: - 4. Coffee Machine Companion (Specialty Espresso Bronze & Crema Amber)
-public struct CoffeeTheme: AppDesignTheme {
-    public init() {}
-    public let primaryAccent = Color(red: 0.24, green: 0.15, blue: 0.08) // Roast Espresso
-    public let secondaryAccent = Color(red: 0.75, green: 0.48, blue: 0.22) // Crema Amber
-    public let backgroundGrouped = Color(red: 0.97, green: 0.95, blue: 0.92)
-    public let cardBackground = Color.white
-    public let surfaceElevated = Color(red: 0.99, green: 0.98, blue: 0.96)
-    public let textPrimary = Color(red: 0.16, green: 0.10, blue: 0.06)
-    public let textSecondary = Color(red: 0.48, green: 0.40, blue: 0.34)
-    public let textMuted = Color(red: 0.68, green: 0.60, blue: 0.54)
-    public let statusSuccess = Color(red: 0.24, green: 0.58, blue: 0.35)
-    public let statusWarning = Color(red: 0.85, green: 0.50, blue: 0.12)
-    public let statusCritical = Color(red: 0.78, green: 0.22, blue: 0.18)
-    public let borderSubtle = Color(red: 0.91, green: 0.88, blue: 0.84)
-    public let borderDefault = Color(red: 0.84, green: 0.80, blue: 0.75)
+    public let primaryAccent = Color(red: 56/255.0, green: 189/255.0, blue: 248/255.0) // Sky Neon Cyan (#38BDF8)
+    public let secondaryAccent = Color(red: 2/255.0, green: 132/255.0, blue: 199/255.0) // Alpine Cobalt (#0284C7)
+    public let backgroundGrouped = Color(red: 8/255.0, green: 12/255.0, blue: 20/255.0) // Obsidian Slate (#080C14)
+    public let cardBackground = Color(red: 16/255.0, green: 22/255.0, blue: 34/255.0) // Dark Surface (#101622)
+    public let surfaceElevated = Color(red: 26/255.0, green: 34/255.0, blue: 50/255.0) // Elevated (#1A2232)
+    public let textPrimary = Color(red: 248/255.0, green: 250/255.0, blue: 252/255.0) // Crisp White (#F8FAFC)
+    public let textSecondary = Color(red: 148/255.0, green: 163/255.0, blue: 184/255.0) // Silver Muted (#94A3B8)
+    public let textMuted = Color(red: 100/255.0, green: 116/255.0, blue: 139/255.0) // Deep Muted (#64748B)
+    public let statusSuccess = Color(red: 16/255.0, green: 185/255.0, blue: 129/255.0) // Emerald (#10B981)
+    public let statusWarning = Color(red: 245/255.0, green: 158/255.0, blue: 11/255.0) // Amber (#F59E0B)
+    public let statusCritical = Color(red: 239/255.0, green: 68/255.0, blue: 68/255.0) // Rose Red (#EF4444)
+    public let borderSubtle = Color.white.opacity(0.08)
+    public let borderDefault = Color.white.opacity(0.16)
     
     public let cornerRadiusCard: CGFloat = 16
     public let cornerRadiusButton: CGFloat = 12
-    public let standardPadding: CGFloat = 18
+    public let standardPadding: CGFloat = 16
+}
+
+// MARK: - 2. Ski Gear Tracker (Glacier Deep Navy & Alpine Orange)
+public struct SkiGearTheme: AppDesignTheme {
+    public init() {}
+    public let primaryAccent = Color(red: 249/255.0, green: 115/255.0, blue: 22/255.0) // Alpine Orange (#F97316)
+    public let secondaryAccent = Color(red: 56/255.0, green: 189/255.0, blue: 248/255.0) // Glacier Cyan (#38BDF8)
+    public let backgroundGrouped = Color(red: 7/255.0, green: 12/255.0, blue: 20/255.0) // Glacier Deep Navy (#070C14)
+    public let cardBackground = Color(red: 15/255.0, green: 24/255.0, blue: 38/255.0) // Glacier Surface (#0F1826)
+    public let surfaceElevated = Color(red: 23/255.0, green: 36/255.0, blue: 56/255.0) // Elevated (#172438)
+    public let textPrimary = Color(red: 248/255.0, green: 250/255.0, blue: 252/255.0) // Crisp White (#F8FAFC)
+    public let textSecondary = Color(red: 148/255.0, green: 163/255.0, blue: 184/255.0) // Silver (#94A3B8)
+    public let textMuted = Color(red: 100/255.0, green: 116/255.0, blue: 139/255.0) // Muted (#64748B)
+    public let statusSuccess = Color(red: 16/255.0, green: 185/255.0, blue: 129/255.0)
+    public let statusWarning = Color(red: 245/255.0, green: 158/255.0, blue: 11/255.0)
+    public let statusCritical = Color(red: 239/255.0, green: 68/255.0, blue: 68/255.0)
+    public let borderSubtle = Color.white.opacity(0.08)
+    public let borderDefault = Color.white.opacity(0.16)
+    
+    public let cornerRadiusCard: CGFloat = 16
+    public let cornerRadiusButton: CGFloat = 12
+    public let standardPadding: CGFloat = 16
+}
+
+// MARK: - 3. E-Bike Service Tracker (Carbon Graphite & Electric Teal)
+public struct EBikeTheme: AppDesignTheme {
+    public init() {}
+    public let primaryAccent = Color(red: 20/255.0, green: 184/255.0, blue: 166/255.0) // Electric Teal (#14B8A6)
+    public let secondaryAccent = Color(red: 13/255.0, green: 148/255.0, blue: 136/255.0) // Dark Teal (#0D9488)
+    public let backgroundGrouped = Color(red: 9/255.0, green: 12/255.0, blue: 14/255.0) // Carbon Black (#090C0E)
+    public let cardBackground = Color(red: 18/255.0, green: 24/255.0, blue: 28/255.0) // Graphite Surface (#12181C)
+    public let surfaceElevated = Color(red: 26/255.0, green: 34/255.0, blue: 40/255.0) // Elevated (#1A2228)
+    public let textPrimary = Color(red: 248/255.0, green: 250/255.0, blue: 252/255.0)
+    public let textSecondary = Color(red: 148/255.0, green: 163/255.0, blue: 184/255.0)
+    public let textMuted = Color(red: 100/255.0, green: 116/255.0, blue: 139/255.0)
+    public let statusSuccess = Color(red: 16/255.0, green: 185/255.0, blue: 129/255.0)
+    public let statusWarning = Color(red: 245/255.0, green: 158/255.0, blue: 11/255.0)
+    public let statusCritical = Color(red: 239/255.0, green: 68/255.0, blue: 68/255.0)
+    public let borderSubtle = Color.white.opacity(0.08)
+    public let borderDefault = Color.white.opacity(0.16)
+    
+    public let cornerRadiusCard: CGFloat = 16
+    public let cornerRadiusButton: CGFloat = 12
+    public let standardPadding: CGFloat = 16
+}
+
+// MARK: - 4. Coffee Machine Companion (Dark Roast Charcoal & Golden Crema)
+public struct CoffeeTheme: AppDesignTheme {
+    public init() {}
+    public let primaryAccent = Color(red: 217/255.0, green: 119/255.0, blue: 6/255.0) // Amber Bronze (#D97706)
+    public let secondaryAccent = Color(red: 245/255.0, green: 158/255.0, blue: 11/255.0) // Golden Crema (#F59E0B)
+    public let backgroundGrouped = Color(red: 18/255.0, green: 13/255.0, blue: 9/255.0) // Dark Roast Charcoal (#120D09)
+    public let cardBackground = Color(red: 26/255.0, green: 19/255.0, blue: 14/255.0) // Roast Surface (#1A130E)
+    public let surfaceElevated = Color(red: 40/255.0, green: 29/255.0, blue: 22/255.0) // Elevated (#281D16)
+    public let textPrimary = Color(red: 248/255.0, green: 250/255.0, blue: 252/255.0) // Clean White (#F8FAFC)
+    public let textSecondary = Color(red: 214/255.0, green: 194/255.0, blue: 180/255.0) // Warm Crema Silver (#D6C2B4)
+    public let textMuted = Color(red: 140/255.0, green: 119/255.0, blue: 104/255.0) // Warm Muted (#8C7768)
+    public let statusSuccess = Color(red: 16/255.0, green: 185/255.0, blue: 129/255.0)
+    public let statusWarning = Color(red: 245/255.0, green: 158/255.0, blue: 11/255.0)
+    public let statusCritical = Color(red: 239/255.0, green: 68/255.0, blue: 68/255.0)
+    public let borderSubtle = Color.white.opacity(0.08)
+    public let borderDefault = Color.white.opacity(0.16)
+    
+    public let cornerRadiusCard: CGFloat = 16
+    public let cornerRadiusButton: CGFloat = 12
+    public let standardPadding: CGFloat = 16
 }

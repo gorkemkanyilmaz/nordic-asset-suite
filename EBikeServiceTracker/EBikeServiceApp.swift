@@ -25,6 +25,7 @@ public struct EBikeServiceApp: App {
     public var body: some Scene {
         WindowGroup {
             GarageDashboardView(viewModel: viewModel)
+                .preferredColorScheme(.dark)
         }
         .modelContainer(container)
     }

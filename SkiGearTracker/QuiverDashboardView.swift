@@ -179,7 +179,7 @@ public struct QuiverDashboardView: View {
                 }
                 .padding()
             }
-            .background(theme.backgroundGrouped)
+            .background(theme.backgroundGrouped.ignoresSafeArea())
             .navigationTitle(lang.t(.skiSnowboardTuning))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

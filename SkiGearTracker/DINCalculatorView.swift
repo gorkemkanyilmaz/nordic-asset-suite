@@ -147,6 +147,7 @@ public struct DINCalculatorView: View {
                     }
                 }
             }
+            .preferredColorScheme(.dark)
             .navigationTitle("ISO 11088 DIN Calculator")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

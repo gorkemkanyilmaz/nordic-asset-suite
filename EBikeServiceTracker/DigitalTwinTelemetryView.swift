@@ -122,7 +122,7 @@ public struct DigitalTwinTelemetryView: View {
             }
             .padding()
         }
-        .background(theme.backgroundGrouped)
+        .background(theme.backgroundGrouped.ignoresSafeArea())
         .navigationTitle("Telemetry & Setup")
     }
 }
