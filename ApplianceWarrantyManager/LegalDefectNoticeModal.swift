@@ -7,6 +7,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization

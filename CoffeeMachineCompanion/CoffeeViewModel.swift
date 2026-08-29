@@ -122,6 +122,18 @@ public final class CoffeeViewModel {
         }
     }
     
+    public func recordDescaling() async throws {
+        guard let machine = currentMachine else { return }
+        try await databaseWorker.recordDescalingCycle(
+            machineID: machine.id,
+            chemical: "Claris 2-Phase Descaling Tablets",
+            waterLiters: 45.0,
+            daysUntilNext: 60,
+            notes: "Routine descaling cycle recorded."
+        )
+        await loadMachines()
+    }
+    
     public func getCoffeeManual() -> MaintenanceManualData {
         guard let machine = currentMachine else {
             return MaintenanceManualData(

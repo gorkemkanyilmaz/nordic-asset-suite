@@ -35,7 +35,7 @@ public struct QuiverDashboardView: View {
                 VStack(spacing: 16) {
                     greetingSection
                     
-                    if let ski = viewModel.activeQuiver.first ?? viewModel.allGear.first {
+                    if let ski = viewModel.activeQuiver.first ?? viewModel.skis.first {
                         // Hero Ski Setup Card
                         BaseCardView(theme: theme) {
                             VStack(alignment: .leading, spacing: 12) {

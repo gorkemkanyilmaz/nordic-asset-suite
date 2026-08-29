@@ -244,9 +244,27 @@ public final class EBikeViewModel {
                 batteryUsedPct: batteryUsedPct,
                 trailType: trailType
             )
+            await loadBikes()
         } catch {
             self.errorMessage = "Ride session save failed: \(error.localizedDescription)"
         }
+    }
+    
+    public func recordRide(
+        ebikeID: UUID,
+        distanceKm: Double,
+        elevationMeters: Double,
+        batteryUsedPct: Double,
+        terrain: String
+    ) async throws {
+        try await databaseWorker.recordRideSession(
+            ebikeID: ebikeID,
+            distanceKm: distanceKm,
+            elevationGainM: elevationMeters,
+            batteryUsedPct: batteryUsedPct,
+            trailType: terrain
+        )
+        await loadBikes()
     }
 }
 
