@@ -24,7 +24,7 @@ public struct CoffeeMachineApp: App {
     
     public var body: some Scene {
         WindowGroup {
-            BaristaDeckView(viewModel: viewModel)
+            CoffeeMainTabView(viewModel: viewModel)
                 .preferredColorScheme(.dark)
         }
         .modelContainer(container)

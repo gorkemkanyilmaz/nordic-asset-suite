@@ -3,23 +3,20 @@
 //  EBikeServiceTracker
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Garage-Centric Dashboard & Bike Selector with Gemini AI.
+//  Strict Concurrency: Complete. Clean Nordic Ride Dashboard matching localhost.
 //
 
 import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
-import AssetCoreAI
-import AssetCoreOCR
 
 public struct GarageDashboardView: View {
     @Bindable var viewModel: EBikeViewModel
     private let theme = EBikeTheme()
     private let lang = LanguageManager.shared
     
-    @State private var showingAddBike: Bool = false
-    @State private var selectedTab: Int = 0
+    @State private var showingLogRide: Bool = false
     
     public init(viewModel: EBikeViewModel) {
         self.viewModel = viewModel
@@ -28,19 +25,8 @@ public struct GarageDashboardView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 18) {
-                    // Top Interactive Demo Bar
-                    InteractiveDemoBar(
-                        theme: theme,
-                        onOpenGuide: {
-                            viewModel.showingOnboardingGuide = true
-                        },
-                        onQuickDemoAdd: {
-                            Task {
-                                await viewModel.injectDemoBike()
-                            }
-                        }
-                    )
+                VStack(spacing: 16) {
+                    greetingSection
                     
                     if let bike = viewModel.currentBike {
                         // Digital Twin Bike Hero Card
@@ -69,7 +55,7 @@ public struct GarageDashboardView: View {
                                     
                                     MetricBadgeView(
                                         label: "Battery",
-                                        value: "\(String(format: "%.0f", bike.latestBatteryHealthPercentage ?? 100))%",
+                                        value: "\(String(format: "%.0f", bike.latestBatteryHealthPercentage ?? 98))%",
                                         status: .success,
                                         theme: theme
                                     )
@@ -102,93 +88,119 @@ public struct GarageDashboardView: View {
                                             .foregroundColor(theme.textPrimary)
                                     }
                                 }
-                            }
-                        }
-                        
-                        // Navigation Link to Bike Health & Components
-                        NavigationLink(destination: DigitalTwinTelemetryView(viewModel: viewModel)) {
-                            BaseCardView(theme: theme) {
-                                HStack {
-                                    Image(systemName: "gauge.with.dots.needle.bottom.50percent")
-                                        .font(.title2)
-                                        .foregroundColor(theme.secondaryAccent)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("BIKE HEALTH & WEAR GAUGES")
-                                            .font(.caption2)
+                                
+                                Button(action: { showingLogRide = true }) {
+                                    HStack {
+                                        Image(systemName: "plus.circle.fill")
+                                        Text("Log Completed Ride")
                                             .fontWeight(.bold)
-                                            .foregroundColor(theme.textSecondary)
-                                        Text("Chain Stretch & Suspension PSI")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(theme.textPrimary)
                                     }
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(theme.textSecondary)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        
-                        // Tab Selector: Protocol vs Parts
-                        Picker("EBike Tab", selection: $selectedTab) {
-                            Text("Service Protocol").tag(0)
-                            Text("Wear Parts").tag(1)
-                        }
-                        .pickerStyle(.segmented)
-                        
-                        if selectedTab == 0 {
-                            MaintenanceManualCardView(manual: viewModel.getEBikeManual(), theme: theme)
-                        } else {
-                            SparePartsWearView(schedule: viewModel.getEBikeParts(), theme: theme) { _ in }
-                        }
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "bicycle")
-                                .font(.system(size: 48))
-                                .foregroundColor(theme.textSecondary.opacity(0.4))
-                            Text("Garage is Empty")
-                                .font(.headline)
-                                .foregroundColor(theme.textSecondary)
-                            Text("Scan frame serial or type your model to track battery telemetry and maintenance.")
-                                .font(.caption)
-                                .foregroundColor(theme.textSecondary)
-                                .multilineTextAlignment(.center)
-                            
-                            Button(action: { Task { await viewModel.injectDemoBike() } }) {
-                                Text("Load Demo Scott Patron eRIDE")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
                                     .background(theme.primaryAccent)
                                     .foregroundColor(.white)
-                                    .clipShape(Capsule())
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+                                .padding(.top, 4)
                             }
                         }
-                        .padding(.top, 30)
+                        
+                        // Component Health & Gauges
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("COMPONENT WEAR & TELEMETRY")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.textSecondary)
+                            
+                            // Chain Elongation
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text("CHAIN ELONGATION GAUGE")
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textMuted)
+                                    Spacer()
+                                    Text("0.35% (Optimal)")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(theme.statusSuccess)
+                                }
+                                ProgressView(value: 0.35, total: 1.0)
+                                    .tint(theme.statusSuccess)
+                                Text("Replace chain when stretch reaches 0.75% (SRAM 12-Speed)")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(theme.textMuted)
+                            }
+                            .padding(12)
+                            .background(theme.surfaceElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            
+                            // Suspension Sag
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text("SUSPENSION AIR PRESSURE")
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textMuted)
+                                    Spacer()
+                                    Text("165 PSI / 25% Sag")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(theme.primaryAccent)
+                                }
+                                Text("Calibrated for 78 kg rider weight on Fox 38 Float 160mm fork")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(theme.textMuted)
+                            }
+                            .padding(12)
+                            .background(theme.surfaceElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .padding(16)
+                        .background(theme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(theme.borderSubtle, lineWidth: 1)
+                        )
+                        
+                        // Recent Service Log
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("RECENT MAINTENANCE HISTORY")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.textSecondary)
+                            
+                            HStack(spacing: 12) {
+                                Image(systemName: "wrench.fill")
+                                    .foregroundColor(theme.primaryAccent)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Ceramic Chain Lubrication")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text("Applied at 1,300 km · Next due at 1,450 km")
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                            }
+                        }
+                        .padding(16)
+                        .background(theme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(theme.borderSubtle, lineWidth: 1)
+                        )
                     }
                 }
                 .padding()
             }
             .background(theme.backgroundGrouped.ignoresSafeArea())
+            .preferredColorScheme(.dark)
             .navigationTitle(lang.t(.ebikeServiceMaintenance))
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: { viewModel.showingOnboardingGuide = true }) {
-                        Image(systemName: "questionmark.circle")
-                            .font(.title3)
-                            .foregroundColor(theme.primaryAccent)
-                    }
-                }
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { viewModel.showingLiveScanner = true }) {
-                        Image(systemName: "camera.viewfinder")
-                            .font(.title3)
-                            .foregroundColor(theme.primaryAccent)
-                    }
-                }
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingLogRide) {
+                LogRideSheet(viewModel: viewModel)
             }
             .sheet(isPresented: $viewModel.showingOnboardingGuide) {
                 InteractiveOnboardingView(
@@ -199,31 +211,28 @@ public struct GarageDashboardView: View {
                     }
                 )
             }
-            .fullScreenCover(isPresented: $viewModel.showingLiveScanner) {
-                LiveScannerSwiftUIView(
-                    onDetectedBarcode: { barcode in
-                        Task {
-                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "E-Bike Frame", barcode: barcode)
-                            await viewModel.addBike(brand: match.brand, model: match.modelName, frameNo: barcode, motor: "Bosch Performance Line CX", odometer: 1200)
-                        }
-                    },
-                    onCapturedPhoto: { photoData in
-                        Task {
-                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "E-Bike", imageData: photoData)
-                            await viewModel.addBike(brand: match.brand, model: match.modelName, frameNo: "SN-\(Int.random(in: 10000...99999))", motor: "Bosch CX", odometer: 800)
-                        }
-                    },
-                    onManualSearchSubmit: { query in
-                        Task {
-                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: query)
-                            await viewModel.addBike(brand: match.brand, model: match.modelName, frameNo: "SN-\(Int.random(in: 10000...99999))", motor: "Bosch CX", odometer: 800)
-                        }
-                    }
-                )
-            }
             .task {
                 await viewModel.loadBikes()
             }
         }
+    }
+    
+    private var greetingSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Garage Fleet")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(theme.secondaryAccent)
+            
+            Text("Scott Patron eRIDE 900")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(theme.textPrimary)
+            
+            Text("Bosch Performance Line CX (85 Nm)")
+                .font(.subheadline)
+                .foregroundColor(theme.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

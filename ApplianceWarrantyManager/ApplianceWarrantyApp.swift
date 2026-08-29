@@ -30,7 +30,7 @@ public struct ApplianceWarrantyApp: App {
     
     public var body: some Scene {
         WindowGroup {
-            RoomsDashboardView(viewModel: viewModel)
+            ApplianceMainTabView(viewModel: viewModel)
                 .preferredColorScheme(.dark)
         }
         .modelContainer(container)

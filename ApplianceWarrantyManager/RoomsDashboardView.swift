@@ -3,7 +3,7 @@
 //  ApplianceWarrantyManager
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Swiss & Nordic Consumer Utility Warranty Dashboard.
+//  Strict Concurrency: Complete. Clean Nordic Home Dashboard matching localhost.
 //
 
 import SwiftUI
@@ -12,7 +12,7 @@ import AssetCoreUIComponents
 import AssetCoreLocalization
 
 public struct RoomsDashboardView: View {
-    @Bindable var viewModel: ApplianceViewModel
+    @Bindable public var viewModel: ApplianceViewModel
     private let theme = ApplianceTheme()
     private let lang = LanguageManager.shared
     
@@ -20,22 +20,34 @@ public struct RoomsDashboardView: View {
         self.viewModel = viewModel
     }
     
-    private var greetingText: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 5..<12: return lang.t(.greetingMorning)
-        case 12..<17: return lang.t(.greetingAfternoon)
-        default: return lang.t(.greetingEvening)
-        }
-    }
-    
     public var body: some View {
         NavigationStack {
             ScrollView {
-                dashboardContent
+                VStack(spacing: 18) {
+                    greetingSection
+                    
+                    attentionCallout
+                    
+                    // My Appliances Header
+                    HStack {
+                        Text("My Appliances")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+                    
+                    applianceSection
+                    
+                    addApplianceBanner
+                }
+                .padding()
             }
             .background(theme.backgroundGrouped.ignoresSafeArea())
+            .preferredColorScheme(.dark)
             .navigationTitle(lang.t(.applianceWarrantyManager))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: { viewModel.showingOnboardingGuide = true }) {
@@ -52,7 +64,6 @@ public struct RoomsDashboardView: View {
                             .fontWeight(.bold)
                             .foregroundColor(theme.primaryAccent)
                     }
-                    .accessibilityLabel(lang.t(.addAppliance))
                 }
             }
             .sheet(isPresented: $viewModel.showingAddScanner) {
@@ -67,25 +78,6 @@ public struct RoomsDashboardView: View {
         }
     }
     
-    private var dashboardContent: some View {
-        VStack(spacing: 18) {
-            InteractiveDemoBar(
-                theme: theme,
-                onOpenGuide: { viewModel.showingOnboardingGuide = true },
-                onQuickDemoAdd: { Task { await viewModel.injectDemoAppliances() } }
-            )
-            
-            greetingSection
-            
-            attentionCallout
-            
-            roomFilterPills
-            
-            applianceSection
-        }
-        .padding()
-    }
-    
     private var greetingSection: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(greetingText)
@@ -98,7 +90,7 @@ public struct RoomsDashboardView: View {
                 .fontWeight(.bold)
                 .foregroundColor(theme.textPrimary)
             
-            Text(String(format: lang.t(.activeProtectionCount), viewModel.appliances.count, viewModel.appliances.filter { $0.isWarrantyActive }.count))
+            Text("\(viewModel.appliances.count) appliances · \(viewModel.appliances.filter { $0.isWarrantyActive }.count) covered by warranty")
                 .font(.subheadline)
                 .foregroundColor(theme.textSecondary)
         }
@@ -118,11 +110,11 @@ public struct RoomsDashboardView: View {
                     .foregroundColor(theme.statusCritical)
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(format: lang.t(.warrantyExpiredCount), expiredCount))
+                    Text("\(expiredCount) warranty has expired")
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundColor(theme.textPrimary)
-                    Text(lang.t(.reviewCoverage))
+                    Text("Statutory defect rights may still apply. Review coverage.")
                         .font(.caption2)
                         .foregroundColor(theme.textSecondary)
                 }
@@ -160,69 +152,10 @@ public struct RoomsDashboardView: View {
         }
     }
     
-    private var roomFilterPills: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(viewModel.availableRooms, id: \.self) { room in
-                    Button(action: { viewModel.selectedRoom = room }) {
-                        Text(translateRoom(room))
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 7)
-                            .background(viewModel.selectedRoom == room ? theme.primaryAccent : theme.cardBackground)
-                            .foregroundColor(viewModel.selectedRoom == room ? .white : theme.textPrimary)
-                            .clipShape(Capsule())
-                            .overlay(
-                                Capsule()
-                                    .stroke(theme.borderSubtle, lineWidth: 1)
-                            )
-                    }
-                }
-            }
-        }
-    }
-    
     @ViewBuilder
     private var applianceSection: some View {
-        if viewModel.filteredAppliances.isEmpty {
-            emptyState
-        } else {
-            applianceList
-        }
-    }
-    
-    private var emptyState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "house")
-                .font(.system(size: 44))
-                .foregroundColor(theme.textSecondary.opacity(0.4))
-            Text(lang.t(.noAppliancesRegistered))
-                .font(.headline)
-                .foregroundColor(theme.textPrimary)
-            Text(lang.t(.scanOrEnterModel))
-                .font(.caption)
-                .foregroundColor(theme.textSecondary)
-                .multilineTextAlignment(.center)
-            
-            Button(action: { Task { await viewModel.injectDemoAppliances() } }) {
-                Text(lang.t(.loadSampleAppliances))
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(theme.primaryAccent)
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            .padding(.top, 4)
-        }
-        .padding(.vertical, 32)
-    }
-    
-    private var applianceList: some View {
         LazyVStack(spacing: 10) {
-            ForEach(viewModel.filteredAppliances) { appliance in
+            ForEach(viewModel.appliances) { appliance in
                 applianceRow(appliance)
             }
         }
@@ -288,6 +221,50 @@ public struct RoomsDashboardView: View {
         .buttonStyle(.plain)
     }
     
+    private var addApplianceBanner: some View {
+        Button(action: { viewModel.showingAddScanner = true }) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(theme.primaryAccent.opacity(0.15))
+                        .frame(width: 42, height: 42)
+                    Image(systemName: "plus")
+                        .foregroundColor(theme.primaryAccent)
+                        .fontWeight(.bold)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Add an appliance")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(theme.textPrimary)
+                    Text("Scan barcode, photograph rating plate or search model")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                }
+                Spacer()
+            }
+            .padding(14)
+            .background(theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    .foregroundColor(theme.primaryAccent.opacity(0.4))
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var greetingText: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return lang.t(.goodMorning)
+        case 12..<17: return lang.t(.goodAfternoon)
+        default: return lang.t(.goodEvening)
+        }
+    }
+    
     private var addScannerSheet: some View {
         AddApplianceScannerView(
             onConfirmMatch: { match in
@@ -340,7 +317,6 @@ public struct RoomsDashboardView: View {
     }
 }
 
-/// Formats currency using the device locale.
 @MainActor
 private struct LocalizedCurrencyFormatter {
     static let shared = LocalizedCurrencyFormatter()

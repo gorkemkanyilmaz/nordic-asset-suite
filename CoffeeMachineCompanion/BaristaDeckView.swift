@@ -3,15 +3,13 @@
 //  CoffeeMachineCompanion
 //
 //  Created for Nordic Asset Suite.
-//  Strict Concurrency: Complete. Barista Deck & Machine Companion Navigation with Gemini AI.
+//  Strict Concurrency: Complete. Clean Nordic Barista Deck matching localhost structure.
 //
 
 import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
-import AssetCoreAI
-import AssetCoreOCR
 
 public struct BaristaDeckView: View {
     @Bindable var viewModel: CoffeeViewModel
@@ -20,7 +18,6 @@ public struct BaristaDeckView: View {
     
     @State private var showingHardnessSheet: Bool = false
     @State private var showingRecipeJournal: Bool = false
-    @State private var showingAddMachine: Bool = false
     @State private var selectedTab: Int = 0
     
     public init(viewModel: CoffeeViewModel) {
@@ -30,19 +27,8 @@ public struct BaristaDeckView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 18) {
-                    // Top Interactive Demo Bar
-                    InteractiveDemoBar(
-                        theme: theme,
-                        onOpenGuide: {
-                            viewModel.showingOnboardingGuide = true
-                        },
-                        onQuickDemoAdd: {
-                            Task {
-                                await viewModel.injectDemoMachine()
-                            }
-                        }
-                    )
+                VStack(spacing: 16) {
+                    greetingSection
                     
                     if let machine = viewModel.currentMachine {
                         // Hero Barista Machine Card
@@ -81,14 +67,14 @@ public struct BaristaDeckView: View {
                                 
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("WATER CHEMISTRY")
+                                        Text("PUMP PRESSURE")
                                             .font(.caption2)
                                             .fontWeight(.bold)
                                             .foregroundColor(theme.textSecondary)
-                                        Text("\(String(format: "%.1f", viewModel.waterHardnessDH)) °dH")
-                                            .font(.headline)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(theme.primaryAccent)
+                                        Text("\(Int(machine.pumpPressureBar)) Bar (\(machine.boilerType))")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(theme.textPrimary)
                                     }
                                     
                                     Spacer()
@@ -107,107 +93,112 @@ public struct BaristaDeckView: View {
                             }
                         }
                         
-                        // Interactive Quick Actions
-                        HStack(spacing: 12) {
-                            Button(action: { showingHardnessSheet = true }) {
-                                BaseCardView(theme: theme) {
-                                    HStack {
-                                        Image(systemName: "drop.fill")
-                                            .font(.title2)
-                                            .foregroundColor(theme.secondaryAccent)
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("WATER SCALE")
-                                                .font(.caption2)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(theme.textSecondary)
-                                            Text("Calibrate")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(theme.textPrimary)
-                                        }
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                            
-                            Button(action: { showingRecipeJournal = true }) {
-                                BaseCardView(theme: theme) {
-                                    HStack {
-                                        Image(systemName: "cup.and.saucer.fill")
-                                            .font(.title2)
-                                            .foregroundColor(theme.primaryAccent)
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("RECIPES")
-                                                .font(.caption2)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(theme.textSecondary)
-                                            Text("Dial-In")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(theme.textPrimary)
-                                        }
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        
-                        // Segmented View: Protocol vs Parts
-                        Picker("Companion Tab", selection: $selectedTab) {
-                            Text("Maintenance Guide").tag(0)
-                            Text("Filters & Gaskets").tag(1)
-                        }
-                        .pickerStyle(.segmented)
-                        
-                        if selectedTab == 0 {
-                            MaintenanceManualCardView(manual: viewModel.getCoffeeManual(), theme: theme)
-                        } else {
-                            SparePartsWearView(schedule: viewModel.getCoffeeParts(), theme: theme) { _ in }
-                        }
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "cup.and.saucer")
-                                .font(.system(size: 48))
-                                .foregroundColor(theme.textSecondary.opacity(0.4))
-                            Text("No Coffee Machine Paired")
-                                .font(.headline)
-                                .foregroundColor(theme.textSecondary)
-                            Text("Scan barcode or type your espresso machine to track water scale and maintenance.")
-                                .font(.caption)
-                                .foregroundColor(theme.textSecondary)
-                                .multilineTextAlignment(.center)
-                            
-                            Button(action: { Task { await viewModel.injectDemoMachine() } }) {
-                                Text("Load Demo Jura E8")
-                                    .font(.caption)
+                        // Active Bean Freshness Card
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Image(systemName: "flame.fill")
+                                    .foregroundColor(theme.secondaryAccent)
+                                Text("ACTIVE BEAN CELLAR")
+                                    .font(.caption2)
                                     .fontWeight(.bold)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(theme.primaryAccent)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(theme.textSecondary)
+                                Spacer()
+                                Text("Day 8 Post-Roast (Peak)")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color.green.opacity(0.15))
+                                    .foregroundColor(.green)
                                     .clipShape(Capsule())
                             }
+                            
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Ethiopia Yirgacheffe Washed")
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text("Medium-Light Roast · Jasmine, Bergamot & Peach")
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                            }
                         }
-                        .padding(.top, 30)
+                        .padding(14)
+                        .background(theme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(theme.borderSubtle, lineWidth: 1)
+                        )
+                        
+                        // Municipal Water Hardness Card
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Image(systemName: "drop.fill")
+                                    .foregroundColor(theme.primaryAccent)
+                                Text("MUNICIPAL WATER CHEMISTRY")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(theme.textSecondary)
+                                Spacer()
+                                Text("Calibrated")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(theme.primaryAccent.opacity(0.15))
+                                    .foregroundColor(theme.primaryAccent)
+                                    .clipShape(Capsule())
+                            }
+                            
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Water Hardness: \(String(format: "%.1f", viewModel.waterHardnessDH)) °dH")
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text("Filter cartridge active. Protection against mineral limescale.")
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                            }
+                        }
+                        .padding(14)
+                        .background(theme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(theme.borderSubtle, lineWidth: 1)
+                        )
+                        
+                        // Maintenance & Guide
+                        MaintenanceManualCardView(manual: viewModel.getCoffeeManual(), theme: theme)
                     }
                 }
                 .padding()
             }
             .background(theme.backgroundGrouped.ignoresSafeArea())
+            .preferredColorScheme(.dark)
             .navigationTitle(lang.t(.coffeeBrewEspressoLog))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: { viewModel.showingOnboardingGuide = true }) {
                         Image(systemName: "questionmark.circle")
-                            .font(.title3)
+                            .font(.subheadline)
                             .foregroundColor(theme.primaryAccent)
                     }
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { viewModel.showingLiveScanner = true }) {
-                        Image(systemName: "camera.viewfinder")
-                            .font(.title3)
+                        Image(systemName: "plus")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
                             .foregroundColor(theme.primaryAccent)
                     }
                 }
@@ -227,31 +218,28 @@ public struct BaristaDeckView: View {
                     }
                 )
             }
-            .fullScreenCover(isPresented: $viewModel.showingLiveScanner) {
-                LiveScannerSwiftUIView(
-                    onDetectedBarcode: { barcode in
-                        Task {
-                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "Espresso Machine", barcode: barcode)
-                            await viewModel.addMachine(brand: match.brand, model: match.modelName, machineType: match.subCategory ?? "Superautomatic")
-                        }
-                    },
-                    onCapturedPhoto: { photoData in
-                        Task {
-                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: "Coffee Machine", imageData: photoData)
-                            await viewModel.addMachine(brand: match.brand, model: match.modelName, machineType: match.subCategory ?? "Espresso")
-                        }
-                    },
-                    onManualSearchSubmit: { query in
-                        Task {
-                            let match = await AIExtractionService.shared.identifyOmniProduct(queryOrText: query)
-                            await viewModel.addMachine(brand: match.brand, model: match.modelName, machineType: match.subCategory ?? "Espresso")
-                        }
-                    }
-                )
-            }
             .task {
                 await viewModel.loadMachines()
             }
         }
+    }
+    
+    private var greetingSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Barista Deck")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(theme.secondaryAccent)
+            
+            Text("Today's Extraction")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(theme.textPrimary)
+            
+            Text("Dialed-in precision brewing & water chemistry")
+                .font(.subheadline)
+                .foregroundColor(theme.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

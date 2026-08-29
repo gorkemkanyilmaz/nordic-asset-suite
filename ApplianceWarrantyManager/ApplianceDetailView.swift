@@ -23,6 +23,8 @@ public struct ApplianceDetailView: View {
     @State private var inputErrorCode: String = ""
     @State private var isDiagnosing: Bool = false
     @State private var diagnosticResult: AIDiagnosticResponse? = nil
+    @State private var showingLegalDefectModal: Bool = false
+    @State private var showingErrorCodeWizard: Bool = false
     
     public init(appliance: ApplianceDTO, viewModel: ApplianceViewModel) {
         self.appliance = appliance
@@ -31,7 +33,7 @@ public struct ApplianceDetailView: View {
     
     public var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
                 // Hero Header Card
                 BaseCardView(theme: theme) {
                     HStack {
@@ -65,6 +67,45 @@ public struct ApplianceDetailView: View {
                             value: "\(appliance.latestHealthScore ?? 98)%",
                             status: (appliance.latestHealthScore ?? 98) > 80 ? .success : .warning,
                             theme: theme
+                        )
+                    }
+                }
+                
+                // High-Value Pro Actions: Legal Defect Notice & Error Code Wizard
+                HStack(spacing: 10) {
+                    Button(action: { showingLegalDefectModal = true }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "filemenu.and.selection")
+                            Text("Legal Defect Notice")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.cyan.opacity(0.12))
+                        .foregroundColor(.cyan)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.cyan.opacity(0.4), lineWidth: 1)
+                        )
+                    }
+                    
+                    Button(action: { showingErrorCodeWizard = true }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                            Text("Error Code Wizard")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.purple.opacity(0.12))
+                        .foregroundColor(Color(red: 0.8, green: 0.55, blue: 1.0))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.purple.opacity(0.4), lineWidth: 1)
                         )
                     }
                 }
@@ -431,6 +472,12 @@ public struct ApplianceDetailView: View {
         .background(theme.backgroundGrouped.ignoresSafeArea())
         .navigationTitle(appliance.modelName)
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingLegalDefectModal) {
+            LegalDefectNoticeModal(appliance: appliance)
+        }
+        .sheet(isPresented: $showingErrorCodeWizard) {
+            ErrorCodeWizardModal(appliance: appliance)
+        }
     }
     
     private func translateRoom(_ room: String) -> String {
