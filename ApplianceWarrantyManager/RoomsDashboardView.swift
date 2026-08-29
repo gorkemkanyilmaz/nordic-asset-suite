@@ -259,9 +259,9 @@ public struct RoomsDashboardView: View {
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return lang.t(.goodMorning)
-        case 12..<17: return lang.t(.goodAfternoon)
-        default: return lang.t(.goodEvening)
+        case 5..<12: return lang.t(.greetingMorning)
+        case 12..<17: return lang.t(.greetingAfternoon)
+        default: return lang.t(.greetingEvening)
         }
     }
     
