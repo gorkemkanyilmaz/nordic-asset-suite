@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct AllAppliancesListView: View {
     @Bindable public var viewModel: ApplianceViewModel
@@ -91,13 +92,21 @@ public struct AllAppliancesListView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { viewModel.showingAddScanner = true }) {
+                    Button(action: { viewModel.triggerAddFlow() }) {
                         Image(systemName: "plus")
                             .font(.body)
                             .fontWeight(.bold)
                             .foregroundColor(theme.primaryAccent)
                     }
                 }
+            }
+            .sheet(isPresented: $viewModel.showingPaywall) {
+                PaywallView(
+                    theme: theme,
+                    appTitle: lang.t(.applianceWarrantyManager),
+                    triggerReason: "You've reached the free tier limit of \(FreeTierLimits.maxAssets) appliances. Upgrade to Pro for unlimited items, AI diagnostics, and multi-device sync.",
+                    appType: .appliance
+                )
             }
             .sheet(isPresented: $viewModel.showingAddScanner) {
                 AddApplianceScannerView(

@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct RoomsDashboardView: View {
     @Bindable public var viewModel: ApplianceViewModel
@@ -58,7 +59,7 @@ public struct RoomsDashboardView: View {
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { viewModel.showingAddScanner = true }) {
+                    Button(action: { viewModel.triggerAddFlow() }) {
                         Image(systemName: "plus")
                             .font(.subheadline)
                             .fontWeight(.bold)
@@ -71,6 +72,14 @@ public struct RoomsDashboardView: View {
             }
             .sheet(isPresented: $viewModel.showingOnboardingGuide) {
                 onboardingSheet
+            }
+            .sheet(isPresented: $viewModel.showingPaywall) {
+                PaywallView(
+                    theme: theme,
+                    appTitle: lang.t(.applianceWarrantyManager),
+                    triggerReason: "You've reached the free tier limit of \(FreeTierLimits.maxAssets) appliances. Upgrade to Pro for unlimited items, AI diagnostics, and multi-device sync.",
+                    appType: .appliance
+                )
             }
             .task {
                 await viewModel.loadAppliances()
@@ -222,7 +231,7 @@ public struct RoomsDashboardView: View {
     }
     
     private var addApplianceBanner: some View {
-        Button(action: { viewModel.showingAddScanner = true }) {
+        Button(action: { viewModel.triggerAddFlow() }) {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()

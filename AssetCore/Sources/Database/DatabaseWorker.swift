@@ -389,4 +389,48 @@ public actor DatabaseWorker {
         modelContext.insert(brew)
         try modelContext.save()
     }
+    
+    // MARK: - Deletion & GDPR Privacy Erasure (Guideline 5.1.1(v))
+    
+    public func deleteAppliance(id: UUID) throws {
+        let descriptor = FetchDescriptor<ApplianceEntity>(predicate: #Predicate { $0.id == id })
+        if let entity = try modelContext.fetch(descriptor).first {
+            modelContext.delete(entity)
+            try modelContext.save()
+        }
+    }
+    
+    public func deleteSkiGear(id: UUID) throws {
+        let descriptor = FetchDescriptor<SkiGearEntity>(predicate: #Predicate { $0.id == id })
+        if let entity = try modelContext.fetch(descriptor).first {
+            modelContext.delete(entity)
+            try modelContext.save()
+        }
+    }
+    
+    public func deleteEBike(id: UUID) throws {
+        let descriptor = FetchDescriptor<EBikeEntity>(predicate: #Predicate { $0.id == id })
+        if let entity = try modelContext.fetch(descriptor).first {
+            modelContext.delete(entity)
+            try modelContext.save()
+        }
+    }
+    
+    public func deleteCoffeeMachine(id: UUID) throws {
+        let descriptor = FetchDescriptor<CoffeeMachineEntity>(predicate: #Predicate { $0.id == id })
+        if let entity = try modelContext.fetch(descriptor).first {
+            modelContext.delete(entity)
+            try modelContext.save()
+        }
+    }
+    
+    /// Completely erases all records from the local SwiftData store.
+    /// Complies with Apple Guideline 5.1.1(v) and GDPR / Swiss FADP / KVKK Right to Erasure.
+    public func resetAllData() throws {
+        try modelContext.delete(model: ApplianceEntity.self)
+        try modelContext.delete(model: SkiGearEntity.self)
+        try modelContext.delete(model: EBikeEntity.self)
+        try modelContext.delete(model: CoffeeMachineEntity.self)
+        try modelContext.save()
+    }
 }

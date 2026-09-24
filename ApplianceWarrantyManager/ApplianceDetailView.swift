@@ -18,6 +18,7 @@ public struct ApplianceDetailView: View {
     private let theme = ApplianceTheme()
     private let lang = LanguageManager.shared
     
+    @Environment(\.dismiss) private var dismiss
     @State private var selectedTab: Int = 0
     @State private var showingErrorScanner: Bool = false
     @State private var inputErrorCode: String = ""
@@ -25,6 +26,7 @@ public struct ApplianceDetailView: View {
     @State private var diagnosticResult: AIDiagnosticResponse? = nil
     @State private var showingLegalDefectModal: Bool = false
     @State private var showingErrorCodeWizard: Bool = false
+    @State private var showingDeleteAlert: Bool = false
     
     public init(appliance: ApplianceDTO, viewModel: ApplianceViewModel) {
         self.appliance = appliance
@@ -477,6 +479,26 @@ public struct ApplianceDetailView: View {
         }
         .sheet(isPresented: $showingErrorCodeWizard) {
             ErrorCodeWizardModal(appliance: appliance)
+        }
+        .toolbar {
+            ToolbarItem(placement: .destructiveAction) {
+                Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                }
+                .accessibilityLabel("Delete appliance")
+            }
+        }
+        .alert("Delete Appliance?", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    await viewModel.deleteAppliance(id: appliance.id)
+                    dismiss()
+                }
+            }
+        } message: {
+            Text("Are you sure you want to permanently delete this \(appliance.brand) \(appliance.modelName)? This action cannot be undone.")
         }
     }
     

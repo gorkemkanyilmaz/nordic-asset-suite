@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct QuiverDashboardView: View {
     @Bindable var viewModel: SkiGearViewModel
@@ -18,6 +19,7 @@ public struct QuiverDashboardView: View {
     
     @State private var showingWaxGuide: Bool = false
     @State private var showingAddSki: Bool = false
+    @State private var showingDeleteAlert: Bool = false
     @State private var checklistItems: [String: Bool] = [
         "Stöckli Laser SL Skis & Salomon Freeflex 14": true,
         "Lange RS 130 Ski Boots (305 mm Sole)": true,
@@ -183,19 +185,53 @@ public struct QuiverDashboardView: View {
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { viewModel.showingLiveScanner = true }) {
+                    Button(action: {
+                        if viewModel.canAddMoreGear() {
+                            viewModel.showingLiveScanner = true
+                        }
+                    }) {
                         Image(systemName: "plus")
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(theme.primaryAccent)
                     }
                 }
+                
+                if viewModel.activeQuiver.first ?? viewModel.skis.first != nil {
+                    ToolbarItem(placement: .destructiveAction) {
+                        Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                        .accessibilityLabel("Delete Ski Setup")
+                    }
+                }
+            }
+            .alert("Delete Ski Setup?", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    if let ski = viewModel.activeQuiver.first ?? viewModel.skis.first {
+                        Task {
+                            await viewModel.deleteGear(id: ski.id)
+                        }
+                    }
+                }
+            } message: {
+                Text("Are you sure you want to permanently remove this ski setup and its tuning history? This cannot be undone.")
             }
             .sheet(isPresented: $viewModel.showingDINCalculator) {
                 DINCalculatorView()
             }
             .sheet(isPresented: $showingWaxGuide) {
                 WaxingGuideView()
+            }
+            .sheet(isPresented: $viewModel.showingPaywall) {
+                PaywallView(
+                    theme: theme,
+                    appTitle: lang.t(.skiSnowboardTuning),
+                    triggerReason: "You've reached the free tier limit of \(FreeTierLimits.maxAssets) setups. Upgrade to Pro for unlimited quiver, DIN setup, and CloudKit sync.",
+                    appType: .skiGear
+                )
             }
             .sheet(isPresented: $viewModel.showingOnboardingGuide) {
                 InteractiveOnboardingView(

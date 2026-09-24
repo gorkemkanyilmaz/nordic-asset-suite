@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 let c = fs.readFileSync('app.js', 'utf8');
 let lines = c.split('\n');
 

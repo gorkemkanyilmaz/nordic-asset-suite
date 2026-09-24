@@ -14,6 +14,7 @@ import AssetCoreLocalization
 public struct BikeSpecsView: View {
     @Bindable public var viewModel: EBikeViewModel
     private let theme = EBikeTheme()
+    @State private var showingDeleteAlert = false
     
     public init(viewModel: EBikeViewModel) {
         self.viewModel = viewModel
@@ -66,6 +67,29 @@ public struct BikeSpecsView: View {
             .preferredColorScheme(.dark)
             .navigationTitle("Bike Specs")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if viewModel.currentBike != nil {
+                    ToolbarItem(placement: .destructiveAction) {
+                        Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                        .accessibilityLabel("Delete E-Bike")
+                    }
+                }
+            }
+            .alert("Delete E-Bike?", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    if let bike = viewModel.currentBike {
+                        Task {
+                            await viewModel.deleteBike(id: bike.id)
+                        }
+                    }
+                }
+            } message: {
+                Text("Are you sure you want to permanently delete this E-Bike from your garage? This cannot be undone.")
+            }
         }
     }
     

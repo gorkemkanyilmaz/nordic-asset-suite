@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct BaristaDeckView: View {
     @Bindable var viewModel: CoffeeViewModel
@@ -195,7 +196,11 @@ public struct BaristaDeckView: View {
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { viewModel.showingLiveScanner = true }) {
+                    Button(action: {
+                        if viewModel.canAddMoreMachines() {
+                            viewModel.showingLiveScanner = true
+                        }
+                    }) {
                         Image(systemName: "plus")
                             .font(.subheadline)
                             .fontWeight(.bold)
@@ -208,6 +213,14 @@ public struct BaristaDeckView: View {
             }
             .sheet(isPresented: $showingRecipeJournal) {
                 BrewRecipeJournalView(machine: viewModel.currentMachine)
+            }
+            .sheet(isPresented: $viewModel.showingPaywall) {
+                PaywallView(
+                    theme: theme,
+                    appTitle: lang.t(.coffeeBrewEspressoLog),
+                    triggerReason: "You've reached the free tier limit of \(FreeTierLimits.maxAssets) coffee setups. Upgrade to Pro for unlimited recipes, water testing, and CloudKit sync.",
+                    appType: .coffee
+                )
             }
             .sheet(isPresented: $viewModel.showingOnboardingGuide) {
                 InteractiveOnboardingView(

@@ -36,6 +36,8 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_NSCameraUsageDescription: "Scan appliance receipts, warranty cards, and error code badges."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Select appliance receipts, warranty invoices, and rating plate photos from your photo library."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Save appliance warranty certificates and diagnostic export reports to your photo library."
 
   SkiGearTracker:
     type: application
@@ -61,6 +63,8 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_NSCameraUsageDescription: "Scan ski bindings, boot sole lengths, and purchase receipts."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Select ski equipment receipts, boot sole photos, and binding certificates from your photo library."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Save ski tuning profiles and DIN calculation reports to your photo library."
 
   EBikeServiceTracker:
     type: application
@@ -86,6 +90,8 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_NSCameraUsageDescription: "Scan frame serial numbers, motor badges, and maintenance invoices."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Select e-bike purchase receipts, service invoices, and component serial photos from your photo library."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Save e-bike telemetry health logs and maintenance certificates to your photo library."
 
   CoffeeMachineCompanion:
     type: application
@@ -111,6 +117,8 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_NSCameraUsageDescription: "Scan espresso machine rating badges and water hardness test strips."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Select coffee machine receipts, rating badges, and brew setup photos from your photo library."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Save espresso brew journals and descaling certificates to your photo library."
 
 schemes:
   ApplianceWarrantyManager:

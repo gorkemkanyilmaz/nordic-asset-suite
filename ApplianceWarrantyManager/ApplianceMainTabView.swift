@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct ApplianceMainTabView: View {
     @Bindable public var viewModel: ApplianceViewModel
@@ -44,12 +45,18 @@ public struct ApplianceMainTabView: View {
                 .tag(2)
             
             NavigationStack {
-                InteractiveOnboardingView(
+                SuiteSettingsView(
                     appName: lang.t(.applianceWarrantyManager),
+                    appIconSystemName: "shield.lefthalf.filled",
                     theme: theme,
-                    onStartDemo: { Task { await viewModel.injectDemoAppliances() } }
+                    appType: .appliance,
+                    onResetVault: {
+                        await viewModel.resetLocalVault()
+                    },
+                    onStartDemo: {
+                        await viewModel.injectDemoAppliances()
+                    }
                 )
-                .navigationTitle("Settings")
             }
             .tabItem {
                 Label("Settings", systemImage: "gearshape.fill")

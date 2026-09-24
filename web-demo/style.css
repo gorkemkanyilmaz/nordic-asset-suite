@@ -1152,6 +1152,29 @@ body {
 .manual-input-row {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.btn-camera-trigger {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--accent-primary);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-camera-trigger:hover {
+  background: var(--accent-subtle);
+  border-color: var(--accent-primary);
+  transform: scale(1.04);
 }
 
 .manual-input-row input {

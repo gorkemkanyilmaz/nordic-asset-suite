@@ -14,6 +14,7 @@ import AssetCoreLocalization
 public struct MachineMaintenanceView: View {
     @Bindable public var viewModel: CoffeeViewModel
     private let theme = CoffeeTheme()
+    @State private var showingDeleteAlert = false
     
     public init(viewModel: CoffeeViewModel) {
         self.viewModel = viewModel
@@ -155,6 +156,29 @@ public struct MachineMaintenanceView: View {
             .preferredColorScheme(.dark)
             .navigationTitle("Machine Care")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if viewModel.currentMachine != nil {
+                    ToolbarItem(placement: .destructiveAction) {
+                        Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                        .accessibilityLabel("Remove Machine")
+                    }
+                }
+            }
+            .alert("Remove Coffee Machine?", isPresented: $showingDeleteAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Remove", role: .destructive) {
+                    if let machine = viewModel.currentMachine {
+                        Task {
+                            await viewModel.deleteMachine(id: machine.id)
+                        }
+                    }
+                }
+            } message: {
+                Text("Are you sure you want to remove this machine and its history? This action cannot be undone.")
+            }
         }
     }
 }

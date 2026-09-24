@@ -132,8 +132,9 @@
 
         <!-- 3. Warranties Pane -->
         <div class="domain-pane" id="paneApplianceWarranties">
-          <div class="view-header">
+          <div class="view-header" style="display: flex; justify-content: space-between; align-items: center;">
             <h2 id="applianceWarrantyTimelineTitle">Warranty Timeline</h2>
+            <button class="btn btn-outline btn-sm" onclick="openViralShareModal('appliance')"><i class="fa-solid fa-share-nodes"></i> Share Vault</button>
           </div>
           <div class="warranty-overview-grid">
             <div class="warranty-stat-card">
@@ -733,6 +734,7 @@
           <label id="addModalManualLabel">Or enter exact product / model number:</label>
           <div class="manual-input-row">
             <input type="text" id="manualModelInput" placeholder="e.g. DeLonghi Magnifica Plus, Sage Barista Touch, Jura E8..." />
+            <button type="button" class="btn-camera-trigger" id="btnManualCameraTrigger" onclick="startCameraScanner()" title="Kamera ile Tara"><i class="fa-solid fa-camera"></i></button>
             <button class="btn btn-primary" id="btnManualSearch">Identify</button>
           </div>
           <div class="manual-quick-samples" id="addModalQuickSamples">
@@ -1580,6 +1582,30 @@
 
         <div id="wizardDiagnosticResultBox" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; display: none;">
           <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18. Viral Marketing & Asset Certificate Share Modal -->
+  <div class="modal-overlay" id="viralShareModalOverlay">
+    <div class="modal modal-dialog" style="max-width: 520px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 id="viralShareModalTitle"><i class="fa-solid fa-share-nodes" style="color: var(--accent-primary);"></i> Official Asset Certificate</h3>
+        <button class="modal-close" onclick="closeViralShareModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="padding: 10px 16px 20px;">
+        <div id="viralShareCardContainer">
+          <!-- Dynamically populated based on active domain -->
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+          <button class="btn btn-outline" style="flex: 1; padding: 10px;" onclick="copyViralShareText()">
+            <i class="fa-solid fa-copy"></i> <span id="btnCopyShareText">Copy Summary</span>
+          </button>
+          <button class="btn btn-primary" style="flex: 1; padding: 10px;" onclick="triggerNativeShare()">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> <span id="btnNativeShare">Share Certificate</span>
+          </button>
         </div>
       </div>
     </div>

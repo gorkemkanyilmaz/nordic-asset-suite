@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct EBikeMainTabView: View {
     @Bindable public var viewModel: EBikeViewModel
@@ -51,12 +52,47 @@ public struct EBikeMainTabView: View {
             .tag(3)
             
             NavigationStack {
-                InteractiveOnboardingView(
+                SuiteSettingsView(
                     appName: lang.t(.ebikeServiceMaintenance),
+                    appIconSystemName: "bicycle",
                     theme: theme,
-                    onStartDemo: { Task { await viewModel.injectDemoBike() } }
-                )
-                .navigationTitle("Settings")
+                    appType: .ebike,
+                    onResetVault: {
+                        await viewModel.resetLocalVault()
+                    },
+                    onStartDemo: {
+                        await viewModel.injectDemoBike()
+                    }
+                ) {
+                    BaseCardView(theme: theme) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label("Rider Telemetry & Suspension", systemImage: "slider.horizontal.3")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.primaryAccent)
+                            
+                            NavigationLink(destination: DigitalTwinTelemetryView(viewModel: viewModel)) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Digital Twin Sensor Calibration")
+                                            .font(.caption)
+                                            .foregroundColor(theme.textPrimary)
+                                        Text("Rider: \(Int(viewModel.riderWeightKg)) kg • Fork: \(Int(viewModel.suspensionRecommendation.forkPressurePSI)) PSI")
+                                            .font(.caption2)
+                                            .foregroundColor(theme.textSecondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                .padding(10)
+                                .background(theme.surfaceElevated)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                    }
+                }
             }
             .tabItem {
                 Label("Settings", systemImage: "gearshape.fill")

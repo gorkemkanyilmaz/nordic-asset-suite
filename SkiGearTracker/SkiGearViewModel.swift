@@ -13,6 +13,7 @@ import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreAI
 import AssetCoreOCR
+import AssetCoreSubscription
 
 @Observable
 @MainActor
@@ -24,6 +25,16 @@ public final class SkiGearViewModel {
     public var showingDINCalculator: Bool = false
     public var showingOnboardingGuide: Bool = false
     public var showingLiveScanner: Bool = false
+    public var showingPaywall: Bool = false
+    
+    public func canAddMoreGear() -> Bool {
+        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+        if !entitlements.canCreateAsset && skis.count >= FreeTierLimits.maxAssets {
+            showingPaywall = true
+            return false
+        }
+        return true
+    }
     
     public let theme: any AppDesignTheme = SkiGearTheme()
     
@@ -254,6 +265,26 @@ public final class SkiGearViewModel {
             )
         } catch {
             self.errorMessage = "Trip checklist save failed: \(error.localizedDescription)"
+        }
+    }
+    
+    // MARK: - Deletion & Vault Reset (Apple Guideline 5.1.1)
+    
+    public func deleteGear(id: UUID) async {
+        do {
+            try await databaseWorker.deleteSkiGear(id: id)
+            await loadGear()
+        } catch {
+            self.errorMessage = "Failed to delete ski gear: \(error.localizedDescription)"
+        }
+    }
+    
+    public func resetLocalVault() async {
+        do {
+            try await databaseWorker.resetAllData()
+            self.skis = []
+        } catch {
+            self.errorMessage = "Failed to reset local vault: \(error.localizedDescription)"
         }
     }
 }

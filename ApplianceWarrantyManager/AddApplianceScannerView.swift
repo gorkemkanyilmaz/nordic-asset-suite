@@ -20,7 +20,7 @@ public struct AddApplianceScannerView: View {
     public let onConfirmMatch: (ProductCandidateMatch) -> Void
     public let onManualAdd: (String, String, String, String, Decimal, String) -> Void
     
-    @State private var showingLiveCamera: Bool = true
+    @State private var showingLiveCamera: Bool = false
     @State private var manualSearchText: String = ""
     @State private var brand: String = ""
     @State private var modelName: String = ""

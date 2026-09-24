@@ -13,6 +13,7 @@ import AssetCoreUIComponents
 import AssetCoreLocalization
 import AssetCoreAI
 import AssetCoreOCR
+import AssetCoreSubscription
 
 @Observable
 @MainActor
@@ -22,9 +23,19 @@ public final class ApplianceViewModel {
     public var isLoading: Bool = false
     public var errorMessage: String? = nil
     public var showingAddScanner: Bool = false
+    public var showingPaywall: Bool = false
     public var showingOnboardingGuide: Bool = false
     public var showingConfirmationModal: Bool = false
     public var detectedCandidateMatch: ProductCandidateMatch? = nil
+    
+    public func triggerAddFlow() {
+        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+        if !entitlements.canCreateAsset && appliances.count >= FreeTierLimits.maxAssets {
+            showingPaywall = true
+        } else {
+            showingAddScanner = true
+        }
+    }
     
     // Cached dynamic manuals & parts per model
     public var cachedManuals: [String: MaintenanceManualData] = [:]
@@ -308,6 +319,28 @@ public final class ApplianceViewModel {
             self.appliances = try await databaseWorker.fetchAppliances()
         } catch {
             print("Demo injection error: \(error)")
+        }
+    }
+    
+    // MARK: - Deletion & Vault Reset (Apple Guideline 5.1.1)
+    
+    public func deleteAppliance(id: UUID) async {
+        do {
+            try await databaseWorker.deleteAppliance(id: id)
+            await loadAppliances()
+        } catch {
+            self.errorMessage = "Failed to delete appliance: \(error.localizedDescription)"
+        }
+    }
+    
+    public func resetLocalVault() async {
+        do {
+            try await databaseWorker.resetAllData()
+            self.appliances = []
+            self.cachedManuals = [:]
+            self.cachedParts = [:]
+        } catch {
+            self.errorMessage = "Failed to reset local vault: \(error.localizedDescription)"
         }
     }
 }

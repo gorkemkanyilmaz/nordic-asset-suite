@@ -13,6 +13,7 @@ import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreAI
 import AssetCoreOCR
+import AssetCoreSubscription
 
 @Observable
 @MainActor
@@ -23,6 +24,16 @@ public final class EBikeViewModel {
     public var errorMessage: String? = nil
     public var showingOnboardingGuide: Bool = false
     public var showingLiveScanner: Bool = false
+    public var showingPaywall: Bool = false
+    
+    public func canAddMoreBikes() -> Bool {
+        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+        if !entitlements.canCreateAsset && bikes.count >= FreeTierLimits.maxAssets {
+            showingPaywall = true
+            return false
+        }
+        return true
+    }
     
     // Telemetry Interactive State
     public var riderWeightKg: Double = 80.0
@@ -265,6 +276,26 @@ public final class EBikeViewModel {
             trailType: terrain
         )
         await loadBikes()
+    }
+    
+    // MARK: - Deletion & Vault Reset (Apple Guideline 5.1.1)
+    
+    public func deleteBike(id: UUID) async {
+        do {
+            try await databaseWorker.deleteEBike(id: id)
+            await loadBikes()
+        } catch {
+            self.errorMessage = "Failed to delete E-Bike: \(error.localizedDescription)"
+        }
+    }
+    
+    public func resetLocalVault() async {
+        do {
+            try await databaseWorker.resetAllData()
+            self.bikes = []
+        } catch {
+            self.errorMessage = "Failed to reset local vault: \(error.localizedDescription)"
+        }
     }
 }
 

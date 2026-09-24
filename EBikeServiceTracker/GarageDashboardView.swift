@@ -10,6 +10,7 @@ import SwiftUI
 import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreLocalization
+import AssetCoreSubscription
 
 public struct GarageDashboardView: View {
     @Bindable var viewModel: EBikeViewModel
@@ -199,8 +200,38 @@ public struct GarageDashboardView: View {
             .preferredColorScheme(.dark)
             .navigationTitle(lang.t(.ebikeServiceMaintenance))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { viewModel.showingOnboardingGuide = true }) {
+                        Image(systemName: "questionmark.circle")
+                            .font(.subheadline)
+                            .foregroundColor(theme.primaryAccent)
+                    }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        if viewModel.canAddMoreBikes() {
+                            showingLogRide = true
+                        }
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.primaryAccent)
+                    }
+                }
+            }
             .sheet(isPresented: $showingLogRide) {
                 LogRideSheet(viewModel: viewModel)
+            }
+            .sheet(isPresented: $viewModel.showingPaywall) {
+                PaywallView(
+                    theme: theme,
+                    appTitle: lang.t(.ebikeServiceMaintenance),
+                    triggerReason: "You've reached the free tier limit of \(FreeTierLimits.maxAssets) e-bikes. Upgrade to Pro for unlimited fleet, telemetry, and CloudKit sync.",
+                    appType: .ebike
+                )
             }
             .sheet(isPresented: $viewModel.showingOnboardingGuide) {
                 InteractiveOnboardingView(

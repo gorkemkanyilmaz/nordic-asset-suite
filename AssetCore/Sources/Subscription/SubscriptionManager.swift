@@ -131,6 +131,48 @@ public actor SubscriptionManager {
         )
     }
     
+    // MARK: - StoreKit 2 Transaction Execution (Apple Guideline 3.1.1 & 3.1.2)
+    
+    /// Fetches live App Store products for given identifiers.
+    public func fetchProducts(for productIDs: [String]) async throws -> [Product] {
+        return try await Product.products(for: productIDs)
+    }
+    
+    /// Purchases a StoreKit 2 product and verifies transaction receipt.
+    public func purchase(product: Product) async throws -> PurchaseResultStatus {
+        let result = try await product.purchase()
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            updateEntitlementsFromTransaction(transaction)
+            await transaction.finish()
+            return .success(transaction)
+        case .userCancelled:
+            return .userCancelled
+        case .pending:
+            return .pending
+        @unknown default:
+            return .userCancelled
+        }
+    }
+    
+    /// Restores previous purchases by synchronizing with Apple App Store servers.
+    public func restorePurchases(for appPrefix: String = "com.nordicassetsuite") async throws -> UserEntitlementSnapshot {
+        try await AppStore.sync()
+        return await refreshEntitlements(for: appPrefix)
+    }
+    
+    /// Simulated purchase for previews and offline test suites.
+    public func purchaseSimulated(level: EntitlementLevel = .pro) {
+        cachedEntitlement = UserEntitlementSnapshot(
+            level: level,
+            expirationDate: Date().addingTimeInterval(86400 * 365),
+            isTrial: false,
+            totalAssetsCount: cachedEntitlement.totalAssetsCount,
+            totalOCRScansUsed: cachedEntitlement.totalOCRScansUsed
+        )
+    }
+    
     private func updateEntitlementsFromTransaction(_ transaction: Transaction) {
         let isSuite = transaction.productID == SubscriptionProductIdentifier.nordicSuitePassAnnual.rawValue
         let level: EntitlementLevel = isSuite ? .suitePro : .pro
@@ -143,4 +185,11 @@ public actor SubscriptionManager {
             totalOCRScansUsed: cachedEntitlement.totalOCRScansUsed
         )
     }
+}
+
+/// Result status of a StoreKit 2 purchase operation.
+public enum PurchaseResultStatus: Sendable {
+    case success(Transaction)
+    case userCancelled
+    case pending
 }

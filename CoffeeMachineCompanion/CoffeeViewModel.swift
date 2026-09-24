@@ -13,6 +13,7 @@ import AssetCoreDatabase
 import AssetCoreUIComponents
 import AssetCoreAI
 import AssetCoreOCR
+import AssetCoreSubscription
 
 @Observable
 @MainActor
@@ -22,7 +23,17 @@ public final class CoffeeViewModel {
     public var errorMessage: String? = nil
     public var showingOnboardingGuide: Bool = false
     public var showingLiveScanner: Bool = false
+    public var showingPaywall: Bool = false
     public var detectedCandidateMatch: ProductCandidateMatch? = nil
+    
+    public func canAddMoreMachines() -> Bool {
+        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+        if !entitlements.canCreateAsset && machines.count >= FreeTierLimits.maxAssets {
+            showingPaywall = true
+            return false
+        }
+        return true
+    }
     
     // Chemistry & Barista State
     public var waterHardnessDH: Double = 14.0 // 14 °dH
@@ -290,6 +301,26 @@ public final class CoffeeViewModel {
             )
         } catch {
             self.errorMessage = "Brew session log failed: \(error.localizedDescription)"
+        }
+    }
+    
+    // MARK: - Deletion & Vault Reset (Apple Guideline 5.1.1)
+    
+    public func deleteMachine(id: UUID) async {
+        do {
+            try await databaseWorker.deleteCoffeeMachine(id: id)
+            await loadMachines()
+        } catch {
+            self.errorMessage = "Failed to delete coffee machine: \(error.localizedDescription)"
+        }
+    }
+    
+    public func resetLocalVault() async {
+        do {
+            try await databaseWorker.resetAllData()
+            self.machines = []
+        } catch {
+            self.errorMessage = "Failed to reset local vault: \(error.localizedDescription)"
         }
     }
 }
