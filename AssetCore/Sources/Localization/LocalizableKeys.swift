@@ -245,4 +245,5 @@ public enum LocalizableKey: String, CaseIterable, Sendable {
     case coffeeBrewEspressoLog = "coffee_brew_espresso_log"
     case ebikeServiceMaintenance = "ebike_service_maintenance"
     case skiSnowboardTuning = "ski_snowboard_tuning"
+    case language = "language"
 }

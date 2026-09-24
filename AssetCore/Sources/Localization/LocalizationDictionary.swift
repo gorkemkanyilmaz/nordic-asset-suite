@@ -243,7 +243,8 @@ public final class LocalizationDictionary: Sendable {
                 .applianceWarrantyManager: "Appliance Warranty Manager",
                 .coffeeBrewEspressoLog: "Coffee Brew & Espresso Log",
                 .ebikeServiceMaintenance: "E-Bike Service & Maintenance",
-                .skiSnowboardTuning: "Ski & Snowboard Gear Tuning"
+                .skiSnowboardTuning: "Ski & Snowboard Gear Tuning",
+                .language: "Language"
             ],
             
             // MARK: - German (de)
@@ -1766,7 +1767,8 @@ public final class LocalizationDictionary: Sendable {
                 .applianceWarrantyManager: "Garanti & Ürün Takibi",
                 .coffeeBrewEspressoLog: "Kahve & Espresso Takibi",
                 .ebikeServiceMaintenance: "E-Bike Servis ve Bakım",
-                .skiSnowboardTuning: "Kayak ve Snowboard Bakım"
+                .skiSnowboardTuning: "Kayak ve Snowboard Bakım",
+                .language: "Dil"
             ]
         ]
     }
