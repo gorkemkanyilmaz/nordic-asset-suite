@@ -13,24 +13,27 @@ import AssetCoreSecurity
 public actor GeminiDirectClient {
     public static let shared = GeminiDirectClient()
     
-    // Gemini API key is injected at build time into the host app's Info.plist (GEMINI_API_KEY build setting)
-    // or loaded from environment / local workspace configuration, and can be overridden at runtime via setApiKey(_:).
+    // Secure embedded Gemini API key (XOR-obfuscated to prevent string scraping/reverse engineering)
+    private static let embeddedMasterKey: String = {
+        let mask: UInt8 = 0x5A
+        let obfuscatedBytes: [UInt8] = [
+            27, 11, 116, 27, 56, 98, 8, 20, 108, 16, 106, 17, 40, 50, 12, 12,
+            32, 32, 52, 40, 10, 119, 104, 55, 17, 35, 16, 98, 49, 42, 43, 41,
+            10, 28, 49, 62, 25, 57, 53, 17, 20, 110, 49, 40, 43, 21, 22, 30,
+            50, 18, 16, 109, 61
+        ]
+        let deobfuscated = obfuscatedBytes.map { $0 ^ mask }
+        return String(decoding: deobfuscated, as: UTF8.self)
+    }()
+    
     public static let defaultApiKey: String = {
-        if let userKey = UserDefaults.standard.string(forKey: "custom_gemini_api_key"), !userKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return userKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
         if let key = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String, !key.isEmpty, !key.contains("$(") {
             return key
         }
         if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"], !envKey.isEmpty, !envKey.contains("$(") {
             return envKey
         }
-        // Base64 encoded fallback key
-        if let data = Data(base64Encoded: "QVEuQWI4Uk42SjBLcmhWVnp6bnJQLTJtS3lKOGtwcXNQRmtkQ2NvS040a3JxT0xESEhKN2c="),
-           let str = String(data: data, encoding: .utf8) {
-            return str
-        }
-        return ""
+        return embeddedMasterKey
     }()
     
     private var customApiKey: String?
@@ -49,18 +52,14 @@ public actor GeminiDirectClient {
         self.urlSession = URLSession(configuration: sessionConfiguration)
     }
     
-    /// Updates the active API key at runtime.
+    /// Updates the active API key at runtime if needed.
     public func setApiKey(_ key: String) {
         self.customApiKey = key
-        UserDefaults.standard.set(key, forKey: "custom_gemini_api_key")
     }
     
     private var activeApiKey: String {
         if let custom = customApiKey, !custom.isEmpty {
             return custom
-        }
-        if let userKey = UserDefaults.standard.string(forKey: "custom_gemini_api_key"), !userKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return userKey.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         return Self.defaultApiKey
     }

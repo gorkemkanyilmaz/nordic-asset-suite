@@ -24,8 +24,6 @@ public struct SuiteSettingsView<CustomContent: View>: View {
     @State private var showingResetAlert: Bool = false
     @State private var statusFeedback: String? = nil
     @State private var isProcessingAction: Bool = false
-    @State private var enteredApiKey: String = UserDefaults.standard.string(forKey: "custom_gemini_api_key") ?? ""
-    @State private var apiKeySaveMessage: String? = nil
     
     private let lang = LanguageManager.shared
     
@@ -148,49 +146,6 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                 
                 // Custom Domain-Specific Section (e.g. Water Hardness, Bike Specs, DIN Calc)
                 customContent
-                
-                // Gemini AI Cloud Intelligence Key Configuration
-                BaseCardView(theme: theme) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Label("Gemini AI API Configuration", systemImage: "sparkles")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(theme.primaryAccent)
-                        
-                        Text("Connect your personal Google Gemini Flash API key (from Google AI Studio) for cloud hardware cataloging and instant receipt diagnostics.")
-                            .font(.caption2)
-                            .foregroundColor(theme.textSecondary)
-                        
-                        HStack {
-                            SecureField("AIzaSy...", text: $enteredApiKey)
-                                .font(.caption)
-                                .padding(10)
-                                .background(theme.surfaceElevated)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                            Button(action: {
-                                let trimmed = enteredApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                                UserDefaults.standard.set(trimmed, forKey: "custom_gemini_api_key")
-                                apiKeySaveMessage = "API Key Saved Successfully!"
-                            }) {
-                                Text("Save")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 10)
-                                    .background(theme.primaryAccent)
-                                    .foregroundColor(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                        }
-                        
-                        if let msg = apiKeySaveMessage {
-                            Text(msg)
-                                .font(.caption2)
-                                .foregroundColor(theme.statusSuccess)
-                        }
-                    }
-                }
                 
                 // Language & Localization Selection
                 BaseCardView(theme: theme) {
