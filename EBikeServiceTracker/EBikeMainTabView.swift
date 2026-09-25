@@ -112,7 +112,7 @@ public struct EBikeMainTabView: View {
                             Text("Digital Twin Sensor Calibration")
                                 .font(.caption)
                                 .foregroundColor(theme.textPrimary)
-                            Text("Rider: \(Int(viewModel.riderWeightKg)) kg • Fork: \(Int(viewModel.suspensionRecommendation.forkPressurePSI)) PSI")
+                            Text("Rider: \(Int(viewModel.riderWeightKg)) kg • Fork: \(Int(viewModel.suspensionRecommendation.recommendedForkPSI)) PSI")
                                 .font(.caption2)
                                 .foregroundColor(theme.textSecondary)
                         }
