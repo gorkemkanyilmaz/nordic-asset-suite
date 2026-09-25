@@ -62,9 +62,32 @@ public struct ProductConfirmationModal: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-                    .frame(height: 160)
+                    .frame(height: 180)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .clipped()
+            } else if let imgUrl = match.imageUrl, let url = URL(string: imgUrl) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 180)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipped()
+                    case .failure:
+                        productIllustrationBanner
+                    case .empty:
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.secondary.opacity(0.1))
+                                .frame(height: 180)
+                            ProgressView()
+                        }
+                    @unknown default:
+                        productIllustrationBanner
+                    }
+                }
             } else {
                 productIllustrationBanner
             }

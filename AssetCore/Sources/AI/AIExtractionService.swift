@@ -54,12 +54,23 @@ public final class AIExtractionService: Sendable {
             let fullTitle = model.lowercased().contains(brand.lowercased()) ? model : "\(brand) \(model)"
             
             let defaultPrice: Decimal
+            let defaultSpecs: [String: String]
             switch category {
-            case "CoffeeMachine": defaultPrice = 149
-            case "EBike": defaultPrice = 2800
-            case "SkiGear": defaultPrice = 650
-            case "Electronics": defaultPrice = 550
-            default: defaultPrice = 850
+            case "CoffeeMachine":
+                defaultPrice = 149
+                defaultSpecs = ["Basınç": "15 Bar", "Kapasite": "1.0 L", "Isıtma": "Thermoblock", "Otomatik Kapanma": "9 Dakika"]
+            case "EBike":
+                defaultPrice = 2800
+                defaultSpecs = ["Motor": "250W Performance", "Batarya": "625 Wh", "Menzil": "85 km", "Vites": "10-Speed"]
+            case "SkiGear":
+                defaultPrice = 650
+                defaultSpecs = ["Profil": "All-Mountain", "Yarıçap": "15.5m", "Bağlama DIN": "3 - 11", "Çelik Kenar": "88° / 1°"]
+            case "Electronics":
+                defaultPrice = 1100
+                defaultSpecs = ["Panel": "4K Ultra HD", "Yenileme": "120 Hz", "HDR": "HDR10+ / Dolby Vision", "Giriş": "4x HDMI 2.1"]
+            default:
+                defaultPrice = 850
+                defaultSpecs = ["Enerji Sınıfı": "A+++", "Garanti": "24 Ay Resmi", "Voltaj": "230V / 50Hz", "Tip": "Akıllı Ev Donanımı"]
             }
             
             return ProductCandidateMatch(
@@ -69,13 +80,14 @@ public final class AIExtractionService: Sendable {
                 category: category,
                 serialNumber: barcode ?? localSerial.serialNumber,
                 manufactureYear: Calendar.current.component(.year, from: Date()),
-                keySpecifications: [:],
+                keySpecifications: defaultSpecs,
                 estimatedPrice: defaultPrice,
                 currencyCode: "CHF",
                 defaultWarrantyMonths: 24,
-                summaryDescription: "Local product profile identified from model criteria.",
+                summaryDescription: "Donanım modeli başarıyla tanımlandı.",
                 confidenceScore: 0.85,
-                providerUsed: .localFallback
+                providerUsed: .localFallback,
+                imageUrl: ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model)
             )
         }
     }

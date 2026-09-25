@@ -35,6 +35,13 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
     public let summaryDescription: String
     public let confidenceScore: Double
     public let providerUsed: AIProvider
+    public let imageUrl: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case brand, modelName, fullTitle, category, subCategory, serialNumber
+        case manufactureYear, keySpecifications, estimatedPrice, currencyCode
+        case defaultWarrantyMonths, summaryDescription, confidenceScore, providerUsed, imageUrl
+    }
     
     public init(
         brand: String,
@@ -50,7 +57,8 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
         defaultWarrantyMonths: Int = 24,
         summaryDescription: String = "",
         confidenceScore: Double = 0.95,
-        providerUsed: AIProvider = .geminiFlash
+        providerUsed: AIProvider = .geminiFlash,
+        imageUrl: String? = nil
     ) {
         self.brand = brand
         self.modelName = modelName
@@ -66,6 +74,77 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
         self.summaryDescription = summaryDescription
         self.confidenceScore = confidenceScore
         self.providerUsed = providerUsed
+        self.imageUrl = imageUrl ?? Self.defaultImageUrl(forCategory: category, brand: brand, model: modelName)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let brand = try container.decodeIfPresent(String.self, forKey: .brand) ?? "Generic"
+        let model = try container.decodeIfPresent(String.self, forKey: .modelName) ?? "Standard Model"
+        self.brand = brand
+        self.modelName = model
+        self.fullTitle = try container.decodeIfPresent(String.self, forKey: .fullTitle) ?? "\(brand) \(model)"
+        let cat = try container.decodeIfPresent(String.self, forKey: .category) ?? "Appliance"
+        self.category = cat
+        self.subCategory = try container.decodeIfPresent(String.self, forKey: .subCategory)
+        self.serialNumber = try container.decodeIfPresent(String.self, forKey: .serialNumber)
+        self.manufactureYear = try container.decodeIfPresent(Int.self, forKey: .manufactureYear) ?? Calendar.current.component(.year, from: Date())
+        self.keySpecifications = try container.decodeIfPresent([String: String].self, forKey: .keySpecifications) ?? [:]
+        
+        // Flexible price decoding (handles Decimal, Double, Int, or String formatted prices)
+        if let dec = try? container.decodeIfPresent(Decimal.self, forKey: .estimatedPrice) {
+            self.estimatedPrice = dec
+        } else if let dbl = try? container.decodeIfPresent(Double.self, forKey: .estimatedPrice) {
+            self.estimatedPrice = Decimal(dbl)
+        } else if let intVal = try? container.decodeIfPresent(Int.self, forKey: .estimatedPrice) {
+            self.estimatedPrice = Decimal(intVal)
+        } else if let str = try? container.decodeIfPresent(String.self, forKey: .estimatedPrice) {
+            let digits = str.components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted).joined()
+            self.estimatedPrice = Decimal(string: digits)
+        } else {
+            self.estimatedPrice = nil
+        }
+        
+        self.currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "CHF"
+        self.defaultWarrantyMonths = try container.decodeIfPresent(Int.self, forKey: .defaultWarrantyMonths) ?? 24
+        self.summaryDescription = try container.decodeIfPresent(String.self, forKey: .summaryDescription) ?? ""
+        self.confidenceScore = try container.decodeIfPresent(Double.self, forKey: .confidenceScore) ?? 0.95
+        self.providerUsed = try container.decodeIfPresent(AIProvider.self, forKey: .providerUsed) ?? .geminiFlash
+        
+        if let decodedImg = try? container.decodeIfPresent(String.self, forKey: .imageUrl), !decodedImg.isEmpty {
+            self.imageUrl = decodedImg
+        } else {
+            self.imageUrl = Self.defaultImageUrl(forCategory: cat, brand: brand, model: model)
+        }
+    }
+    
+    public static func defaultImageUrl(forCategory category: String, brand: String = "", model: String = "") -> String {
+        let lower = "\(category) \(brand) \(model)".lowercased()
+        if lower.contains("coffee") || lower.contains("espresso") || lower.contains("cafissimo") || lower.contains("nespresso") || lower.contains("barista") || lower.contains("jura") || lower.contains("delonghi") || lower.contains("krups") || lower.contains("tchibo") {
+            return "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("tv") || lower.contains("oled") || lower.contains("qled") || lower.contains("television") || lower.contains("screen") || lower.contains("soundbar") {
+            return "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("wash") || lower.contains("laundry") || lower.contains("dryer") || lower.contains("waschmaschine") || lower.contains("adorawaschen") {
+            return "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("dish") || lower.contains("geschirrspüler") || lower.contains("spüler") {
+            return "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("fridge") || lower.contains("refrigerat") || lower.contains("kühlschrank") {
+            return "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("vacuum") || lower.contains("dyson") || lower.contains("staubsauger") {
+            return "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("ebike") || lower.contains("bike") || lower.contains("bicycle") || lower.contains("pedelec") {
+            return "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&auto=format&fit=crop&q=80"
+        }
+        if lower.contains("ski") || lower.contains("snowboard") || lower.contains("binding") || lower.contains("boots") {
+            return "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&auto=format&fit=crop&q=80"
+        }
+        return "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&auto=format&fit=crop&q=80"
     }
 }
 
