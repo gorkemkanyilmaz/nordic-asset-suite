@@ -109,15 +109,23 @@ public final class ApplianceViewModel {
     
     public func confirmAndSaveCandidate(match: ProductCandidateMatch, room: String = "Living Room") async {
         do {
+            let isLivingRoom = match.category.lowercased().contains("tv") ||
+                               match.category.lowercased().contains("electronic") ||
+                               match.fullTitle.lowercased().contains("tv") ||
+                               match.modelName.lowercased().contains("qn")
+            let resolvedRoom = isLivingRoom ? "Living Room" : room
             let applianceID = try await databaseWorker.createAndInsertAppliance(
                 brand: match.brand,
                 modelName: match.modelName,
                 serialNumber: match.serialNumber ?? "SN-\(Int.random(in: 100000...999999))",
-                roomLocation: match.category.lowercased().contains("tv") || match.fullTitle.lowercased().contains("tv") ? "Living Room" : "Kitchen",
+                category: match.category,
+                roomLocation: resolvedRoom,
                 purchaseDate: Date(),
+                manufacturerWarrantyMonths: match.defaultWarrantyMonths,
                 purchasePrice: match.estimatedPrice ?? 1499.0,
                 currencyCode: match.currencyCode,
-                userNotes: match.fullTitle
+                userNotes: match.fullTitle,
+                imageUrl: match.imageUrl
             )
             
             try await databaseWorker.recordApplianceHealthScore(
@@ -148,14 +156,19 @@ public final class ApplianceViewModel {
         currency: String
     ) async {
         do {
+            let category = room.lowercased().contains("living") ? "Electronics" : "Appliance"
+            let img = ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model)
             let applianceID = try await databaseWorker.createAndInsertAppliance(
                 brand: brand,
                 modelName: model,
                 serialNumber: serial,
+                category: category,
                 roomLocation: room,
                 purchaseDate: Date(),
+                manufacturerWarrantyMonths: 24,
                 purchasePrice: price,
-                currencyCode: currency
+                currencyCode: currency,
+                imageUrl: img
             )
             // Initial baseline health score
             try await databaseWorker.recordApplianceHealthScore(
@@ -189,44 +202,132 @@ public final class ApplianceViewModel {
         let key = "\(brand)_\(model)"
         if let cached = cachedManuals[key] { return cached }
         
-        // Fallback robust default manual
+        let lower = "\(brand) \(model)".lowercased()
+        let isTV = lower.contains("qn") || lower.contains("oled") || lower.contains("qled") || lower.contains("tv") || lower.contains("television") || lower.contains("bravia") || lower.contains("frame") || lower.contains("monitor") || lower.contains("display")
+        let isCoffee = lower.contains("coffee") || lower.contains("espresso") || lower.contains("cafissimo") || lower.contains("nespresso") || lower.contains("jura") || lower.contains("delonghi") || lower.contains("krups") || lower.contains("tchibo")
+        
+        // 1. Domain Protocol: Smart TVs, Displays & Home Electronics
+        if isTV {
+            return MaintenanceManualData(
+                brand: brand,
+                modelName: model,
+                category: "Electronics",
+                generalCareSummary: "Proper anti-reflective screen maintenance, ventilation clearing, and firmware updates safeguard panel longevity and prevent image retention.",
+                recommendedServiceIntervalDays: 90,
+                maintenanceSteps: [
+                    MaintenanceStep(
+                        stepNumber: 1,
+                        title: "Screen & Anti-Reflective Coating Care",
+                        detail: "Gently wipe the display panel using a clean, dry microfiber cloth in circular motions. Never apply chemical cleaners or window spray directly onto the screen.",
+                        frequencyDescription: "Bi-Weekly",
+                        frequencyDays: 14,
+                        toolsRequired: ["Dry Microfiber Cloth", "Optical Lens Blower"],
+                        iconName: "sparkles"
+                    ),
+                    MaintenanceStep(
+                        stepNumber: 2,
+                        title: "Ventilation Ports & Cable Integrity",
+                        detail: "Clear dust buildup from rear chassis cooling vents and HDMI / One Connect connection ports using a soft anti-static brush to prevent thermal stress.",
+                        frequencyDescription: "Every 90 Days",
+                        frequencyDays: 90,
+                        toolsRequired: ["Anti-Static Brush", "Air Duster"],
+                        iconName: "air.purifier"
+                    ),
+                    MaintenanceStep(
+                        stepNumber: 3,
+                        title: "Firmware Update & Diagnostic Self-Test",
+                        detail: "Run the onboard Smart TV self-diagnosis routine and check for operating system updates to ensure optimal picture processing and HDMI eARC sync.",
+                        frequencyDescription: "Semi-Annually",
+                        frequencyDays: 180,
+                        toolsRequired: ["OEM Smart App", "Settings Diagnostic"],
+                        iconName: "gear"
+                    )
+                ],
+                recommendedCleanersOrLubricants: ["Optical Microfiber Cloth", "Anti-Static Cable Ties", "Screen-Safe Optical Wipe"],
+                safetyPrecautions: ["Always disconnect power before cleaning rear connection ports", "Never apply liquid glass cleaners to the display panel", "Verify stand or wall mount stability periodically"]
+            )
+        }
+        
+        // 2. Domain Protocol: Coffee & Espresso Machines
+        if isCoffee {
+            return MaintenanceManualData(
+                brand: brand,
+                modelName: model,
+                category: "CoffeeMachine",
+                generalCareSummary: "Regular descaling, brew chamber flushing, and water filter renewal preserve extraction pressure and optimal coffee flavor.",
+                recommendedServiceIntervalDays: 60,
+                maintenanceSteps: [
+                    MaintenanceStep(
+                        stepNumber: 1,
+                        title: "Brew Group & Drip Tray Rinse",
+                        detail: "Flush the extraction chamber after brewing and clean the drip tray and grounds container to prevent mold and stale coffee oils.",
+                        frequencyDescription: "Daily / Weekly",
+                        frequencyDays: 7,
+                        toolsRequired: ["Soft Cleaning Brush", "Warm Water"],
+                        iconName: "drop.fill"
+                    ),
+                    MaintenanceStep(
+                        stepNumber: 2,
+                        title: "Thermoblock Descaling Cycle",
+                        detail: "Run certified descaling solution through the water circuit to dissolve calcium deposits and maintain consistent pump pressure.",
+                        frequencyDescription: "Every 60-90 Days",
+                        frequencyDays: 60,
+                        toolsRequired: ["Organic Descaling Solution", "Measuring Container"],
+                        iconName: "sparkles"
+                    ),
+                    MaintenanceStep(
+                        stepNumber: 3,
+                        title: "Water Tank Filter Renewal",
+                        detail: "Replace the internal water softener cartridge to protect internal valves from hard water scale.",
+                        frequencyDescription: "Every 60 Days",
+                        frequencyDays: 60,
+                        toolsRequired: ["OEM Water Filter Cartridge"],
+                        iconName: "gear"
+                    )
+                ],
+                recommendedCleanersOrLubricants: ["Organic Descaling Fluid", "Coffee Degreasing Tablets", "Food-Grade Silicone Lubricant"],
+                safetyPrecautions: ["Allow heating thermoblock to cool down before opening internal parts", "Rinse water reservoir thoroughly after descaling cycle"]
+            )
+        }
+        
+        // 3. Domain Protocol: Large Household Appliances (Washers, Dryers, Dishwashers)
         return MaintenanceManualData(
             brand: brand,
             modelName: model,
             category: "Appliance",
-            generalCareSummary: "Regular cleaning and component inspection ensures maximum energy efficiency and longevity.",
-            recommendedServiceIntervalDays: 180,
+            generalCareSummary: "Periodic drum sterilization, gasket inspection, and filter maintenance ensure hygiene and leak prevention.",
+            recommendedServiceIntervalDays: 90,
             maintenanceSteps: [
                 MaintenanceStep(
                     stepNumber: 1,
-                    title: "Optical & Dust Cleaning",
-                    detail: "Wipe air intake grills, display glass, or lint traps with a microfiber cloth.",
+                    title: "Lint & Coin Trap Drainage Filter",
+                    detail: "Open the front service flap, drain residual water, and clean the pump impeller from foreign objects and lint.",
                     frequencyDescription: "Monthly",
                     frequencyDays: 30,
-                    toolsRequired: ["Microfiber cloth", "Soft brush"],
+                    toolsRequired: ["Drain Tray", "Microfiber Towel"],
                     iconName: "sparkles"
                 ),
                 MaintenanceStep(
                     stepNumber: 2,
-                    title: "Seal & Gasket Check",
-                    detail: "Inspect door seals or cable connections for signs of wear or cracking.",
-                    frequencyDescription: "Every 90 Days",
-                    frequencyDays: 90,
-                    toolsRequired: ["Mild silicone wipe"],
+                    title: "Door Seal & Rubber Gasket Check",
+                    detail: "Inspect the silicone door perimeter gasket for residue, moisture pooling, or signs of wear, and wipe dry with a mild cleaner.",
+                    frequencyDescription: "Every 60 Days",
+                    frequencyDays: 60,
+                    toolsRequired: ["Mild Cleaning Wipe", "Silicone Protectant"],
                     iconName: "wrench.and.screwdriver"
                 ),
                 MaintenanceStep(
                     stepNumber: 3,
-                    title: "Firmware & Calibration Check",
-                    detail: "Check OEM app for software updates and perform diagnostic self-test.",
-                    frequencyDescription: "Semi-Annually",
-                    frequencyDays: 180,
-                    toolsRequired: ["Smart App"],
+                    title: "High-Temperature Tub Clean Cycle",
+                    detail: "Run a 90°C maintenance wash program with oxygen-based drum cleaner to eliminate limescale and biofilm.",
+                    frequencyDescription: "Every 90 Days",
+                    frequencyDays: 90,
+                    toolsRequired: ["Appliance Drum Cleaner"],
                     iconName: "gear"
                 )
             ],
-            recommendedCleanersOrLubricants: ["Microfiber Screen Polish", "Neutral Dish Soap", "Silicone Gasket Spray"],
-            safetyPrecautions: ["Always disconnect power before internal access", "Never use abrasive solvent sprays"]
+            recommendedCleanersOrLubricants: ["Drum Descaler", "Silicone Gasket Seal Wipe", "Appliance Cleaner"],
+            safetyPrecautions: ["Always disconnect power before accessing the drain filter", "Never use abrasive wire brushes on door seals"]
         )
     }
     
@@ -262,15 +363,19 @@ public final class ApplianceViewModel {
     public func injectDemoAppliances() async {
         do {
             // 1. Samsung QN85D Neo QLED Smart TV
+            let tvImg = ProductCandidateMatch.defaultImageUrl(forCategory: "Electronics", brand: "Samsung", model: "QN85D", fullTitle: "Samsung QN85D Neo QLED 4K TV")
             let tvId = try await databaseWorker.createAndInsertAppliance(
                 brand: "Samsung",
                 modelName: "QN85D Neo QLED 4K TV (2024)",
                 serialNumber: "SN-SAM-QN85D-9912",
+                category: "Electronics",
                 roomLocation: "Living Room",
                 purchaseDate: Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date(),
+                manufacturerWarrantyMonths: 24,
                 purchasePrice: 1899.0,
                 currencyCode: "CHF",
-                userNotes: "65\" Neo QLED 4K Smart TV with NQ4 AI Gen2 Processor."
+                userNotes: "65\" Neo QLED 4K Smart TV with NQ4 AI Gen2 Processor.",
+                imageUrl: tvImg
             )
             try await databaseWorker.recordApplianceHealthScore(
                 applianceID: tvId,
@@ -281,15 +386,19 @@ public final class ApplianceViewModel {
             )
             
             // 2. Miele W1 Washing Machine
+            let washerImg = ProductCandidateMatch.defaultImageUrl(forCategory: "Appliance", brand: "Miele", model: "W1")
             let washerId = try await databaseWorker.createAndInsertAppliance(
                 brand: "Miele",
                 modelName: "W1 TwinDos Washing Machine",
                 serialNumber: "SN-MIELE-W1-4002",
+                category: "Appliance",
                 roomLocation: "Laundry Room",
                 purchaseDate: Calendar.current.date(byAdding: .month, value: -14, to: Date()) ?? Date(),
+                manufacturerWarrantyMonths: 24,
                 purchasePrice: 2150.0,
                 currencyCode: "CHF",
-                userNotes: "TwinDos automatic detergent dispensing system."
+                userNotes: "TwinDos automatic detergent dispensing system.",
+                imageUrl: washerImg
             )
             try await databaseWorker.recordApplianceHealthScore(
                 applianceID: washerId,
@@ -300,15 +409,19 @@ public final class ApplianceViewModel {
             )
             
             // 3. V-ZUG AdoraWaschen V4000
+            let vzugImg = ProductCandidateMatch.defaultImageUrl(forCategory: "Appliance", brand: "V-ZUG", model: "AdoraWaschen")
             let vzugId = try await databaseWorker.createAndInsertAppliance(
                 brand: "V-ZUG",
                 modelName: "AdoraWaschen V4000",
                 serialNumber: "SN-VZUG-2304891",
+                category: "Appliance",
                 roomLocation: "Laundry Room",
                 purchaseDate: Calendar.current.date(byAdding: .month, value: -6, to: Date()) ?? Date(),
+                manufacturerWarrantyMonths: 24,
                 purchasePrice: 2450.0,
                 currencyCode: "CHF",
-                userNotes: "Swiss-engineered precision vibration absorbing system."
+                userNotes: "Swiss-engineered precision vibration absorbing system.",
+                imageUrl: vzugImg
             )
             try await databaseWorker.recordApplianceHealthScore(
                 applianceID: vzugId,

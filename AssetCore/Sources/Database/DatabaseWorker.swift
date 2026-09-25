@@ -40,8 +40,10 @@ public actor DatabaseWorker {
                 currencyCode: entity.currencyCode,
                 latestHealthScore: entity.latestHealthScore?.score,
                 filterCount: entity.filterSpecifications?.count ?? 0,
-                category: "Appliance",
-                userNotes: entity.userNotes
+                category: entity.category,
+                userNotes: entity.userNotes,
+                imageUrl: entity.imageUrl,
+                appliancePhotoData: entity.appliancePhotoData
             )
         }
     }
@@ -56,6 +58,7 @@ public actor DatabaseWorker {
         brand: String,
         modelName: String,
         serialNumber: String = "",
+        category: String = "Appliance",
         roomLocation: String = "Kitchen",
         purchaseDate: Date = Date(),
         deliveryDate: Date? = nil,
@@ -69,13 +72,17 @@ public actor DatabaseWorker {
         conditionAtPurchase: String = "NEW",
         sellerType: String = "BUSINESS",
         buyerType: String = "CONSUMER",
-        userNotes: String = ""
+        userNotes: String = "",
+        appliancePhotoData: Data? = nil,
+        receiptImageData: Data? = nil,
+        imageUrl: String? = nil
     ) throws -> UUID {
         let appliance = ApplianceEntity(
             id: id,
             brand: brand,
             modelName: modelName,
             serialNumber: serialNumber,
+            category: category,
             roomLocation: roomLocation,
             purchaseDate: purchaseDate,
             deliveryDate: deliveryDate,
@@ -89,7 +96,10 @@ public actor DatabaseWorker {
             conditionAtPurchase: conditionAtPurchase,
             sellerType: sellerType,
             buyerType: buyerType,
-            userNotes: userNotes
+            userNotes: userNotes,
+            receiptImageData: receiptImageData,
+            appliancePhotoData: appliancePhotoData,
+            imageUrl: imageUrl
         )
         modelContext.insert(appliance)
         try modelContext.save()

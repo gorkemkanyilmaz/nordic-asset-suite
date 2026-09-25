@@ -133,7 +133,8 @@ public struct AllAppliancesListView: View {
     private func applianceRow(_ appliance: ApplianceDTO) -> some View {
         HStack(spacing: 14) {
             ProductThumbnailView(
-                userImageData: nil,
+                userImageData: appliance.appliancePhotoData,
+                verifiedImageUrl: (appliance.imageUrl != nil && !appliance.imageUrl!.isEmpty) ? URL(string: appliance.imageUrl!) : nil,
                 categoryIconName: iconForCategory(appliance.category),
                 variant: .small,
                 cornerRadius: 10,

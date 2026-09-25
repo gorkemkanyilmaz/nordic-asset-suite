@@ -33,6 +33,8 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
     public let filterCount: Int
     public let category: String
     public let userNotes: String
+    public let imageUrl: String?
+    public let appliancePhotoData: Data?
     public let warrantySummary: WarrantySummaryDTO
     
     public init(
@@ -57,7 +59,9 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
         latestHealthScore: Int? = nil,
         filterCount: Int = 0,
         category: String = "Appliance",
-        userNotes: String = ""
+        userNotes: String = "",
+        imageUrl: String? = nil,
+        appliancePhotoData: Data? = nil
     ) {
         self.id = id
         self.brand = brand
@@ -71,7 +75,7 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
         self.sellerType = sellerType
         self.buyerType = buyerType
         self.sellerName = sellerName
-        self.manufacturerWarrantyMonths = manufacturerWarrantyMonths
+        self.manufacturerWarrantyMonths = manufacturerWarrantyMonths ?? 24
         self.sellerGuaranteeMonths = sellerGuaranteeMonths
         self.extendedWarrantyMonths = extendedWarrantyMonths
         self.purchasePrice = purchasePrice
@@ -80,6 +84,8 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
         self.filterCount = filterCount
         self.category = category
         self.userNotes = userNotes
+        self.imageUrl = imageUrl
+        self.appliancePhotoData = appliancePhotoData
         
         let calculatedSummary = WarrantyCalculator.shared.calculateCoverage(
             purchaseDate: purchaseDate,
@@ -90,19 +96,18 @@ public struct ApplianceDTO: Sendable, Identifiable, Codable {
             conditionAtPurchase: conditionAtPurchase,
             sellerType: sellerType,
             buyerType: buyerType,
-            manufacturerWarrantyMonths: manufacturerWarrantyMonths,
+            manufacturerWarrantyMonths: manufacturerWarrantyMonths ?? 24,
             sellerGuaranteeMonths: sellerGuaranteeMonths,
             extendedWarrantyMonths: extendedWarrantyMonths
         )
         self.warrantySummary = calculatedSummary
         self.isWarrantyActive = calculatedSummary.hasActiveProtection
         
+        let effectiveWarrantyMonths = manufacturerWarrantyMonths ?? 24
         if let customEndDate = warrantyEndDate {
             self.warrantyEndDate = customEndDate
-        } else if let mfr = manufacturerWarrantyMonths {
-            self.warrantyEndDate = Calendar.current.date(byAdding: .month, value: mfr, to: purchaseDate) ?? purchaseDate
         } else {
-            self.warrantyEndDate = purchaseDate
+            self.warrantyEndDate = Calendar.current.date(byAdding: .month, value: effectiveWarrantyMonths, to: purchaseDate) ?? purchaseDate
         }
     }
 }

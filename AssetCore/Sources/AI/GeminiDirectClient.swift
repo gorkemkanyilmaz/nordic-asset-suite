@@ -135,7 +135,12 @@ public actor GeminiDirectClient {
         Generate an authoritative, detailed maintenance guide and step-by-step cleaning/service protocol.
         Target Language: \(targetLanguage)
         
-        Return ONLY valid JSON matching this schema:
+        CRITICAL RULES:
+        1. Tailor maintenance steps strictly to the equipment type:
+           - For TVs, Displays, or Electronics: Focus on anti-reflective screen care using dry microfiber cloth, clearing dust from cooling vents/ports, checking HDMI/One Connect cables, and OS firmware diagnostic self-tests. NEVER mention door seals, rubber gaskets, or water drainage pumps!
+           - For Coffee / Espresso Machines: Focus on brew group maintenance, descaling cycles, steam wand purging, and water tank filters.
+           - For Laundry / Dishwashers: Focus on door gasket inspection, lint/drain pump clearing, and tub cleaning.
+        2. Return ONLY valid JSON matching this schema:
         {
           "brand": "\(brand)",
           "modelName": "\(modelName)",
@@ -531,7 +536,7 @@ public actor GeminiDirectClient {
             summaryDescription: "Donanım modeli başarıyla tanımlandı.",
             confidenceScore: 0.90,
             providerUsed: .geminiFlash,
-            imageUrl: ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model)
+            imageUrl: ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model, fullTitle: "\(brand) \(model)")
         )
     }
 }

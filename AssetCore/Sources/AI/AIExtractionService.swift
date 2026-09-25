@@ -87,7 +87,7 @@ public final class AIExtractionService: Sendable {
                 summaryDescription: "Donanım modeli başarıyla tanımlandı.",
                 confidenceScore: 0.85,
                 providerUsed: .localFallback,
-                imageUrl: ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model)
+                imageUrl: ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model, fullTitle: fullTitle)
             )
         }
     }

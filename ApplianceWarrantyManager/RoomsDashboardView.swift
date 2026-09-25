@@ -174,7 +174,8 @@ public struct RoomsDashboardView: View {
         NavigationLink(destination: ApplianceDetailView(appliance: appliance, viewModel: viewModel)) {
             HStack(spacing: 14) {
                 ProductThumbnailView(
-                    userImageData: nil,
+                    userImageData: appliance.appliancePhotoData,
+                    verifiedImageUrl: (appliance.imageUrl != nil && !appliance.imageUrl!.isEmpty) ? URL(string: appliance.imageUrl!) : nil,
                     categoryIconName: iconForCategory(appliance.category),
                     variant: .small,
                     cornerRadius: 10,

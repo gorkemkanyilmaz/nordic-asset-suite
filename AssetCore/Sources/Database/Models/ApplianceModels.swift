@@ -18,6 +18,7 @@ public final class ApplianceEntity {
     public var brand: String = ""
     public var modelName: String = ""
     public var serialNumber: String = ""
+    public var category: String = "Appliance"
     public var roomLocation: String = "Kitchen" // e.g. Kitchen, Laundry, Basement
     public var purchaseDate: Date = Date()
     public var warrantyEndDate: Date = Date()
@@ -27,6 +28,7 @@ public final class ApplianceEntity {
     public var ocrRawText: String? = nil
     public var receiptImageData: Data? = nil
     public var appliancePhotoData: Data? = nil
+    public var imageUrl: String? = nil
     public var purchaseCountry: String = "CH" // e.g. CH, DK, AT, NO, SE, UNKNOWN
     public var deliveryDate: Date? = nil
     public var conditionAtPurchase: String = "NEW" // NEW, USED, REFURBISHED
@@ -56,6 +58,7 @@ public final class ApplianceEntity {
         brand: String,
         modelName: String,
         serialNumber: String = "",
+        category: String = "Appliance",
         roomLocation: String = "Kitchen",
         purchaseDate: Date = Date(),
         deliveryDate: Date? = nil,
@@ -73,18 +76,20 @@ public final class ApplianceEntity {
         userNotes: String = "",
         ocrRawText: String? = nil,
         receiptImageData: Data? = nil,
-        appliancePhotoData: Data? = nil
+        appliancePhotoData: Data? = nil,
+        imageUrl: String? = nil
     ) {
         self.id = id
         self.canonicalProductId = canonicalProductId
         self.brand = brand
         self.modelName = modelName
         self.serialNumber = serialNumber
+        self.category = category
         self.roomLocation = roomLocation
         self.purchaseDate = purchaseDate
         self.deliveryDate = deliveryDate ?? purchaseDate
         self.purchaseCountry = purchaseCountry
-        self.manufacturerWarrantyMonths = manufacturerWarrantyMonths
+        self.manufacturerWarrantyMonths = manufacturerWarrantyMonths ?? 24
         self.sellerGuaranteeMonths = sellerGuaranteeMonths
         self.extendedWarrantyMonths = extendedWarrantyMonths
         self.sellerName = sellerName
@@ -97,18 +102,18 @@ public final class ApplianceEntity {
         self.ocrRawText = ocrRawText
         self.receiptImageData = receiptImageData
         self.appliancePhotoData = appliancePhotoData
+        self.imageUrl = imageUrl
         self.createdAt = Date()
         self.updatedAt = Date()
         self.healthScoreHistory = []
         self.filterSpecifications = []
         
+        let effectiveWarrantyMonths = manufacturerWarrantyMonths ?? 24
         if let customEndDate = warrantyEndDate {
             self.warrantyEndDate = customEndDate
             self.isUserWarrantyOverridden = true
-        } else if let mfr = manufacturerWarrantyMonths {
-            self.warrantyEndDate = Calendar.current.date(byAdding: .month, value: mfr, to: purchaseDate) ?? purchaseDate
         } else {
-            self.warrantyEndDate = purchaseDate
+            self.warrantyEndDate = Calendar.current.date(byAdding: .month, value: effectiveWarrantyMonths, to: purchaseDate) ?? purchaseDate
         }
     }
     
@@ -124,7 +129,7 @@ public final class ApplianceEntity {
             deliveryDate: deliveryDate,
             purchaseCountry: purchaseCountry,
             brand: brand,
-            category: "Appliance",
+            category: category,
             conditionAtPurchase: conditionAtPurchase,
             sellerType: sellerType,
             buyerType: buyerType,

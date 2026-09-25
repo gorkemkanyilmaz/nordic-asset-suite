@@ -38,7 +38,16 @@ public struct ApplianceDetailView: View {
             VStack(spacing: 16) {
                 // Hero Header Card
                 BaseCardView(theme: theme) {
-                    HStack {
+                    HStack(spacing: 14) {
+                        ProductThumbnailView(
+                            userImageData: appliance.appliancePhotoData,
+                            verifiedImageUrl: (appliance.imageUrl != nil && !appliance.imageUrl!.isEmpty) ? URL(string: appliance.imageUrl!) : nil,
+                            categoryIconName: iconForCategory(appliance.category),
+                            variant: .medium,
+                            cornerRadius: 12,
+                            theme: theme
+                        )
+                        
                         VStack(alignment: .leading, spacing: 6) {
                             Text(appliance.brand.uppercased())
                                 .font(.caption)
@@ -46,7 +55,7 @@ public struct ApplianceDetailView: View {
                                 .foregroundColor(theme.textSecondary)
                             
                             Text(appliance.modelName)
-                                .font(.title2)
+                                .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
                             
@@ -499,6 +508,23 @@ public struct ApplianceDetailView: View {
             }
         } message: {
             Text("Are you sure you want to permanently delete this \(appliance.brand) \(appliance.modelName)? This action cannot be undone.")
+        }
+        .task {
+            await viewModel.prefetchManualAndParts(
+                brand: appliance.brand,
+                model: appliance.modelName,
+                category: appliance.category
+            )
+        }
+    }
+    
+    private func iconForCategory(_ category: String) -> String {
+        switch category.lowercased() {
+        case "television", "electronics", "audiovisual": return "tv"
+        case "refrigerator", "fridge": return "refrigerator"
+        case "coffee", "coffeemachine": return "mug.fill"
+        case "oven", "stove": return "oven"
+        default: return "washer"
         }
     }
     

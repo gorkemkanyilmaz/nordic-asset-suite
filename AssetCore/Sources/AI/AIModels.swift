@@ -74,7 +74,7 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
         self.summaryDescription = summaryDescription
         self.confidenceScore = confidenceScore
         self.providerUsed = providerUsed
-        self.imageUrl = imageUrl ?? Self.defaultImageUrl(forCategory: category, brand: brand, model: modelName)
+        self.imageUrl = imageUrl ?? Self.defaultImageUrl(forCategory: category, brand: brand, model: modelName, fullTitle: fullTitle)
     }
     
     public init(from decoder: Decoder) throws {
@@ -114,37 +114,64 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
         if let decodedImg = try? container.decodeIfPresent(String.self, forKey: .imageUrl), !decodedImg.isEmpty {
             self.imageUrl = decodedImg
         } else {
-            self.imageUrl = Self.defaultImageUrl(forCategory: cat, brand: brand, model: model)
+            let fullTitle = (try? container.decodeIfPresent(String.self, forKey: .fullTitle)) ?? ""
+            self.imageUrl = Self.defaultImageUrl(forCategory: cat, brand: brand, model: model, fullTitle: fullTitle)
         }
     }
     
-    public static func defaultImageUrl(forCategory category: String, brand: String = "", model: String = "") -> String {
-        let lower = "\(category) \(brand) \(model)".lowercased()
-        if lower.contains("coffee") || lower.contains("espresso") || lower.contains("cafissimo") || lower.contains("nespresso") || lower.contains("barista") || lower.contains("jura") || lower.contains("delonghi") || lower.contains("krups") || lower.contains("tchibo") {
-            return "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=800&auto=format&fit=crop&q=80"
-        }
-        if lower.contains("tv") || lower.contains("oled") || lower.contains("qled") || lower.contains("television") || lower.contains("screen") || lower.contains("soundbar") {
+    public static func defaultImageUrl(forCategory category: String, brand: String = "", model: String = "", fullTitle: String = "") -> String {
+        let lower = "\(category) \(brand) \(model) \(fullTitle)".lowercased()
+        
+        // 1. TVs, OLEDs, QLEDs, Electronics, Displays, Smart TVs (e.g. "Samsung QN85D", "LG C3", "Sony Bravia")
+        if lower.contains("tv") || lower.contains("oled") || lower.contains("qled") || lower.contains("neo qled") ||
+           lower.contains("qn8") || lower.contains("qn9") || lower.contains("qn7") || lower.contains("the frame") ||
+           lower.contains("bravia") || lower.contains("television") || lower.contains("screen") || lower.contains("soundbar") ||
+           lower.contains("display") || lower.contains("monitor") || lower.contains("televizyon") || lower.contains("fernseher") ||
+           lower.contains("4k") || lower.contains("8k") ||
+           ((brand.lowercased() == "samsung" || brand.lowercased() == "sony" || brand.lowercased() == "lg") && (category.lowercased().contains("electronic") || model.lowercased().contains("qn") || model.lowercased().contains("oled"))) {
             return "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=800&auto=format&fit=crop&q=80"
         }
-        if lower.contains("wash") || lower.contains("laundry") || lower.contains("dryer") || lower.contains("waschmaschine") || lower.contains("adorawaschen") {
+        
+        // 2. Coffee & Espresso Machines (e.g. "Tchibo Cafissimo", "Jura E8", "De'Longhi Magnifica", "Nespresso")
+        if lower.contains("coffee") || lower.contains("espresso") || lower.contains("cafissimo") || lower.contains("nespresso") || 
+           lower.contains("barista") || lower.contains("jura") || lower.contains("delonghi") || lower.contains("krups") || 
+           lower.contains("tchibo") || lower.contains("gaggia") || lower.contains("breville") || lower.contains("sage") ||
+           lower.contains("kaffee") || lower.contains("kahve") {
+            return "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 3. Washing Machines & Dryers (e.g. "Miele W1", "V-ZUG AdoraWaschen", "Bosch Serie 8")
+        if lower.contains("wash") || lower.contains("laundry") || lower.contains("dryer") || lower.contains("waschmaschine") || lower.contains("adorawaschen") || lower.contains("trockner") {
             return "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&auto=format&fit=crop&q=80"
         }
-        if lower.contains("dish") || lower.contains("geschirrspüler") || lower.contains("spüler") {
+        
+        // 4. Dishwashers & Kitchen Microwave / Built-in Appliances
+        if lower.contains("dish") || lower.contains("geschirrspüler") || lower.contains("spüler") || lower.contains("microwave") || lower.contains("sharp") || lower.contains("oven") || lower.contains("backofen") {
             return "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=800&auto=format&fit=crop&q=80"
         }
-        if lower.contains("fridge") || lower.contains("refrigerat") || lower.contains("kühlschrank") {
+        
+        // 5. Refrigerators & Freezers
+        if lower.contains("fridge") || lower.contains("refrigerat") || lower.contains("kühlschrank") || lower.contains("freezer") || lower.contains("gefrier") {
             return "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800&auto=format&fit=crop&q=80"
         }
-        if lower.contains("vacuum") || lower.contains("dyson") || lower.contains("staubsauger") {
+        
+        // 6. Vacuum Cleaners & Robotic Vacuums
+        if lower.contains("vacuum") || lower.contains("dyson") || lower.contains("staubsauger") || lower.contains("roomba") || lower.contains("robot") {
             return "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&auto=format&fit=crop&q=80"
         }
-        if lower.contains("ebike") || lower.contains("bike") || lower.contains("bicycle") || lower.contains("pedelec") {
-            return "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&auto=format&fit=crop&q=80"
+        
+        // 7. E-Bikes & Smart Bicycles
+        if lower.contains("ebike") || lower.contains("bike") || lower.contains("bicycle") || lower.contains("pedelec") || lower.contains("scott") || lower.contains("specialized") {
+            return "https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=800&auto=format&fit=crop&q=80"
         }
-        if lower.contains("ski") || lower.contains("snowboard") || lower.contains("binding") || lower.contains("boots") {
+        
+        // 8. Ski Gear & Winter Equipment
+        if lower.contains("ski") || lower.contains("snowboard") || lower.contains("binding") || lower.contains("boots") || lower.contains("stöckli") || lower.contains("atomic") {
             return "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&auto=format&fit=crop&q=80"
         }
-        return "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&auto=format&fit=crop&q=80"
+        
+        // 9. Premium Scandinavian Living Space & Clean Hardware Fallback (NOT the kitchen woman!)
+        return "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&auto=format&fit=crop&q=80"
     }
 }
 
