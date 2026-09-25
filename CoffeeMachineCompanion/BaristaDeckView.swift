@@ -197,9 +197,7 @@ public struct BaristaDeckView: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
-                        if viewModel.canAddMoreMachines() {
-                            viewModel.showingLiveScanner = true
-                        }
+                        viewModel.triggerAddFlow()
                     }) {
                         Image(systemName: "plus")
                             .font(.subheadline)

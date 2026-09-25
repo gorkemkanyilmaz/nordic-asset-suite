@@ -26,13 +26,21 @@ public final class CoffeeViewModel {
     public var showingPaywall: Bool = false
     public var detectedCandidateMatch: ProductCandidateMatch? = nil
     
-    public func canAddMoreMachines() -> Bool {
-        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+    public func canAddMoreMachines() async -> Bool {
+        let entitlements = await SubscriptionManager.shared.getCachedEntitlements()
         if !entitlements.canCreateAsset && machines.count >= FreeTierLimits.maxAssets {
             showingPaywall = true
             return false
         }
         return true
+    }
+    
+    public func triggerAddFlow() {
+        Task { @MainActor in
+            if await self.canAddMoreMachines() {
+                self.showingLiveScanner = true
+            }
+        }
     }
     
     // Chemistry & Barista State

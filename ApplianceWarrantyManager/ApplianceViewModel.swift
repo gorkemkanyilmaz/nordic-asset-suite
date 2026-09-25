@@ -29,11 +29,13 @@ public final class ApplianceViewModel {
     public var detectedCandidateMatch: ProductCandidateMatch? = nil
     
     public func triggerAddFlow() {
-        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
-        if !entitlements.canCreateAsset && appliances.count >= FreeTierLimits.maxAssets {
-            showingPaywall = true
-        } else {
-            showingAddScanner = true
+        Task { @MainActor in
+            let entitlements = await SubscriptionManager.shared.getCachedEntitlements()
+            if !entitlements.canCreateAsset && self.appliances.count >= FreeTierLimits.maxAssets {
+                self.showingPaywall = true
+            } else {
+                self.showingAddScanner = true
+            }
         }
     }
     

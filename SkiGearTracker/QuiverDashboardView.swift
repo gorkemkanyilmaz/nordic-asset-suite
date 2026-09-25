@@ -186,9 +186,7 @@ public struct QuiverDashboardView: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
-                        if viewModel.canAddMoreGear() {
-                            viewModel.showingLiveScanner = true
-                        }
+                        viewModel.triggerAddFlow()
                     }) {
                         Image(systemName: "plus")
                             .font(.subheadline)

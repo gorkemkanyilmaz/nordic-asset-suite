@@ -26,13 +26,21 @@ public final class EBikeViewModel {
     public var showingLiveScanner: Bool = false
     public var showingPaywall: Bool = false
     
-    public func canAddMoreBikes() -> Bool {
-        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+    public func canAddMoreBikes() async -> Bool {
+        let entitlements = await SubscriptionManager.shared.getCachedEntitlements()
         if !entitlements.canCreateAsset && bikes.count >= FreeTierLimits.maxAssets {
             showingPaywall = true
             return false
         }
         return true
+    }
+    
+    public func triggerAddFlow(onAllowed: @escaping @MainActor () -> Void) {
+        Task { @MainActor in
+            if await self.canAddMoreBikes() {
+                onAllowed()
+            }
+        }
     }
     
     // Telemetry Interactive State

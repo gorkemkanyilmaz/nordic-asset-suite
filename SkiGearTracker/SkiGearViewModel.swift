@@ -27,13 +27,21 @@ public final class SkiGearViewModel {
     public var showingLiveScanner: Bool = false
     public var showingPaywall: Bool = false
     
-    public func canAddMoreGear() -> Bool {
-        let entitlements = SubscriptionManager.shared.getCachedEntitlements()
+    public func canAddMoreGear() async -> Bool {
+        let entitlements = await SubscriptionManager.shared.getCachedEntitlements()
         if !entitlements.canCreateAsset && skis.count >= FreeTierLimits.maxAssets {
             showingPaywall = true
             return false
         }
         return true
+    }
+    
+    public func triggerAddFlow() {
+        Task { @MainActor in
+            if await self.canAddMoreGear() {
+                self.showingLiveScanner = true
+            }
+        }
     }
     
     public let theme: any AppDesignTheme = SkiGearTheme()

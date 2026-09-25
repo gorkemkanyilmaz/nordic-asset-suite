@@ -211,7 +211,7 @@ public struct GarageDashboardView: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
-                        if viewModel.canAddMoreBikes() {
+                        viewModel.triggerAddFlow {
                             showingLogRide = true
                         }
                     }) {
