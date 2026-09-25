@@ -16,10 +16,13 @@ public actor GeminiDirectClient {
     // Gemini API key is injected at build time into the host app's Info.plist (GEMINI_API_KEY build setting)
     // or loaded from environment / local workspace configuration, and can be overridden at runtime via setApiKey(_:).
     public static let defaultApiKey: String = {
-        if let key = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String, !key.isEmpty {
+        if let userKey = UserDefaults.standard.string(forKey: "custom_gemini_api_key"), !userKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return userKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        if let key = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String, !key.isEmpty, !key.contains("$(") {
             return key
         }
-        if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"], !envKey.isEmpty {
+        if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"], !envKey.isEmpty, !envKey.contains("$(") {
             return envKey
         }
         // Base64 encoded fallback key
@@ -49,10 +52,17 @@ public actor GeminiDirectClient {
     /// Updates the active API key at runtime.
     public func setApiKey(_ key: String) {
         self.customApiKey = key
+        UserDefaults.standard.set(key, forKey: "custom_gemini_api_key")
     }
     
     private var activeApiKey: String {
-        return customApiKey ?? Self.defaultApiKey
+        if let custom = customApiKey, !custom.isEmpty {
+            return custom
+        }
+        if let userKey = UserDefaults.standard.string(forKey: "custom_gemini_api_key"), !userKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return userKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return Self.defaultApiKey
     }
     
     // MARK: - 1. Omni-Product Identification

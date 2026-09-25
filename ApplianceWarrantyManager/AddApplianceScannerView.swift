@@ -30,6 +30,7 @@ public struct AddApplianceScannerView: View {
     @State private var currencyCode: String = "CHF"
     @State private var isProcessingAI: Bool = false
     @State private var identifiedMatch: ProductCandidateMatch? = nil
+    @State private var lastCapturedImageData: Data? = nil
     
     private var roomOptions: [String] {
         [lang.t(.kitchen), lang.t(.livingRoom), lang.t(.laundryRoom), lang.t(.applianceRoomBathroom), lang.t(.basement), lang.t(.utilityCloset), lang.t(.office)]
@@ -172,12 +173,15 @@ public struct AddApplianceScannerView: View {
             .fullScreenCover(isPresented: $showingLiveCamera) {
                 LiveScannerSwiftUIView(
                     onDetectedBarcode: { barcode in
+                        self.lastCapturedImageData = nil
                         triggerAISearch(barcode: barcode)
                     },
                     onCapturedPhoto: { photoData in
+                        self.lastCapturedImageData = photoData
                         triggerAISearch(imageData: photoData)
                     },
                     onManualSearchSubmit: { query in
+                        self.lastCapturedImageData = nil
                         triggerAISearch(query: query)
                     }
                 )
@@ -185,6 +189,7 @@ public struct AddApplianceScannerView: View {
             .sheet(item: $identifiedMatch) { match in
                 ProductConfirmationModal(
                     match: match,
+                    capturedImageData: lastCapturedImageData,
                     onConfirm: { confirmed in
                         onConfirmMatch(confirmed)
                         dismiss()

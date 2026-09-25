@@ -15,15 +15,18 @@ public struct ProductConfirmationModal: View {
     private let lang = LanguageManager.shared
     
     public let match: ProductCandidateMatch
+    public let capturedImageData: Data?
     public let onConfirm: (ProductCandidateMatch) -> Void
     public let onEdit: () -> Void
     
     public init(
         match: ProductCandidateMatch,
+        capturedImageData: Data? = nil,
         onConfirm: @escaping (ProductCandidateMatch) -> Void,
         onEdit: @escaping () -> Void
     ) {
         self.match = match
+        self.capturedImageData = capturedImageData
         self.onConfirm = onConfirm
         self.onEdit = onEdit
     }
@@ -54,6 +57,21 @@ public struct ProductConfirmationModal: View {
     
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: 14) {
+            #if canImport(UIKit)
+            if let data = capturedImageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipped()
+            } else {
+                productIllustrationBanner
+            }
+            #else
+            productIllustrationBanner
+            #endif
+            
             headerRow
             
             Divider()
@@ -179,6 +197,44 @@ public struct ProductConfirmationModal: View {
                     .padding(.vertical, 10)
             }
         }
+    }
+    
+    private var productIllustrationBanner: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color.cyan.opacity(0.15), Color.blue.opacity(0.08)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            
+            VStack(spacing: 8) {
+                Image(systemName: iconForCategory(match.category))
+                    .font(.system(size: 40))
+                    .foregroundColor(.cyan)
+                
+                HStack(spacing: 6) {
+                    Text(match.brand.uppercased())
+                        .font(.caption2)
+                        .fontWeight(.heavy)
+                        .tracking(1)
+                        .foregroundColor(.primary)
+                    
+                    Text("•")
+                        .foregroundColor(.secondary)
+                    
+                    Text(match.category)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.vertical, 16)
+        }
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.cyan.opacity(0.25), lineWidth: 1)
+        )
     }
     
     private func iconForCategory(_ category: String) -> String {

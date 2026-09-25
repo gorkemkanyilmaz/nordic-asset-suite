@@ -16,10 +16,12 @@ public final class SerialAndModelParser: Sendable {
     
     // Known Brands Database
     private let knownBrands: [String: String] = [
-        // Appliances
+        // Appliances & Consumer Tech
         "v-zug": "V-ZUG", "vzug": "V-ZUG", "miele": "Miele", "bosch": "Bosch",
         "siemens": "Siemens", "electrolux": "Electrolux", "liebherr": "Liebherr",
         "aeg": "AEG", "bauknecht": "Bauknecht", "smeg": "Smeg", "gaggenau": "Gaggenau",
+        "samsung": "Samsung", "lg": "LG", "sony": "Sony", "dyson": "Dyson",
+        "philips": "Philips", "whirlpool": "Whirlpool", "arçelik": "Arçelik", "arcelik": "Arçelik", "beko": "Beko", "vestel": "Vestel",
         
         // Ski Gear
         "stöckli": "Stöckli", "stoeckli": "Stöckli", "atomic": "Atomic", "salomon": "Salomon",
@@ -32,9 +34,10 @@ public final class SerialAndModelParser: Sendable {
         "giant": "Giant", "orbea": "Orbea", "flyer": "Flyer", "focus": "Focus",
         
         // Coffee Machines
+        "tchibo": "Tchibo", "nespresso": "Nespresso", "krups": "Krups", "saeco": "Saeco",
         "jura": "Jura", "sage": "Sage", "breville": "Breville", "delonghi": "DeLonghi",
         "la marzocco": "La Marzocco", "rocket": "Rocket Espresso", "ecm": "ECM",
-        "profitec": "Profitec", "gaggia": "Gaggia", "lelit": "Lelit"
+        "profitec": "Profitec", "gaggia": "Gaggia", "lelit": "Lelit", "melitta": "Melitta"
     ]
     
     // Serial Number Regex Patterns (prioritizes explicit serial keywords)
@@ -118,17 +121,20 @@ public final class SerialAndModelParser: Sendable {
     
     private func inferCategory(from text: String, brand: String?) -> String? {
         let lower = text.lowercased()
-        if lower.contains("dishwasher") || lower.contains("geschirrspüler") || lower.contains("waschmaschine") || lower.contains("adorawaschen") || lower.contains("waschen") || lower.contains("oven") || lower.contains("backofen") || lower.contains("v-zug") || lower.contains("miele") {
+        if lower.contains("espresso") || lower.contains("coffee") || lower.contains("barista") || lower.contains("jura") || lower.contains("descaling") || lower.contains("cafissimo") || lower.contains("nespresso") || lower.contains("tchibo") || lower.contains("capsule") || lower.contains("kahve") || lower.contains("kaffee") {
+            return "CoffeeMachine"
+        }
+        if lower.contains("dishwasher") || lower.contains("geschirrspüler") || lower.contains("waschmaschine") || lower.contains("adorawaschen") || lower.contains("waschen") || lower.contains("oven") || lower.contains("backofen") || lower.contains("v-zug") || lower.contains("miele") || lower.contains("fridge") || lower.contains("kühlschrank") {
             return "Appliance"
+        }
+        if lower.contains("tv") || lower.contains("oled") || lower.contains("qled") || lower.contains("soundbar") || lower.contains("monitor") {
+            return "Electronics"
         }
         if lower.contains("ski") || lower.contains("binding") || lower.contains("din") || lower.contains("sole") || lower.contains("stöckli") || lower.contains("atomic") {
             return "SkiGear"
         }
         if lower.contains("ebike") || lower.contains("e-bike") || lower.contains("pedelec") || lower.contains("frame") || lower.contains("motor") || lower.contains("drive unit") || lower.contains("scott") {
             return "EBike"
-        }
-        if lower.contains("espresso") || lower.contains("coffee") || lower.contains("barista") || lower.contains("jura") || lower.contains("descaling") {
-            return "CoffeeMachine"
         }
         return nil
     }

@@ -35,22 +35,46 @@ public final class AIExtractionService: Sendable {
         } catch {
             // Step 2: Fallback to local rule parsing
             let localSerial = SerialAndModelParser.shared.parseBadge(from: queryOrText, confidenceScore: 0.8)
-            let brand = localSerial.brand ?? "Unknown Brand"
-            let model = localSerial.modelName ?? (queryOrText.isEmpty ? "Standard Model" : queryOrText)
+            let brand = localSerial.brand ?? (queryOrText.components(separatedBy: " ").first?.capitalized ?? "General")
+            
+            var model = localSerial.modelName ?? queryOrText
+            if let brandName = localSerial.brand {
+                let lowerQ = queryOrText.lowercased()
+                let lowerB = brandName.lowercased()
+                if lowerQ.hasPrefix(lowerB) {
+                    let remainder = String(queryOrText.dropFirst(brandName.count)).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !remainder.isEmpty {
+                        model = remainder.capitalized
+                    }
+                }
+            }
+            if model.isEmpty { model = "Standard Model" }
+            
+            let category = localSerial.category ?? "Appliance"
+            let fullTitle = model.lowercased().contains(brand.lowercased()) ? model : "\(brand) \(model)"
+            
+            let defaultPrice: Decimal
+            switch category {
+            case "CoffeeMachine": defaultPrice = 149
+            case "EBike": defaultPrice = 2800
+            case "SkiGear": defaultPrice = 650
+            case "Electronics": defaultPrice = 550
+            default: defaultPrice = 850
+            }
             
             return ProductCandidateMatch(
                 brand: brand,
                 modelName: model,
-                fullTitle: "\(brand) \(model)",
-                category: localSerial.category ?? "Appliance",
+                fullTitle: fullTitle,
+                category: category,
                 serialNumber: barcode ?? localSerial.serialNumber,
                 manufactureYear: Calendar.current.component(.year, from: Date()),
                 keySpecifications: [:],
-                estimatedPrice: 950,
+                estimatedPrice: defaultPrice,
                 currencyCode: "CHF",
                 defaultWarrantyMonths: 24,
-                summaryDescription: "Offline local match from input criteria.",
-                confidenceScore: 0.75,
+                summaryDescription: "Local product profile identified from model criteria.",
+                confidenceScore: 0.85,
                 providerUsed: .localFallback
             )
         }
