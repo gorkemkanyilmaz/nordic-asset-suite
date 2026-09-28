@@ -5,12 +5,12 @@
 // ==============================================================================
 
 export const SUPPORTED_LANGUAGES = {
-  da: { code: 'da', flag: '🇩🇰', name: 'Dansk', region: 'Danmark', defaultCurrency: 'EUR' },
+  da: { code: 'da', flag: '🇩🇰', name: 'Dansk', region: 'Danmark', defaultCurrency: 'DKK' },
   sv: { code: 'sv', flag: '🇸🇪', name: 'Svenska', region: 'Sverige', defaultCurrency: 'SEK' },
   no: { code: 'no', flag: '🇳🇴', name: 'Norsk', region: 'Norge', defaultCurrency: 'NOK' },
   de: { code: 'de', flag: '🇩🇪', name: 'Deutsch', region: 'DACH (CH/DE/AT)', defaultCurrency: 'EUR' },
-  fr: { code: 'fr', flag: '🇫🇷', name: 'Français', region: 'Suisse / France / Belgique', defaultCurrency: 'CHF' },
-  it: { code: 'it', flag: '🇮🇹', name: 'Italiano', region: 'Svizzera / Italia', defaultCurrency: 'CHF' },
+  fr: { code: 'fr', flag: '🇫🇷', name: 'Français', region: 'Suisse / France / Belgique', defaultCurrency: 'EUR' },
+  it: { code: 'it', flag: '🇮🇹', name: 'Italiano', region: 'Svizzera / Italia', defaultCurrency: 'EUR' },
   en: { code: 'en', flag: '🇬🇧', name: 'English', region: 'Global / UK / US', defaultCurrency: 'USD' },
   tr: { code: 'tr', flag: '🇹🇷', name: 'Türkçe', region: 'Türkiye', defaultCurrency: 'TRY' }
 };
@@ -494,7 +494,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Toko LF Blue recommended for {temp}°C packed powder.',
     ski_setup_title: 'Binding & Boot Sole Setup',
     ski_tuning_title: 'Edge & Base Tuning Log',
-    ski_domain_subtitle: 'Quiver, DIN Release & Waxing'
+    ski_domain_subtitle: 'Quiver, DIN Release & Waxing',
+    confirm_delivery_date: 'Delivery / Handover Date:',
+    confirm_purchase_country: 'Purchase Country / Jurisdiction:',
+    drawer_delivery_date: 'Delivery / Handover',
+    drawer_purchase_country: 'Purchase Country',
+    drawer_evidence_header: 'Purchase Evidence & Legal Context',
+    drawer_legal_notice_btn: 'Legal Defect Notice',
+    drawer_error_wizard_btn: 'Error Code Wizard',
+    share_vault_btn: 'Share Vault',
+    settings_preferences_title: 'Preferences & Regional Data',
+    settings_diagnostics_group: 'DIAGNOSTICS & ONBOARDING',
+    settings_statutory_title: 'Statutory Legal Warranty',
+    settings_statutory_sub: 'Default policy duration for standard appliances',
+    active_protection_count: '{total} assets · {active} under active protection',
+    statutory_title_ch: 'Statutory Defect Rights (CH)',
+    statutory_title_dk: '2-Year Statutory Warranty (DK)',
+    statutory_title_at: 'Statutory Defect Rights (AT)',
+    statutory_title_no_5y: '5-Year Statutory Defect Rights (NO)',
+    statutory_title_no_2y: '2-Year Statutory Defect Rights (NO)',
+    statutory_title_se: '3-Year Statutory Warranty (SE)',
+    statutory_title_eu: 'EU Statutory Defect Rights (24 Mo)',
+    statutory_defect_rights_default: 'Statutory Defect Rights',
+    mfr_commercial_warranty_title: '{brand} Commercial Warranty',
+    mfr_warranty_summary_mo: '{months}-Mo Commercial Warranty',
+    no_commercial_warranty: 'No Commercial Warranty',
+    no_commercial_warranty_recorded: 'No voluntary manufacturer warranty recorded for this asset.',
+    warranty_days_remaining: '{days}d remaining',
+    claim_obligor_seller_line: 'Claim Obligor: Seller / Retailer ({seller})',
+    source_prefix: 'Source',
+    retailer_label: 'Retailer',
+    manufacturer_label: 'Manufacturer',
+    claim_modal_title: 'Official Legal Defect Notice',
+    claim_modal_intro: 'Generate a legally binding defect notice (Mängelrüge / Reklamasjon / Reklamation) to claim free repair, replacement, or refund from the seller under statutory consumer law.',
+    claim_defect_label: 'DEFECT SYMPTOM / FAILURE CATEGORY',
+    claim_remedy_label: 'REMEDY DEMANDED',
+    claim_draft_header: 'Formal Notice Draft',
+    claim_btn_copy: 'Copy Claim Letter',
+    claim_btn_email: 'Send via Email',
+    claim_opt_electronic: 'Electronic Control Board / Display Failure',
+    claim_opt_motor: 'Motor / Inverter / Compressor Failure',
+    claim_opt_heating: 'Heating Element / Water Pump Malfunction',
+    claim_opt_seal: 'Premature Seal / Gasket / Hydraulic Leakage',
+    claim_opt_power: 'Device completely unresponsive / Power failure',
+    claim_opt_repair: 'Free Repair / Rectification without Cost (Nachbesserung)',
+    claim_opt_replacement: 'Free Delivery of Non-Defective Replacement (Ersatzlieferung)',
+    claim_opt_refund: 'Contract Rescission / Full Purchase Refund (Wandelung / Heving)',
+    wizard_modal_title: 'Error Code Diagnostic Wizard',
+    wizard_modal_intro: 'Select or enter the error code displayed on your appliance to resolve the issue before paying expensive technician fees.',
+    wizard_input_placeholder: 'e.g. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnose',
+    wizard_common_codes_header: 'COMMON CODES FOR THIS MODEL:',
+    wizard_covered_badge: 'COVERED BY STATUTORY WARRANTY',
+    wizard_diy_badge: 'DIY USER MAINTENANCE',
+    wizard_cause_label: 'Probable Cause:',
+    wizard_steps_label: 'Step-by-Step Resolution:',
+    wizard_tip_label: 'Pro Tip:',
+    wizard_gen_claim_btn: 'Generate Official Defect Notice for Seller'
   },
 
   // ==================== 2. TÜRKÇE (tr) ====================
@@ -955,7 +1011,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: '{temp}°C kar için Toko LF Blue flor-içermeyen soğuk pist vaksı önerilir.',
     ski_setup_title: 'Bağlama & Bot Tabanı Kurulumu',
     ski_tuning_title: 'Kenar Açısı & Vakslama Geçmişi',
-    ski_domain_subtitle: 'Ekipman, DIN Bağlama & Vaks Takibi'
+    ski_domain_subtitle: 'Ekipman, DIN Bağlama & Vaks Takibi',
+    confirm_delivery_date: 'Teslimat / Kurulum Tarihi:',
+    confirm_purchase_country: 'Satın Alma Ülkesi / Yargı Alanı:',
+    drawer_delivery_date: 'Teslimat / Kurulum',
+    drawer_purchase_country: 'Satın Alma Ülkesi',
+    drawer_evidence_header: 'Fatura Kanıtı ve Yasal Haklar',
+    drawer_legal_notice_btn: 'Yasal Ayıp Bildirimi',
+    drawer_error_wizard_btn: 'Hata Kodu Sihirbazı',
+    share_vault_btn: 'Portföyü Paylaş',
+    settings_preferences_title: 'Tercihler ve Bölgesel Veriler',
+    settings_diagnostics_group: 'TEŞHİS VE TANITIM',
+    settings_statutory_title: 'Yasal Zorunlu Garanti',
+    settings_statutory_sub: 'Standart cihazlar için varsayılan yasal garanti süresi',
+    active_protection_count: '{total} cihaz · {active} aktif koruma altında',
+    statutory_title_ch: 'Yasal Tüketici Hakları (CH)',
+    statutory_title_dk: '2 Yıl Yasal Garanti (DK)',
+    statutory_title_at: 'Yasal Tüketici Hakları (AT)',
+    statutory_title_no_5y: '5 Yıl Yasal Tüketici Hakkı (NO)',
+    statutory_title_no_2y: '2 Yıl Yasal Tüketici Hakkı (NO)',
+    statutory_title_se: '3 Yıl Yasal Garanti (SE)',
+    statutory_title_eu: 'AB Yasal Tüketici Hakları (24 Ay)',
+    statutory_defect_rights_default: 'Yasal Zorunlu Garanti',
+    mfr_commercial_warranty_title: '{brand} Ticari Garantisi',
+    mfr_warranty_summary_mo: '{months} Ay Ticari Garanti',
+    no_commercial_warranty: 'Ticari Garanti Yok',
+    no_commercial_warranty_recorded: 'Bu cihaz için kayıtlı isteğe bağlı üretici garantisi bulunmuyor.',
+    warranty_days_remaining: '{days} gün kaldı',
+    claim_obligor_seller_line: 'Yasal Muhatap: Satıcı / Bayi ({seller})',
+    source_prefix: 'Kaynak',
+    retailer_label: 'Satıcı / Bayi',
+    manufacturer_label: 'Üretici',
+    claim_modal_title: 'Resmi Yasal Ayıp Bildirimi',
+    claim_modal_intro: 'Yasal tüketici hakları kapsamında satıcıdan ücretsiz onarım, değişim veya iade talep etmek için bağlayıcı bir ayıp ihbarnamesi (Mängelrüge / Reklamasyon) oluşturun.',
+    claim_defect_label: 'ARIZA BELİRTİSİ / AYIP KATEGORİSİ',
+    claim_remedy_label: 'TALEP EDİLEN YASAL HAK',
+    claim_draft_header: 'Resmi İhbarname Taslağı',
+    claim_btn_copy: 'İhtarnameyi Kopyala',
+    claim_btn_email: 'E-posta ile Gönder',
+    claim_opt_electronic: 'Elektronik Kontrol Kartı / Ekran Arızası',
+    claim_opt_motor: 'Motor / İnvertör / Kompresör Arızası',
+    claim_opt_heating: 'Isıtıcı Rezistans / Su Pompası Arızası',
+    claim_opt_seal: 'Erken Conta Aşınması / Su Sızıntısı',
+    claim_opt_power: 'Cihaz Hiç Tepki Vermiyor / Güç Besleme Arızası',
+    claim_opt_repair: 'Ücretsiz Onarım / Ayıbın Giderilmesi (Nachbesserung)',
+    claim_opt_replacement: 'Ayıpsız Misli ile Değişim (Ersatzlieferung)',
+    claim_opt_refund: 'Sözleşmeden Dönme / Tam Satış Bedeli İadesi (Wandelung)',
+    wizard_modal_title: 'Hata Kodu Teşhis Sihirbazı',
+    wizard_modal_intro: 'Pahalı servis ücretleri ödemeden sorunu gidermek için cihazınızda görünen hata kodunu seçin veya yazın.',
+    wizard_input_placeholder: 'örn. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Teşhis Et',
+    wizard_common_codes_header: 'BU MODEL İÇİN SIK RASTLANAN KODLAR:',
+    wizard_covered_badge: 'YASAL GARANTİ KAPSAMINDA',
+    wizard_diy_badge: 'KULLANICI BAKIMI (KENDİN YAP)',
+    wizard_cause_label: 'Olası Neden:',
+    wizard_steps_label: 'Adım Adım Çözüm Yolu:',
+    wizard_tip_label: 'Uzman Tavsiyesi:',
+    wizard_gen_claim_btn: 'Satıcı İçin Resmi Ayıp Bildirimi Oluştur'
   },
 
   // ==================== 3. DANSK (da) ====================
@@ -1416,7 +1528,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Toko LF Blue fluor-fri voks anbefales til {temp}°C præpareret sne.',
     ski_setup_title: 'Binding & Skistøvle Opsætning',
     ski_tuning_title: 'Kant- & Vokshistorik',
-    ski_domain_subtitle: 'Udstyr, DIN Udløsning & Voks'
+    ski_domain_subtitle: 'Udstyr, DIN Udløsning & Voks',
+    confirm_delivery_date: 'Leverings- / Overtagelsesdato:',
+    confirm_purchase_country: 'Købsland / Retskreds:',
+    drawer_delivery_date: 'Levering / Overtagelse',
+    drawer_purchase_country: 'Købsland',
+    drawer_evidence_header: 'Købsbevis og juridisk kontekst',
+    drawer_legal_notice_btn: 'Juridisk Reklamation',
+    drawer_error_wizard_btn: 'Fejlkodeguide',
+    share_vault_btn: 'Del Portefølje',
+    settings_preferences_title: 'Præferencer og regionale data',
+    settings_diagnostics_group: 'DIAGNOSTIK & INTRODUKTION',
+    settings_statutory_title: 'Lovpligtig Reklamationsret',
+    settings_statutory_sub: 'Standard dækningsperiode for apparater',
+    active_protection_count: '{total} apparater · {active} under aktiv beskyttelse',
+    statutory_title_ch: 'Lovpligtig reklamationsret (CH)',
+    statutory_title_dk: '2 års reklamationsret (DK)',
+    statutory_title_at: 'Lovpligtig reklamationsret (AT)',
+    statutory_title_no_5y: '5 års reklamationsret (NO)',
+    statutory_title_no_2y: '2 års reklamationsret (NO)',
+    statutory_title_se: '3 års reklamationsret (SE)',
+    statutory_title_eu: 'EU lovpligtige mangelrettigheder (24 mdr.)',
+    statutory_defect_rights_default: 'Lovpligtig Reklamationsret',
+    mfr_commercial_warranty_title: '{brand} fabriksgaranti',
+    mfr_warranty_summary_mo: '{months} mdr. fabriksgaranti',
+    no_commercial_warranty: 'Ingen fabriksgaranti',
+    no_commercial_warranty_recorded: 'Ingen frivillig fabriksgaranti registreret for dette apparat.',
+    warranty_days_remaining: '{days}dg tilbage',
+    claim_obligor_seller_line: 'Ansvarlig part: Sælger / Forhandler ({seller})',
+    source_prefix: 'Kilde',
+    retailer_label: 'Forhandler',
+    manufacturer_label: 'Fabrikant',
+    claim_modal_title: 'Officiel Juridisk Mangelreklamation',
+    claim_modal_intro: 'Generer en juridisk bindende mangelreklamation for at kræve gratis reparation, omlevering eller ophævelse fra sælgeren i henhold til forbrugerlovgivningen.',
+    claim_defect_label: 'FEJLSYMPTOM / MANGELKATEGORI',
+    claim_remedy_label: 'KRÆVET RETSMIDDEL',
+    claim_draft_header: 'Udkast til Formel Reklamation',
+    claim_btn_copy: 'Kopiér reklamationsbrev',
+    claim_btn_email: 'Send via e-mail',
+    claim_opt_electronic: 'Elektronisk styring / Displayfejl',
+    claim_opt_motor: 'Motor / Inverter / Kompressorfejl',
+    claim_opt_heating: 'Varmelegeme / Pumpefunktionsfejl',
+    claim_opt_seal: 'For tidligt slidt tætningsliste / Lækage',
+    claim_opt_power: 'Enheden reagerer overhovedet ikke / Strømsvigt',
+    claim_opt_repair: 'Gratis reparation / Afhjælpning uden omkostninger',
+    claim_opt_replacement: 'Gratis omlevering af en ny fejlfri enhed (Omlevering)',
+    claim_opt_refund: 'Ophævelse af købet / Fuld tilbagebetaling af købesummen (Hævelse)',
+    wizard_modal_title: 'Fejlkode Diagnoseguide',
+    wizard_modal_intro: 'Vælg eller indtast fejlkoden vist på apparatet for at løse problemet inden dyre teknikerbesøg.',
+    wizard_input_placeholder: 'f.eks. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnosticer',
+    wizard_common_codes_header: 'ALMINDELIGE KODER FOR DENNE MODEL:',
+    wizard_covered_badge: 'DÆKKET AF REKLAMATIONSRET',
+    wizard_diy_badge: 'BRUGERVEDLIGEHOLDELSE (DIY)',
+    wizard_cause_label: 'Sandsynlig årsag:',
+    wizard_steps_label: 'Trin-for-trin løsning:',
+    wizard_tip_label: 'Ekspertråd:',
+    wizard_gen_claim_btn: 'Generer officiel mangelreklamation til sælger'
   },
 
   // ==================== 4. SVENSKA (sv) ====================
@@ -1877,7 +2045,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Toko LF Blue fluorfri valla rekommenderas för {temp}°C preparerad snö.',
     ski_setup_title: 'Bindning & Skidpjäxa Inställning',
     ski_tuning_title: 'Kant- & Vallningshistorik',
-    ski_domain_subtitle: 'Utrustning, DIN Utlösning & Valla'
+    ski_domain_subtitle: 'Utrustning, DIN Utlösning & Valla',
+    confirm_delivery_date: 'Leverans- / Överlämnandedatum:',
+    confirm_purchase_country: 'Inköpsland / Jurisdiktion:',
+    drawer_delivery_date: 'Leverans / Överlämnande',
+    drawer_purchase_country: 'Inköpsland',
+    drawer_evidence_header: 'Inköpsbevis och juridisk kontext',
+    drawer_legal_notice_btn: 'Juridisk Reklamation',
+    drawer_error_wizard_btn: 'Felkodsguide',
+    share_vault_btn: 'Dela Portfölj',
+    settings_preferences_title: 'Inställningar och regionala data',
+    settings_diagnostics_group: 'DIAGNOSTIK & INTRODUKTION',
+    settings_statutory_title: 'Lagstadgad Reklamationsrätt',
+    settings_statutory_sub: 'Standard garantiperiod för apparater',
+    active_protection_count: '{total} apparater · {active} under aktivt skydd',
+    statutory_title_ch: 'Lagstadgad reklamationsrätt (CH)',
+    statutory_title_dk: '2 års reklamationsrätt (DK)',
+    statutory_title_at: 'Lagstadgad reklamationsrätt (AT)',
+    statutory_title_no_5y: '5 års reklamationsrätt (NO)',
+    statutory_title_no_2y: '2 års reklamationsrätt (NO)',
+    statutory_title_se: '3 års reklamationsrätt (SE)',
+    statutory_title_eu: 'EU lagstadgade reklamationsrättigheter (24 mån)',
+    statutory_defect_rights_default: 'Lagstadgad Reklamationsrätt',
+    mfr_commercial_warranty_title: '{brand} fabriksgaranti',
+    mfr_warranty_summary_mo: '{months} mån fabriksgaranti',
+    no_commercial_warranty: 'Ingen fabriksgaranti',
+    no_commercial_warranty_recorded: 'Ingen frivillig tillverkargaranti registrerad för denna apparat.',
+    warranty_days_remaining: '{days}d kvar',
+    claim_obligor_seller_line: 'Ansvarig part: Säljare / Återförsäljare ({seller})',
+    source_prefix: 'Källa',
+    retailer_label: 'Återförsäljare',
+    manufacturer_label: 'Tillverkare',
+    claim_modal_title: 'Officiell Juridisk Reklamation',
+    claim_modal_intro: 'Skapa en juridiskt bindande reklamation för att kräva kostnadsfri reparation, omleverans eller återbetalning från säljaren enligt konsumentköplagen.',
+    claim_defect_label: 'FELSYMPTOM / REKLAMATIONSKATEGORI',
+    claim_remedy_label: 'PÅKALLAD PÅFÖLJD',
+    claim_draft_header: 'Utkast till Formell Reklamation',
+    claim_btn_copy: 'Kopiera reklamationsbrev',
+    claim_btn_email: 'Skicka via e-post',
+    claim_opt_electronic: 'Elektronikmodul / Displayfel',
+    claim_opt_motor: 'Motor / Inverter / Kompressorfel',
+    claim_opt_heating: 'Värmeelement / Vattenpumpsfel',
+    claim_opt_seal: 'Förtida tätningsslitage / Hydrauliskt läckage',
+    claim_opt_power: 'Enheten svarar inte / Strömförsörjningsfel',
+    claim_opt_repair: 'Kostnadsfri reparation / Avhjälpande',
+    claim_opt_replacement: 'Kostnadsfri omleverans av felfri ny vara (Omleverans)',
+    claim_opt_refund: 'Hävning av köpet / Full återbetalning av köpesumman (Hävning)',
+    wizard_modal_title: 'Felkodsguide & Diagnos',
+    wizard_modal_intro: 'Välj eller ange felkoden som visas på apparaten för att lösa problemet innan dyra teknikeravgifter.',
+    wizard_input_placeholder: 't.ex. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnostisera',
+    wizard_common_codes_header: 'VANLIGA FELKODER FÖR DENNA MODELL:',
+    wizard_covered_badge: 'TÄCKS AV REKLAMATIONSRÄTT',
+    wizard_diy_badge: 'EGEN VÅRD / UNDERHÅLL (DIY)',
+    wizard_cause_label: 'Trolig orsak:',
+    wizard_steps_label: 'Steg-för-steg åtgärd:',
+    wizard_tip_label: 'Experttips:',
+    wizard_gen_claim_btn: 'Skapa officiell reklamation till säljaren'
   },
 
   // ==================== 5. NORSK (no) ====================
@@ -2338,7 +2562,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Toko LF Blue fluorfri voks anbefales for {temp}°C preparert snø.',
     ski_setup_title: 'Binding & Skistøvel Oppsett',
     ski_tuning_title: 'Kant- & Vokshistorikk',
-    ski_domain_subtitle: 'Utstyr, DIN Utløsning & Voks'
+    ski_domain_subtitle: 'Utstyr, DIN Utløsning & Voks',
+    confirm_delivery_date: 'Leverings- / Overtakelsesdato:',
+    confirm_purchase_country: 'Kjøpsland / Jurisdiksjon:',
+    drawer_delivery_date: 'Levering / Overtakelse',
+    drawer_purchase_country: 'Kjøpsland',
+    drawer_evidence_header: 'Kjøpsbevis og juridisk kontekst',
+    drawer_legal_notice_btn: 'Juridisk Reklamasjon',
+    drawer_error_wizard_btn: 'Feilkodeguide',
+    share_vault_btn: 'Del Portefølje',
+    settings_preferences_title: 'Innstillinger og regionale data',
+    settings_diagnostics_group: 'DIAGNOSTIKK & INTRODUKSJON',
+    settings_statutory_title: 'Lovfestet Reklamasjonsrett',
+    settings_statutory_sub: 'Standard garantiperiode for apparater',
+    active_protection_count: '{total} apparater · {active} under aktiv beskyttelse',
+    statutory_title_ch: 'Lovbestemt reklamasjonsrett (CH)',
+    statutory_title_dk: '2 års reklamasjonsrett (DK)',
+    statutory_title_at: 'Lovbestemt reklamasjonsrett (AT)',
+    statutory_title_no_5y: '5 års reklamasjonsrett (NO)',
+    statutory_title_no_2y: '2 års reklamasjonsrett (NO)',
+    statutory_title_se: '3 års reklamasjonsrett (SE)',
+    statutory_title_eu: 'EU lovfestede mangelrettigheter (24 mnd)',
+    statutory_defect_rights_default: 'Lovfestet Reklamasjonsrett',
+    mfr_commercial_warranty_title: '{brand} fabrikkgaranti',
+    mfr_warranty_summary_mo: '{months} mnd fabrikkgaranti',
+    no_commercial_warranty: 'Ingen fabrikkgaranti',
+    no_commercial_warranty_recorded: 'Ingen frivillig fabrikkgaranti registrert for dette apparatet.',
+    warranty_days_remaining: '{days}d igjen',
+    claim_obligor_seller_line: 'Ansvarlig part: Selger / Forhandler ({seller})',
+    source_prefix: 'Kilde',
+    retailer_label: 'Forhandler',
+    manufacturer_label: 'Produsent',
+    claim_modal_title: 'Offisiell Juridisk Mangelreklamasjon',
+    claim_modal_intro: 'Generer en juridisk bindende mangelreklamasjon for å kreve kostnadsfri reparasjon, omlevering eller heving fra selgeren etter forbrukerkjøpsloven.',
+    claim_defect_label: 'FEILSYMPTOM / MANGELKATEGORI',
+    claim_remedy_label: 'KRAV / RETTSMIDDEL',
+    claim_draft_header: 'Utkast til Formell Reklamasjon',
+    claim_btn_copy: 'Kopier reklamasjonsbrev',
+    claim_btn_email: 'Send via e-post',
+    claim_opt_electronic: 'Elektronisk kretskort / Displayfeil',
+    claim_opt_motor: 'Motor / Inverter / Kompressorsvikt',
+    claim_opt_heating: 'Varmeelement / Vannpumpefeil',
+    claim_opt_seal: 'Tidlig slitasje på pakning / Hydraulisk lekkasje',
+    claim_opt_power: 'Apparatet er helt uvirksomt / Strømbrudd',
+    claim_opt_repair: 'Kostnadsfri reparasjon / Retting uten kostnad',
+    claim_opt_replacement: 'Kostnadsfri omlevering av nytt mangelfritt apparat (Omlevering)',
+    claim_opt_refund: 'Heving av kjøpsavtalen / Full tilbakebetaling (Heving)',
+    wizard_modal_title: 'Feilkode Diagnoseveileder',
+    wizard_modal_intro: 'Velg eller skriv inn feilkoden som vises på apparatet for å løse problemet før dyre reparatørkostnader.',
+    wizard_input_placeholder: 'f.eks. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnostiser',
+    wizard_common_codes_header: 'VANLIGE KODER FOR DENNE MODELLEN:',
+    wizard_covered_badge: 'DEKKET AV REKLAMASJONSRETT',
+    wizard_diy_badge: 'BRUKERVEDLIKEHOLD (DIY)',
+    wizard_cause_label: 'Sannsynlig årsak:',
+    wizard_steps_label: 'Trinnvis feilretting:',
+    wizard_tip_label: 'Eksperttips:',
+    wizard_gen_claim_btn: 'Generer offisiell mangelreklamasjon til selger'
   },
 
   // ==================== 6. DEUTSCH (de) ====================
@@ -2799,7 +3079,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Toko LF Blue fluorfreies Kaltwachs empfohlen für {temp}°C Pulverschnee.',
     ski_setup_title: 'Bindungs- & Skischuh-Setup',
     ski_tuning_title: 'Kanten- & Wachshistorie',
-    ski_domain_subtitle: 'Quiver, DIN-Auslösung & Wachs'
+    ski_domain_subtitle: 'Quiver, DIN-Auslösung & Wachs',
+    confirm_delivery_date: 'Liefer- / Übergabedatum:',
+    confirm_purchase_country: 'Kaufland / Gerichtsstand:',
+    drawer_delivery_date: 'Lieferung / Übergabe',
+    drawer_purchase_country: 'Kaufland',
+    drawer_evidence_header: 'Kaufnachweis & rechtlicher Rahmen',
+    drawer_legal_notice_btn: 'Mängelrüge erstellen',
+    drawer_error_wizard_btn: 'Fehlercode-Assistent',
+    share_vault_btn: 'Tresor teilen',
+    settings_preferences_title: 'Einstellungen & Regionale Daten',
+    settings_diagnostics_group: 'DIAGNOSE & EINFÜHRUNG',
+    settings_statutory_title: 'Gesetzliche Gewährleistung',
+    settings_statutory_sub: 'Standardmässige Gewährleistungsfrist für Haushaltsgeräte',
+    active_protection_count: '{total} Geräte · {active} mit aktivem Schutz',
+    statutory_title_ch: 'Gesetzliche Gewährleistung (CH)',
+    statutory_title_dk: '2 Jahre gesetzliche Mängelhaftung (DK)',
+    statutory_title_at: 'Gesetzliche Gewährleistung (AT)',
+    statutory_title_no_5y: '5 Jahre gesetzliche Gewährleistung (NO)',
+    statutory_title_no_2y: '2 Jahre gesetzliche Gewährleistung (NO)',
+    statutory_title_se: '3 Jahre gesetzliche Reklamationsfrist (SE)',
+    statutory_title_eu: 'Gesetzliche EU-Gewährleistung (24 Monate)',
+    statutory_defect_rights_default: 'Gesetzliche Gewährleistungsrechte',
+    mfr_commercial_warranty_title: '{brand} Herstellergarantie',
+    mfr_warranty_summary_mo: '{months} Monate Herstellergarantie',
+    no_commercial_warranty: 'Keine Herstellergarantie',
+    no_commercial_warranty_recorded: 'Keine freiwillige Herstellergarantie für dieses Gerät erfasst.',
+    warranty_days_remaining: '{days}T verbleibend',
+    claim_obligor_seller_line: 'Anspruchsgegner: Verkäufer / Händler ({seller})',
+    source_prefix: 'Quelle',
+    retailer_label: 'Händler',
+    manufacturer_label: 'Hersteller',
+    claim_modal_title: 'Offizielle Rechtliche Mängelrüge',
+    claim_modal_intro: 'Erstellen Sie eine rechtsverbindliche Mängelrüge (Mängelrüge / Reklamation), um Nachbesserung, Ersatzlieferung oder Rücktritt vom Verkäufer gemäß Verbraucherrecht einzufordern.',
+    claim_defect_label: 'MANGELSYMPTOM / FEHLERKATEGORIE',
+    claim_remedy_label: 'GEFORDERTES RECHTSMITTEL',
+    claim_draft_header: 'Entwurf der Formellen Mängelrüge',
+    claim_btn_copy: 'Mängelrüge kopieren',
+    claim_btn_email: 'Per E-Mail senden',
+    claim_opt_electronic: 'Elektronische Steuerplatine / Display-Ausfall',
+    claim_opt_motor: 'Motor- / Inverter- / Kompressorausfall',
+    claim_opt_heating: 'Heizelement / Wasserpumpen-Fehlfunktion',
+    claim_opt_seal: 'Vorzeitiger Dichtungsverschleiß / Hydraulikleckage',
+    claim_opt_power: 'Gerät komplett reaktionslos / Stromversorgungsfehler',
+    claim_opt_repair: 'Kostenlose Nachbesserung / Reparatur ohne Aufwand',
+    claim_opt_replacement: 'Kostenfreie Ersatzlieferung eines fehlerfreien Neugeräts',
+    claim_opt_refund: 'Rücktritt vom Kaufvertrag / Vollständige Kaufpreiserstattung (Wandelung)',
+    wizard_modal_title: 'Fehlercode-Diagnoseassistent',
+    wizard_modal_intro: 'Wählen oder geben Sie den angezeigten Fehlercode ein, um das Problem vor teuren Technikerkosten zu lösen.',
+    wizard_input_placeholder: 'z. B. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnostizieren',
+    wizard_common_codes_header: 'HÄUFIGE FEHLERCODES FÜR DIESES MODELL:',
+    wizard_covered_badge: 'DURCH GESETZLICHE GEWÄHRLEISTUNG GEDECKT',
+    wizard_diy_badge: 'SELBSTHILFE / BENUTZERWARTUNG (DIY)',
+    wizard_cause_label: 'Wahrscheinliche Ursache:',
+    wizard_steps_label: 'Schritt-für-Schritt-Lösung:',
+    wizard_tip_label: 'Experten-Tipp:',
+    wizard_gen_claim_btn: 'Offizielle Mängelrüge an Händler erstellen'
   },
 
   // ==================== 7. FRANÇAIS (fr) ====================
@@ -3260,7 +3596,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Fart Toko LF Blue sans fluor recommandé pour {temp}°C sur neige damée.',
     ski_setup_title: 'Configuration Fixations & Chaussures',
     ski_tuning_title: 'Historique Carres & Fartage',
-    ski_domain_subtitle: 'Matériel, Déclenchement DIN & Fartage'
+    ski_domain_subtitle: 'Matériel, Déclenchement DIN & Fartage',
+    confirm_delivery_date: 'Date de livraison / remise :',
+    confirm_purchase_country: 'Pays d\'achat / Juridiction :',
+    drawer_delivery_date: 'Livraison / Remise',
+    drawer_purchase_country: 'Pays d\'achat',
+    drawer_evidence_header: 'Preuve d\'achat et cadre légal',
+    drawer_legal_notice_btn: 'Avis juridique de défaut',
+    drawer_error_wizard_btn: 'Assistant Code d\'Erreur',
+    share_vault_btn: 'Partager le Coffre',
+    settings_preferences_title: 'Préférences & Données Régionales',
+    settings_diagnostics_group: 'DIAGNOSTIC & PRISE EN MAIN',
+    settings_statutory_title: 'Garantie Légale de Conformité',
+    settings_statutory_sub: 'Durée standard de couverture légale pour les appareils',
+    active_protection_count: '{total} appareils · {active} sous protection active',
+    statutory_title_ch: 'Garantie Légale de Conformité (CH)',
+    statutory_title_dk: 'Garantie Légale 2 ans (DK)',
+    statutory_title_at: 'Garantie Légale de Conformité (AT)',
+    statutory_title_no_5y: 'Garantie Légale 5 ans (NO)',
+    statutory_title_no_2y: 'Garantie Légale 2 ans (NO)',
+    statutory_title_se: 'Garantie Légale 3 ans (SE)',
+    statutory_title_eu: 'Droits Légaux de Conformité UE (24 mois)',
+    statutory_defect_rights_default: 'Garantie Légale de Conformité',
+    mfr_commercial_warranty_title: 'Garantie Commerciale {brand}',
+    mfr_warranty_summary_mo: 'Garantie commerciale {months} mois',
+    no_commercial_warranty: 'Aucune garantie commerciale',
+    no_commercial_warranty_recorded: 'Aucune garantie commerciale fabricant enregistrée pour cet appareil.',
+    warranty_days_remaining: '{days}j restants',
+    claim_obligor_seller_line: 'Débiteur de la réclamation : Vendeur / Détaillant ({seller})',
+    source_prefix: 'Source',
+    retailer_label: 'Détaillant',
+    manufacturer_label: 'Fabricant',
+    claim_modal_title: 'Avis Juridique Officiel de Défaut',
+    claim_modal_intro: 'Générez une notification de défaut juridiquement contraignante (Mängelrüge / Reklamasjon / Réclamation) pour réclamer la réparation gratuite, le remplacement ou le remboursement au vendeur en vertu du droit de la consommation.',
+    claim_defect_label: 'SYMPTÔME DU DÉFAUT / CATÉGORIE DE PANNE',
+    claim_remedy_label: 'RECOURS LÉGAL EXIGÉ',
+    claim_draft_header: 'Brouillon de Réclamation Formelle',
+    claim_btn_copy: 'Copier la lettre de réclamation',
+    claim_btn_email: 'Envoyer par e-mail',
+    claim_opt_electronic: 'Carte électronique de commande / Panne d\'affichage',
+    claim_opt_motor: 'Moteur d\'entraînement / Compresseur / Panne inverter',
+    claim_opt_heating: 'Élément chauffant / Dysfonctionnement pompe à eau',
+    claim_opt_seal: 'Joint d\'étanchéité prématuré / Fuite hydraulique',
+    claim_opt_power: 'Appareil inerte / Panne d\'alimentation générale',
+    claim_opt_repair: 'Réparation sans frais / Remise en état (Nachbesserung)',
+    claim_opt_replacement: 'Livraison sans frais d\'un appareil neuf de remplacement (Ersatzlieferung)',
+    claim_opt_refund: 'Résiliation de la vente / Remboursement intégral du prix (Wandelung / Heving)',
+    wizard_modal_title: 'Assistant Diagnostic Code d\'Erreur',
+    wizard_modal_intro: 'Sélectionnez ou saisissez le code d\'erreur affiché sur votre appareil pour résoudre le problème sans frais de technicien.',
+    wizard_input_placeholder: 'ex. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnostiquer',
+    wizard_common_codes_header: 'CODES COURANTS POUR CE MODÈLE :',
+    wizard_covered_badge: 'COUVERT PAR LA GARANTIE LÉGALE',
+    wizard_diy_badge: 'MAINTENANCE UTILISATEUR (DIY)',
+    wizard_cause_label: 'Cause probable :',
+    wizard_steps_label: 'Étapes de résolution :',
+    wizard_tip_label: 'Conseil d\'expert :',
+    wizard_gen_claim_btn: 'Générer un avis officiel de défaut pour le vendeur'
   },
 
   // ==================== 8. ITALIANO (it) ====================
@@ -3721,7 +4113,63 @@ export const I18N_DICTIONARY = {
     ski_wax_fallback: 'Sciolina fluor-free Toko LF Blue consigliata per {temp}°C su neve battuta.',
     ski_setup_title: 'Configurazione Attacco & Scarpone',
     ski_tuning_title: 'Storico Lamine & Sciolinatura',
-    ski_domain_subtitle: 'Attrezzatura, Sgancio DIN & Sciolina'
+    ski_domain_subtitle: 'Attrezzatura, Sgancio DIN & Sciolina',
+    confirm_delivery_date: 'Data di consegna / ritiro:',
+    confirm_purchase_country: 'Paese di acquisto / Giurisdizione:',
+    drawer_delivery_date: 'Consegna / Ritiro',
+    drawer_purchase_country: 'Paese di acquisto',
+    drawer_evidence_header: 'Prova d\'acquisto e contesto legale',
+    drawer_legal_notice_btn: 'Denuncia legale di vizio',
+    drawer_error_wizard_btn: 'Guida Codici Errore',
+    share_vault_btn: 'Condividi Cassaforte',
+    settings_preferences_title: 'Preferenze e Dati Regionali',
+    settings_diagnostics_group: 'DIAGNOSTICA & GUIDA',
+    settings_statutory_title: 'Garanzia Legale di Conformità',
+    settings_statutory_sub: 'Durata standard della copertura legale per gli apparecchi',
+    active_protection_count: '{total} apparecchi · {active} con protezione attiva',
+    statutory_title_ch: 'Garanzia Legale di Conformità (CH)',
+    statutory_title_dk: 'Garanzia Legale 2 anni (DK)',
+    statutory_title_at: 'Garanzia Legale di Conformità (AT)',
+    statutory_title_no_5y: 'Garanzia Legale 5 anni (NO)',
+    statutory_title_no_2y: 'Garanzia Legale 2 anni (NO)',
+    statutory_title_se: 'Garanzia Legale 3 anni (SE)',
+    statutory_title_eu: 'Diritti Legali di Conformità UE (24 mesi)',
+    statutory_defect_rights_default: 'Garanzia Legale di Conformità',
+    mfr_commercial_warranty_title: 'Garanzia Commerciale {brand}',
+    mfr_warranty_summary_mo: 'Garanzia commerciale {months} mesi',
+    no_commercial_warranty: 'Nessuna garanzia commerciale',
+    no_commercial_warranty_recorded: 'Nessuna garanzia commerciale del produttore registrata per questo articolo.',
+    warranty_days_remaining: '{days}gg rimanenti',
+    claim_obligor_seller_line: 'Soggetto responsabile: Venditore / Rivenditore ({seller})',
+    source_prefix: 'Fonte',
+    retailer_label: 'Rivenditore',
+    manufacturer_label: 'Produttore',
+    claim_modal_title: 'Denuncia Legale Ufficiale di Vizio',
+    claim_modal_intro: 'Genera una formale denuncia di vizio (Mängelrüge / Reklamasjon / Denuncia di vizio) per richiedere al venditore riparazione gratuita, sostituzione o rimborso a norma di legge.',
+    claim_defect_label: 'SINTOMO DEL VIZIO / CATEGORIA GUASTO',
+    claim_remedy_label: 'RIMEDIO LEGALE RICHIESTO',
+    claim_draft_header: 'Bozza Notifica Formale di Reclamo',
+    claim_btn_copy: 'Copia lettera di reclamo',
+    claim_btn_email: 'Invia per e-mail',
+    claim_opt_electronic: 'Scheda elettronica di controllo / Guasto display',
+    claim_opt_motor: 'Guasto motore / inverter / compressore',
+    claim_opt_heating: 'Resistenza / Malfunzionamento pompa acqua',
+    claim_opt_seal: 'Guarnizione usurata prematuramente / Perdita d\'acqua',
+    claim_opt_power: 'Dispositivo non reattivo / Mancata alimentazione',
+    claim_opt_repair: 'Riparazione gratuita / Eliminazione del vizio (Nachbesserung)',
+    claim_opt_replacement: 'Sostituzione gratuita con prodotto esente da vizi (Ersatzlieferung)',
+    claim_opt_refund: 'Risoluzione del contratto / Rimborso totale del prezzo (Wandelung)',
+    wizard_modal_title: 'Assistente Diagnosi Codici Errore',
+    wizard_modal_intro: 'Seleziona o inserisci il codice di errore visualizzato sull\'apparecchio per risolvere il problema senza costosi interventi tecnici.',
+    wizard_input_placeholder: 'es. E18, F20, i30, dE, 4C...',
+    wizard_btn_diagnose: 'Diagnostica',
+    wizard_common_codes_header: 'CODICI COMUNI PER QUESTO MODELLO:',
+    wizard_covered_badge: 'COPERTO DA GARANZIA LEGALE',
+    wizard_diy_badge: 'MANUTENZIONE UTENTE (FAIDATE)',
+    wizard_cause_label: 'Causa probabile:',
+    wizard_steps_label: 'Risoluzione guidata passo-passo:',
+    wizard_tip_label: 'Consiglio esperto:',
+    wizard_gen_claim_btn: 'Genera denuncia formale di vizio per il venditore'
   }
 };
 
@@ -3791,9 +4239,9 @@ export function setLanguage(langCode) {
     }
     const langObj = SUPPORTED_LANGUAGES[langCode];
     
-    const hasCustomCurr = typeof localStorage !== 'undefined' && localStorage.getItem('nordic_currency_custom') === 'true';
-    if (!hasCustomCurr && langObj.defaultCurrency && typeof window !== 'undefined' && window.setCurrency) {
-      window.setCurrency(langObj.defaultCurrency);
+    // Automatically synchronize country currency on language selection
+    if (langObj.defaultCurrency && typeof window !== 'undefined' && window.setCurrency) {
+      window.setCurrency(langObj.defaultCurrency, true);
     }
     
     if (typeof window !== 'undefined') {
@@ -4055,6 +4503,577 @@ export function populateWarrantyDurationOptions(selectEl, selectedMonths = 24) {
   }
 
   selectEl.innerHTML = optionsHtml;
+}
+
+export function formatLocalizedWarrantySource(sourceStr, lang = getLanguage()) {
+  if (!sourceStr || typeof sourceStr !== 'string') return '';
+  const s = sourceStr.trim();
+  
+  // 1. Generic N-Month Manufacturer Commercial Warranty
+  const mfrMonthsMatch = s.match(/(\d+)[-\s]*(?:Month|Mois|Mo|Monate|Ay|Måneder|Månader|Mesi)[-\s]*(?:Manufacturer\s*Commercial\s*Warranty|Mo\s*Commercial\s*Warranty|Commercial\s*Warranty|Manufacturer\s*Policy)/i);
+  if (mfrMonthsMatch) {
+    const m = mfrMonthsMatch[1];
+    switch (lang) {
+      case 'fr': return `Garantie commerciale fabricant (${m} mois)`;
+      case 'de': return `${m}-monatige Herstellergarantie`;
+      case 'it': return `Garanzia commerciale del produttore (${m} mesi)`;
+      case 'tr': return `${m} Ay Üretici Ticari Garantisi`;
+      case 'da': return `${m} måneders fabriksgaranti`;
+      case 'sv': return `${m} månaders fabriksgaranti`;
+      case 'no': return `${m} måneders fabrikkgaranti`;
+      default: return `${m}-Month Manufacturer Commercial Warranty`;
+    }
+  }
+
+  // 2. Specific Brands
+  if (/samsung.*swiss.*2-year/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie commerciale Samsung Suisse (2 ans)';
+      case 'de': return 'Samsung Schweiz 2 Jahre Herstellergarantie';
+      case 'it': return 'Garanzia commerciale Samsung Svizzera (2 anni)';
+      case 'tr': return 'Samsung İsviçre 2 Yıl Ticari Garanti';
+      case 'da': return 'Samsung Schweiz 2 års fabriksgaranti';
+      case 'sv': return 'Samsung Schweiz 2 års fabriksgaranti';
+      case 'no': return 'Samsung Sveits 2 års fabrikkgaranti';
+      default: return 'Samsung Swiss 2-Year Commercial Warranty';
+    }
+  }
+
+  if (/miele.*2-year.*motor/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie commerciale Miele 2 ans / Garantie moteur 10 ans';
+      case 'de': return 'Miele 2 Jahre Herstellergarantie / 10 Jahre Motorgarantie';
+      case 'it': return 'Garanzia commerciale Miele 2 anni / Garanzia motore 10 anni';
+      case 'tr': return 'Miele 2 Yıl Ticari Garanti / 10 Yıl Motor Garantisi';
+      case 'da': return 'Miele 2 års fabriksgaranti / 10 års motorgaranti';
+      case 'sv': return 'Miele 2 års fabriksgaranti / 10 års motorgaranti';
+      case 'no': return 'Miele 2 års fabrikkgaranti / 10 års motorgaranti';
+      default: return 'Miele 2-Year Commercial Warranty / 10-Yr Motor Guarantee';
+    }
+  }
+
+  if (/siemens.*1-year/i.test(s) || /siemens.*commercial/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie commerciale Siemens (1 an)';
+      case 'de': return 'Siemens 1 Jahr Herstellergarantie';
+      case 'it': return 'Garanzia commerciale Siemens (1 anno)';
+      case 'tr': return 'Siemens 1 Yıl Ticari Garanti';
+      case 'da': return 'Siemens 1 års fabriksgaranti';
+      case 'sv': return 'Siemens 1 års fabriksgaranti';
+      case 'no': return 'Siemens 1 års fabrikkgaranti';
+      default: return 'Siemens 1-Year Commercial Warranty';
+    }
+  }
+
+  if (/dyson.*2-year/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie officielle Dyson (2 ans)';
+      case 'de': return 'Dyson 2 Jahre offizielle Herstellergarantie';
+      case 'it': return 'Garanzia ufficiale Dyson (2 anni)';
+      case 'tr': return 'Dyson 2 Yıl Resmi Üretici Garantisi';
+      case 'da': return 'Dyson 2 års officiel fabriksgaranti';
+      case 'sv': return 'Dyson 2 års officiell garanti';
+      case 'no': return 'Dyson 2 års offisiell garanti';
+      default: return 'Dyson 2-Year Official Guarantee';
+    }
+  }
+
+  if (/de['’]?longhi.*2-year/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie européenne De\'Longhi (2 ans)';
+      case 'de': return 'De\'Longhi 2 Jahre europäische Herstellergarantie';
+      case 'it': return 'Garanzia europea De\'Longhi (2 anni)';
+      case 'tr': return 'De\'Longhi 2 Yıl Avrupa Garantisi';
+      case 'da': return 'De\'Longhi 2 års europæisk garanti';
+      case 'sv': return 'De\'Longhi 2 års europeisk garanti';
+      case 'no': return 'De\'Longhi 2 års europeisk garanti';
+      default: return 'De\'Longhi 2-Year European Warranty';
+    }
+  }
+
+  if (/versuni|philips.*2-year/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie européenne Philips / Versuni (2 ans)';
+      case 'de': return 'Versuni / Philips 2 Jahre europäische Herstellergarantie';
+      case 'it': return 'Garanzia europea Philips / Versuni (2 anni)';
+      case 'tr': return 'Philips / Versuni 2 Yıl Avrupa Garantisi';
+      case 'da': return 'Philips / Versuni 2 års europæisk garanti';
+      case 'sv': return 'Philips / Versuni 2 års europeisk garanti';
+      case 'no': return 'Philips / Versuni 2 års europeisk garanti';
+      default: return 'Versuni / Philips 2-Year European Warranty';
+    }
+  }
+
+  if (/scott.*5-year/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie cadre carbone Scott (5 ans / 60 mois)';
+      case 'de': return 'Scott 5 Jahre Carbon-Rahmengarantie (60 Mo.)';
+      case 'it': return 'Garanzia telaio in carbonio Scott 5 anni (60 mesi)';
+      case 'tr': return 'Scott 5 Yıl Karbon Kadro Garantisi (60 Ay)';
+      case 'da': return 'Scott 5 års kulfiberrammegaranti (60 mdr.)';
+      case 'sv': return 'Scott 5 års kolfiberramgaranti (60 mån)';
+      case 'no': return 'Scott 5 års karbonrammegaranti (60 mnd)';
+      default: return 'Scott 5-Year Carbon Frame Guarantee (60 Mo)';
+    }
+  }
+
+  if (/stöckli|stoeckli/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie course artisanale Stöckli (2 ans)';
+      case 'de': return 'Stöckli 2 Jahre handgefertigte Renngarantie';
+      case 'it': return 'Garanzia gara artigianale Stöckli (2 anni)';
+      case 'tr': return 'Stöckli 2 Yıl El Yapımı Yarış Garantisi';
+      case 'da': return 'Stöckli 2 års håndlavet racergaranti';
+      case 'sv': return 'Stöckli 2 års handgjord tävlingsgaranti';
+      case 'no': return 'Stöckli 2 års håndlaget racinggaranti';
+      default: return 'Stöckli 2-Year Handcrafted Race Guarantee';
+    }
+  }
+
+  if (/v-zug.*5-year/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie suisse premium V-ZUG (5 ans / 60 mois)';
+      case 'de': return 'V-ZUG 5 Jahre Premium Schweizer Garantie (60 Mo.)';
+      case 'it': return 'Garanzia svizzera premium V-ZUG 5 anni (60 mesi)';
+      case 'tr': return 'V-ZUG 5 Yıl Premium İsviçre Garantisi (60 Ay)';
+      case 'da': return 'V-ZUG 5 års schweizisk premium garanti (60 mdr.)';
+      case 'sv': return 'V-ZUG 5 års schweizisk premium garanti (60 mån)';
+      case 'no': return 'V-ZUG 5 års sveitsisk premium garanti (60 mnd)';
+      default: return 'V-ZUG 5-Year Premium Swiss Warranty (60 Mo)';
+    }
+  }
+
+  if (/jura.*25/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Garantie commerciale Jura Suisse (25 mois)';
+      case 'de': return 'Jura Schweiz 25 Monate Herstellergarantie';
+      case 'it': return 'Garanzia commerciale Jura Svizzera (25 mesi)';
+      case 'tr': return 'Jura İsviçre 25 Ay Ticari Garanti';
+      case 'da': return 'Jura Schweiz 25 måneders fabriksgaranti';
+      case 'sv': return 'Jura Schweiz 25 månaders fabriksgaranti';
+      case 'no': return 'Jura Sveits 25 måneders fabrikkgaranti';
+      default: return 'Jura Swiss 25-Month Commercial Guarantee';
+    }
+  }
+
+  const userSetMatch = s.match(/User Set:\s*(\d+)\s*Months/i);
+  if (userSetMatch) {
+    const m = userSetMatch[1];
+    switch (lang) {
+      case 'fr': return `Défini par l'utilisateur : Garantie commerciale ${m} mois`;
+      case 'de': return `Benutzerdefiniert: ${m} Monate Herstellergarantie`;
+      case 'it': return `Impostato dall'utente: Garanzia commerciale ${m} mesi`;
+      case 'tr': return `Kullanıcı Tanımlı: ${m} Ay Ticari Politika`;
+      case 'da': return `Brugerdefineret: ${m} mdr. fabriksgaranti`;
+      case 'sv': return `Användardefinierad: ${m} mån fabriksgaranti`;
+      case 'no': return `Brukerdefinert: ${m} mnd fabrikkgaranti`;
+      default: return `User Set: ${m} Months Commercial Policy`;
+    }
+  }
+
+  const verifiedPolicyMatch = s.match(/Verified Manufacturer Policy \((\d+)\s*Mo\)/i);
+  if (verifiedPolicyMatch) {
+    const m = verifiedPolicyMatch[1];
+    switch (lang) {
+      case 'fr': return `Politique fabricant vérifiée (${m} mois)`;
+      case 'de': return `Geprüfte Herstellerrichtlinie (${m} Mo.)`;
+      case 'it': return `Condizioni produttore verificate (${m} mesi)`;
+      case 'tr': return `Doğrulanmış Üretici Politikası (${m} Ay)`;
+      case 'da': return `Verificeret fabrikantpolitik (${m} mdr.)`;
+      case 'sv': return `Verifierad tillverkarpolicy (${m} mån)`;
+      case 'no': return `Verifisert produsentpolicy (${m} mnd)`;
+      default: return `Verified Manufacturer Policy (${m} Mo)`;
+    }
+  }
+
+  if (/Official Consumer Authority/i.test(s)) {
+    switch (lang) {
+      case 'fr': return 'Autorité officielle de la consommation';
+      case 'de': return 'Offizielle Verbraucherschutzbehörde';
+      case 'it': return 'Autorità ufficiale dei consumatori';
+      case 'tr': return 'Resmi Tüketici Hakları Mevzuatı';
+      case 'da': return 'Officiel forbrugermyndighed';
+      case 'sv': return 'Officiell konsumentmyndighet';
+      case 'no': return 'Offisiell forbrukermyndighet';
+      default: return 'Official Consumer Authority';
+    }
+  }
+
+  return s;
+}
+
+export function generateLegalNoticeLetter(params, lang = getLanguage()) {
+  const country = params.country || 'CH';
+  const defectType = params.defectType || 'ELECTRONIC_CONTROL';
+  const remedy = params.remedy || 'REPAIR';
+  const seller = params.seller || (country === 'CH' ? 'Digitec Galaxus AG / Fust AG' : (country === 'NO' ? 'Elkjøp Nordic AS / Power AS' : 'Authorized Retailer'));
+  const assetName = params.assetName || 'Appliance';
+  const serialNo = params.serialNo || 'SN-VERIFIED-41920';
+  const purchaseDate = params.purchaseDate || 'Recent Purchase';
+  const deliveryDate = params.deliveryDate || purchaseDate;
+  const statDeadlineStr = params.statDeadlineStr || '24 Months from Delivery';
+  const statStatusStr = params.statStatusStr || 'Active';
+  const dateStr = params.dateStr || new Date().toLocaleDateString();
+
+  const defectDescriptions = {
+    fr: {
+      ELECTRONIC_CONTROL: "Le module électronique de commande / panneau d'affichage a cessé de fonctionner dans des conditions normales d'utilisation domestique, rendant l'appareil inopérant.",
+      MOTOR_INVERTER: "Le moteur d'entraînement principal / compresseur inverter présente une défaillance mécanique complète, sans aucun choc externe ni erreur d'utilisation.",
+      HEATING_PUMP: "Le corps de chauffe et la pompe de circulation ne parviennent plus à atteindre la température normale de fonctionnement ni à maintenir la pression.",
+      DOOR_SEAL: "Dégradation prématurée du joint d'étanchéité et fuite hydraulique lors des cycles de fonctionnement standards.",
+      UNRESPONSIVE_POWER: "L'appareil ne répond absolument plus à l'alimentation électrique malgré le raccordement secteur vérifié, indiquant un défaut interne antérieur."
+    },
+    tr: {
+      ELECTRONIC_CONTROL: "Dahili elektronik güç kontrol kartı / gösterge paneli normal ev kullanım koşullarında işlevini yitirmiş ve cihazı tamamen çalışmaz hale getirmiştir.",
+      MOTOR_INVERTER: "Ana tahrik motoru / invertör kompresör mekanik arıza vermiş olup, bu durum harici darbe veya kullanıcı hatasından kaynaklanmamaktadır.",
+      HEATING_PUMP: "Isıtıcı rezistans ve sirkülasyon pompası çalışma sıcaklığına ulaşamamaktadır ve basınç sağlayamamaktadır.",
+      DOOR_SEAL: "Standart çalışma döngüleri sırasında erken conta aşınması ve su sızıntısı meydana gelmektedir.",
+      UNRESPONSIVE_POWER: "Şebeke bağlantısı faal olmasına rağmen cihaz elektrik beslemesine hiçbir tepki vermemektedir; teslim anından kaynaklanan dahili bileşen ayıbı mevcuttur."
+    },
+    de: {
+      ELECTRONIC_CONTROL: "Das interne elektronische Steuerungsmodul / Display hat unter normalen Haushaltsbedingungen den Betrieb eingestellt und macht das Gerät unbenutzbar.",
+      MOTOR_INVERTER: "Der Hauptantriebsmotor / Inverter-Kompressor weist einen mechanischen Ausfall auf, der nicht auf äußere Einwirkungen oder Fehlbedienung zurückzuführen ist.",
+      HEATING_PUMP: "Das Heizelement und die Umwälzpumpe erreichen vorzeitig nicht mehr die Betriebstemperatur und den erforderlichen Druck.",
+      DOOR_SEAL: "Vorzeitiger Dichtungsverschleiß mit Wasser- bzw. Hydraulikaustritt während des regulären Betriebs.",
+      UNRESPONSIVE_POWER: "Das Gerät reagiert trotz einwandfreier Netzverbindung überhaupt nicht mehr, was auf einen bereits bei Übergabe angelegten Bauteilmangel hinweist."
+    },
+    it: {
+      ELECTRONIC_CONTROL: "La scheda elettronica di controllo / pannello display ha cessato di funzionare in normali condizioni d'uso domestico, rendendo l'apparecchio inutilizzabile.",
+      MOTOR_INVERTER: "Il motore principale / compressore inverter presenta un guasto meccanico non imputabile a urti esterni o errori di utilizzo.",
+      HEATING_PUMP: "La resistenza e la pompa di ricircolo non raggiungono la normale temperatura di esercizio né mantengono la corretta pressione.",
+      DOOR_SEAL: "Degrado precoce della guarnizione con conseguente perdita idraulica durante i cicli standard di lavaggio/funzionamento.",
+      UNRESPONSIVE_POWER: "Il dispositivo è del tutto privo di alimentazione pur in presenza di regolare tensione di rete, indicando un vizio intrinseco presente alla consegna."
+    },
+    da: {
+      ELECTRONIC_CONTROL: "Det elektroniske styremodul / display er ophørt med at fungere under normale husholdningsforhold, hvilket gør apparatet uanvendeligt.",
+      MOTOR_INVERTER: "Hovedmotoren / inverterkompressoren har mekanisk svigtet uden ydre påvirkning eller brugerfejl.",
+      HEATING_PUMP: "Varmelegemet og cirkulationspumpen svigter for tidligt og kan ikke opretholde driftstemperatur og tryk.",
+      DOOR_SEAL: "For tidlig slitage af tætninger og pakninger med vandudslip under normal drift.",
+      UNRESPONSIVE_POWER: "Apparatet er fuldstændig uden reaktion trods korrekt strømtilslutning, hvilket indikerer en iboende mangel ved leveringen."
+    },
+    sv: {
+      ELECTRONIC_CONTROL: "Det interna elektroniska styrkortet / displayen har upphört att fungera under normal hushållsanvändning, vilket gör apparaten obrukbar.",
+      MOTOR_INVERTER: "Drivmotorn / inverterkompressorn uppvisar mekaniskt haveri som inte beror på yttre åverkan eller felaktigt handhavande.",
+      HEATING_PUMP: "Värmeelementet och cirkulationspumpen har fallerat i förtid och uppnår inte driftstemperatur.",
+      DOOR_SEAL: "Förtida försämring av tätningslist med vattenläckage under standardprogram.",
+      UNRESPONSIVE_POWER: "Apparaten är helt strömlös trots verifierad elanslutning, vilket tyder på ett ursprungligt fel vid leverans."
+    },
+    no: {
+      ELECTRONIC_CONTROL: "Det interne elektroniske styringskortet / displayet har sluttet å fungere under normale husholdningsforhold, slik at apparatet er ubrukelig.",
+      MOTOR_INVERTER: "Drivmotoren / inverterkompressoren har mekanisk sviktet uten ytre påvirkning eller feilbruk.",
+      HEATING_PUMP: "Varmeelementet og sirkulasjonspumpen har sviktet for tidlig og oppnår ikke nødvendig driftstemperatur.",
+      DOOR_SEAL: "Tidlig slitasje på pakning med vannlekkasje under normal drift.",
+      UNRESPONSIVE_POWER: "Apparatet er fullstendig strømløst til tross for verifisert nettspenning, noe som indikerer en opprinnelig mangel ved levering."
+    },
+    en: {
+      ELECTRONIC_CONTROL: 'The internal electronic power control module / display panel has ceased functioning under normal domestic usage conditions, rendering the appliance inoperable.',
+      MOTOR_INVERTER: 'The primary drive motor / inverter compressor exhibits mechanical breakdown and failure to engage, not attributable to external impact or user error.',
+      HEATING_PUMP: 'The heating element and circulation water pump failed prematurely to reach operational temperature and maintain correct pressure.',
+      DOOR_SEAL: 'Premature hydraulic seal and gasket degradation causing leakage during standard operational cycles.',
+      UNRESPONSIVE_POWER: 'The appliance is entirely unresponsive to electrical supply despite verified mains connectivity, indicating internal component defect present at delivery.'
+    }
+  };
+
+  const remedies = {
+    fr: {
+      REPAIR: "la réparation immédiate et sans frais (remise en état sans coût / Nachbesserung) par un service agréé, sans frais à ma charge.",
+      REPLACEMENT: "la livraison immédiate et sans frais d'un appareil de remplacement neuf et parfaitement conforme (Ersatzlieferung).",
+      REFUND: "la résiliation de la vente et le remboursement intégral immédiat du prix d'achat payé (Wandelung / Heving)."
+    },
+    tr: {
+      REPAIR: "yetkili teknik servis tarafından tarafıma hiçbir masraf yansıtılmaksızın derhal ücretsiz onarım yapılmasını (ayıbın giderilmesi / Nachbesserung).",
+      REPLACEMENT: "ayıpsız, sıfır ve birebir muadili yeni bir ürün ile derhal ücretsiz değişim yapılmasını (Ersatzlieferung).",
+      REFUND: "satış sözleşmesinden dönülerek ödenen toplam satın alma bedelinin tarafıma derhal ve eksiksiz iade edilmesini (Wandelung)."
+    },
+    de: {
+      REPAIR: "die unverzügliche und kostenfreie Nachbesserung (Reparatur) durch einen autorisierten Kundendienst ohne jegliche Kostenbelastung für mich.",
+      REPLACEMENT: "die unverzügliche und kostenfreie Ersatzlieferung eines fabrikneuen, mangelfreien Geräts.",
+      REFUND: "die Wandlung des Kaufvertrags (Rücktritt) und die unverzügliche Rückerstattung des vollen Kaufpreises."
+    },
+    it: {
+      REPAIR: "l'immediata riparazione gratuita (eliminazione del vizio / Nachbesserung) a cura di un centro assistenza autorizzato, senza alcun costo a mio carico.",
+      REPLACEMENT: "l'immediata sostituzione gratuita con un apparecchio nuovo di fabbrica perfettamente conforme (Ersatzlieferung).",
+      REFUND: "la risoluzione del contratto di acquisto e l'immediato rimborso integrale del prezzo corrisposto (Wandelung)."
+    },
+    da: {
+      REPAIR: "omgående gratis afhjælpning (reparation) via autoriseret servicepartner uden omkostninger for mig.",
+      REPLACEMENT: "omgående gratis omlevering af en fabriksny, fejlfri enhed.",
+      REFUND: "ophævelse af købet og omgående fuld tilbagebetaling af købesummen."
+    },
+    sv: {
+      REPAIR: "omedelbar och kostnadsfri reparation (avhjälpande) via auktoriserad verkstad utan några kostnader för mig.",
+      REPLACEMENT: "omedelbar och kostnadsfri omleverans av en fabriksny, felfri apparat.",
+      REFUND: "hävning av köpeavtalet samt omedelbar full återbetalning av köpesumman."
+    },
+    no: {
+      REPAIR: "umiddelbar og kostnadsfri retting (reparasjon) via autorisert serviceverksted uten noen kostnad for meg.",
+      REPLACEMENT: "umiddelbar og kostnadsfri omlevering av et fabrikknytt og mangelfritt apparat.",
+      REFUND: "heving av kjøpsavtalen samt umiddelbar full tilbakebetaling av kjøpesummen."
+    },
+    en: {
+      REPAIR: 'immediate free-of-charge repair (Nachbesserung / Reparasjon) by an authorized service partner with zero cost burden to the consumer.',
+      REPLACEMENT: 'prompt delivery of a conforming, brand-new replacement appliance (Ersatzlieferung / Omlevering).',
+      REFUND: 'rescission of the purchase agreement and immediate full refund of the original purchase price (Wandelung / Heving).'
+    }
+  };
+
+  const lDesc = (defectDescriptions[lang] && defectDescriptions[lang][defectType]) || defectDescriptions.en[defectType];
+  const lRem = (remedies[lang] && remedies[lang][remedy]) || remedies.en[remedy];
+
+  if (lang === 'fr') {
+    return `AVIS FORMEL DE DÉFAUT / RÉCLAMATION LÉGALE (GARANTIE LÉGALE)
+----------------------------------------------------------------------
+Destinataire : ${seller} (Service Clientèle & Réclamations Garantie)
+Date : ${dateStr}
+
+OBJET :
+Produit : ${assetName}
+Modèle / Numéro de série : ${serialNo}
+Date de livraison / remise : ${deliveryDate} (Date d'achat : ${purchaseDate})
+Statut de garantie légale : ${statStatusStr} (Échéance : ${statDeadlineStr})
+
+DÉCLARATION DE DÉFAUT MATÉRIEL :
+Par la présente, je vous notifie formellement l'existence d'un défaut matériel sur l'appareil électroménager susmentionné, acquis auprès de votre enseigne.
+
+Description du dysfonctionnement :
+${lDesc}
+
+FONDEMENT JURIDIQUE :
+En vertu du droit applicable de protection des consommateurs (${country === 'CH' ? 'CO art. 210 / 205' : 'Directive UE 2019/771'}), le vendeur répond légalement des défauts de conformité existant lors de la délivrance du bien. Ce défaut constitue une rupture de la durabilité et de la conformité légale auxquelles je suis légitimement en droit de m'attendre dans le cadre d'un usage domestique normal.
+
+RECOURS FORMELLEMENT EXIGÉ :
+En application du droit de la consommation et de la garantie légale de conformité, je demande formellement :
+${lRem}
+
+Je vous prie de bien vouloir accuser réception de la présente sous 5 jours ouvrés et de me communiquer la procédure de prise en charge (numéro de dossier / plan de déplacement du technicien).
+
+Veuillez agréer mes salutations distinguées,
+Consommateur certifié & Propriétaire du bien
+(Généré via Nordic Asset Suite • Appliance Vault Pro)`;
+  }
+
+  if (lang === 'tr') {
+    return `RESMİ AYIP İHBARNAMESİ VE YASAL TALEP MEKTUBU
+----------------------------------------------------------------------
+Muhatap : ${seller} (Müşteri Hizmetleri ve Yasal Haklar Departmanı)
+Tarih   : ${dateStr}
+
+KONU:
+Ürün: ${assetName}
+Model / Seri Numarası: ${serialNo}
+Teslimat / Kurulum Tarihi: ${deliveryDate} (Satın Alma Tarihi: ${purchaseDate})
+Yasal Garanti Durumu: ${statStatusStr} (Bitiş Tarihi: ${statDeadlineStr})
+
+AYIP BİLDİRİMİ VE TESPİTİ:
+Firmanızdan satın almış olduğum yukarıda bilgileri yer alan ev aletinde malzeme ve üretim kaynaklı ayıp meydana geldiğini resmi olarak bildiririm.
+
+Arıza Özeti:
+${lDesc}
+
+YASAL GEREKÇE:
+Yürürlükteki mevzuat uyarınca (${country === 'CH' ? 'İsviçre Borçlar Kanunu OR Madde 210/205' : '6502 sayılı Tüketici Kanunu & AB Direktifi 2019/771'}), satıcı teslim anında mevcut olan ayıplardan yasal garanti süresi boyunca doğrudan sorumludur. Meydana gelen arıza, cihazın mutat kullanımında beklenmeyen niteliktedir.
+
+TALEP EDİLEN YASAL SEÇİMLİK HAK:
+Tüketicinin yasal hakları kapsamında tarafımca talep edilen hak:
+${lRem}
+
+İşbu ihbarnamenin tarafınıza tebliğinden itibaren 5 iş günü içerisinde tarafıma yazılı teyit verilmesini ve servis/işlem sürecinin başlatılmasını rica ederim.
+
+Saygılarımla,
+Doğrulanmış Tüketici ve Cihaz Sahibi
+(Nordic Asset Suite • Appliance Vault Pro aracılığıyla oluşturulmuştur)`;
+  }
+
+  if (lang === 'de') {
+    return `FORMMÄSSIGE MÄNGELRÜGE & GEWÄHRLEISTUNGSANZEIGE
+----------------------------------------------------------------------
+An: ${seller} (Kundendienst & Gewährleistungsabteilung)
+Datum: ${dateStr}
+
+BETREFF:
+Gerät: ${assetName}
+Modell- / Seriennummer: ${serialNo}
+Liefer- / Übergabedatum: ${deliveryDate} (Kaufdatum: ${purchaseDate})
+Gesetzlicher Garantiestatus: ${statStatusStr} (Frist bis: ${statDeadlineStr})
+
+MÄNGELANZEIGE & SACHVERHALT:
+Hiermit rüge ich form- und fristgerecht einen Sachmangel an dem oben genannten, von Ihrem Unternehmen gelieferten Haushaltsgerät.
+
+Mangelbeschreibung:
+${lDesc}
+
+RECHTSGRUNDLAGE:
+Gemäss ${country === 'CH' ? 'Schweizerischem Obligationenrecht (OR) Art. 210 i.V.m. Art. 205' : 'den gesetzlichen Verbrauchergewährleistungsvorschriften'} haftet der Verkäufer für Mängel, die bereits bei Übergabe der Sache angelegt waren. Der Ausfall entspricht nicht der gewöhnlichen Haltbarkeit bei sachgemässem Gebrauch.
+
+GEFORDERTES RECHTSMITTEL:
+Aufgrund der gesetzlichen Mängelhaftung fordere ich:
+${lRem}
+
+Ich bitte um schriftliche Bestätigung innerhalb von 5 Werktagen unter Angabe der RMA-Referenznummer bzw. Terminvorschlag zur Behebung.
+
+Mit freundlichen Grüssen,
+Verifizierter Eigentümer & Verbraucher
+(Erstellt über Nordic Asset Suite • Appliance Vault Pro)`;
+  }
+
+  if (lang === 'it') {
+    return `DENUNCIA FORMALE DI VIZIO E RECLAMO DI CONFORMITÀ
+----------------------------------------------------------------------
+A: ${seller} (Servizio Clienti e Ufficio Garanzie)
+Data: ${dateStr}
+
+OGGETTO:
+Prodotto: ${assetName}
+Modello / Numero di serie: ${serialNo}
+Data di consegna / ritiro: ${deliveryDate} (Data acquisto: ${purchaseDate})
+Stato garanzia legale: ${statStatusStr} (Scadenza: ${statDeadlineStr})
+
+DENUNCIA DI VIZIO DI CONFORMITÀ:
+Con la presente vi notifico formalmente la presenza di un vizio materiale e difetto di conformità sull'elettrodomestico sopra indicato, acquistato presso la vostra azienda.
+
+Descrizione del difetto:
+${lDesc}
+
+BASE GIURIDICA:
+Ai sensi delle vigenti disposizioni di legge (${country === 'CH' ? 'CO art. 210 / 205' : 'Direttiva UE 2019/771'}), il venditore è direttamente responsabile dei difetti di conformità esistenti al momento della consegna.
+
+RIMEDIO RICHIESTO:
+In virtù dei diritti inderogabili del consumatore, richiedo formalmente:
+${lRem}
+
+Si richiede riscontro scritto entro 5 giorni lavorativi con le relative istruzioni operative.
+
+Cordiali saluti,
+Consumatore verificato & Proprietario del bene
+(Generato via Nordic Asset Suite • Appliance Vault Pro)`;
+  }
+
+  if (lang === 'da') {
+    return `FORMLIG REKLAMATION OVER MANGLER VED SALGSGENSTAND
+----------------------------------------------------------------------
+Til: ${seller} (Kundeservice & Reklamationsafdeling)
+Dato: ${dateStr}
+
+VEDRØRENDE:
+Produkt: ${assetName}
+Model- / Serienummer: ${serialNo}
+Leverings- / Overtagelsesdato: ${deliveryDate} (Købsdato: ${purchaseDate})
+Lovpligtig dækningsstatus: ${statStatusStr} (Udløber: ${statDeadlineStr})
+
+REKLAMATION OVER MANGLER:
+Jeg reklamerer hermed rettidigt over en væsentlig mangel ved ovennævnte husholdningsapparat leveret af Deres virksomhed.
+
+Beskrivelse af fejlen:
+${lDesc}
+
+JURIDISK GRUNDLAG:
+I henhold til købelovens ufravigelige regler hæfter sælger for mangler, der var til stede på leveringstidspunktet.
+
+KRAV OM RETSMIDDEL:
+I henhold til forbrugerlovgivningen kræver jeg formelt:
+${lRem}
+
+Bekræft venligst modtagelsen inden for 5 hverdage med anvisning om det videre forløb.
+
+Med venlig hilsen,
+Verificeret forbruger & apparatejer
+(Genereret via Nordic Asset Suite • Appliance Vault Pro)`;
+  }
+
+  if (lang === 'sv') {
+    return `FORMELL REKLAMATION AVSEENDE FEL I VARA
+----------------------------------------------------------------------
+Till: ${seller} (Kundservice & Reklamationsavdelning)
+Datum: ${dateStr}
+
+ANGÅENDE:
+Produkt: ${assetName}
+Modell- / Serienummer: ${serialNo}
+Leverans- / Överlämnandedatum: ${deliveryDate} (Inköpsdatum: ${purchaseDate})
+Lagstadgad garantistatus: ${statStatusStr} (Gäller till: ${statDeadlineStr})
+
+MEDDELANDE OM FEL:
+Härmed reklamerar jag formellt ett ursprungligt fel på ovannämnda hushållsapparat inköpt hos er.
+
+Felbeskrivning:
+${lDesc}
+
+JURIDISK GRUND:
+Enligt konsumentköplagen ansvarar säljaren för fel som förelåg vid avlämnandet.
+
+PÅKALLAD PÅFÖLJD:
+Med stöd av lagstadgade konsumenträttigheter kräver jag formellt:
+${lRem}
+
+Vänligen bekräfta mottagandet inom 5 arbetsdagar med instruktioner för ärendets handläggning.
+
+Med vänlig hälsning,
+Verifierad konsument & produktägare
+(Skapad via Nordic Asset Suite • Appliance Vault Pro)`;
+  }
+
+  if (lang === 'no') {
+    return `FORMELL MANGELREKLAMASJON (FORBRUKERKJØPSLOVEN)
+----------------------------------------------------------------------
+Til: ${seller} (Kundeservice & Reklamasjonsavdeling)
+Dato: ${dateStr}
+
+GJELDER:
+Produkt: ${assetName}
+Modell- / Serienummer: ${serialNo}
+Leverings- / Overtakelsesdato: ${deliveryDate} (Kjøpsdato: ${purchaseDate})
+Lovfestet dekningsstatus: ${statStatusStr} (Frist til: ${statDeadlineStr})
+
+MANGELSMELDING:
+Jeg reklamerer herved formelt over mangel ved det ovennevnte husholdningsapparatet levert av deres selskap.
+
+Beskrivelse av mangelen:
+${lDesc}
+
+RETTSLIG GRUNNLAG:
+Etter forbrukerkjøpsloven svarer selgeren for mangler som forelå ved leveringstidspunktet.
+
+KRAV OM RETSMIDDEL:
+Med hjemmel i forbrukerkjøpsloven krever jeg formelt:
+${lRem}
+
+Vennligst bekreft mottak innen 5 virkedager med saksnummer og videre fremdriftsplan.
+
+Med vennlig hilsen,
+Verifisert forbruker & apparatejer
+(Generert via Nordic Asset Suite • Appliance Vault Pro)`;
+  }
+
+  // Default English
+  return `FORMAL NOTICE OF STATUTORY DEFECT (MÄNGELRÜGE / REKLAMASJON)
+----------------------------------------------------------------------
+To: ${seller} (Customer Service & Warranty Claims Division)
+Date: ${dateStr}
+
+REGARDING:
+Product: ${assetName}
+Model / Serial Number: ${serialNo}
+Handover / Delivery Date: ${deliveryDate} (Purchase Date: ${purchaseDate})
+Statutory Coverage Status: Active until ${statDeadlineStr} (${statStatusStr})
+
+STATEMENT OF NON-CONFORMITY & DEFECT:
+I hereby officially notify you of a material defect in the above-mentioned household appliance, supplied by your company.
+
+Defect Summary:
+${lDesc}
+
+LEGAL GROUNDS:
+Under applicable statutory consumer protection law, the seller is liable for lack of conformity existing at the time of delivery. This defect constitutes a failure of inherent durability and functionality that I could not reasonably expect under standard domestic usage.
+
+DEMANDED REMEDY:
+Pursuant to statutory consumer protection law, I formally request:
+${lRem}
+
+Please confirm receipt of this notice within 5 business days and provide the RMA reference number or instructions for authorized technician scheduling.
+
+Sincerely,
+Verified Consumer & Device Owner
+(Generated via Nordic Asset Suite • Appliance Vault Pro)`;
 }
 
 // Localized App Tour Definitions for all 4 standalone apps

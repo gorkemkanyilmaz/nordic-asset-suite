@@ -113,7 +113,32 @@ public actor GeminiDirectClient {
         
         let decoder = JSONDecoder()
         do {
-            let match = try decoder.decode(ProductCandidateMatch.self, from: jsonResponse)
+            var match = try decoder.decode(ProductCandidateMatch.self, from: jsonResponse)
+            
+            // Automated Live Product Image Search (Shopping / Retail Image Index)
+            if let liveImg = await ProductImageSearchService.shared.searchProductImage(
+                brand: match.brand,
+                model: match.modelName,
+                category: match.category
+            ) {
+                match = ProductCandidateMatch(
+                    brand: match.brand,
+                    modelName: match.modelName,
+                    fullTitle: match.fullTitle,
+                    category: match.category,
+                    subCategory: match.subCategory,
+                    serialNumber: match.serialNumber,
+                    manufactureYear: match.manufactureYear,
+                    keySpecifications: match.keySpecifications,
+                    estimatedPrice: match.estimatedPrice,
+                    currencyCode: match.currencyCode,
+                    defaultWarrantyMonths: match.defaultWarrantyMonths,
+                    summaryDescription: match.summaryDescription,
+                    confidenceScore: match.confidenceScore,
+                    providerUsed: match.providerUsed,
+                    imageUrl: liveImg
+                )
+            }
             return match
         } catch {
             // Fallback heuristics if parsing specific fields fails

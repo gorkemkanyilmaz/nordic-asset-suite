@@ -142,7 +142,6 @@ public struct ApplianceDetailView: View {
                         // Log part replaced
                     }
                 } else if selectedTab == 2 {
-                } else if selectedTab == 2 {
                     // Multi-Layer Protection & Warranty Details
                     VStack(spacing: 16) {
                         let summary = appliance.warrantySummary

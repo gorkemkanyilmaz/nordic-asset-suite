@@ -1,13 +1,13 @@
 # App Store ASO Final Metadata — All 4 Apps × 8 Languages
-> **Copy-paste ready for App Store Connect.** Character counts verified (Name ≤ 30, Subtitle ≤ 30, Keywords ≤ 100, Promo ≤ 170, IAP title ≤ 30).
+> **Live Deployed to App Store Connect.** Character counts verified (Name ≤ 30, Subtitle ≤ 30, Keywords ≤ 100, Promo ≤ 170).
 > **Zero-Duplication Rule enforced:** No keyword repeated across Title + Subtitle + Keywords within each locale.
-> **ASC Locale Codes:** `en-US`, `tr`, `de-DE`, `fr-FR`, `it`, `da`, `sv`, `nb`
+> **Categories Configured:** Primary = UTILITIES, Secondary = LIFESTYLE.
 
 ---
 
 # 🏠 APP 1: Appliance Warranty Manager
 
-**Bundle ID:** `com.nordicassetsuite.appliance`
+**Bundle ID:** com.nordicassetsuite.appliance
 **Primary Category:** Utilities | **Secondary Category:** Lifestyle
 **Age Rating:** 4+
 
@@ -16,95 +16,78 @@
 ## English (en-US)
 
 | Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Appliance Warranty Manager` | 26/30 |
-| **Subtitle** | `Receipts, Manuals, Maintenance` | 30/30 |
-| **Keywords** | `guarantee,tracker,miele,bosch,vzug,samsung,lg,dyson,invoice,service,fault,error,code,fix,claim,home` | 99/100 |
-| **Promo Text** | `Never lose an appliance warranty or receipt again. Scan rating plates for instant manuals, maintenance schedules, error codes, and Swiss statutory protection alerts.` | 165/170 |
-| **IAP Title** | `Pro Unlimited Warranty` | 22/30 |
-
-**Description (EN):**
-
-Appliance Warranty Manager is the only app that turns your phone into a complete home appliance command center. Scan any rating plate or receipt to instantly identify your appliance, import the full manual, and start tracking your statutory warranty countdown — automatically calculated for your country.
-
-KEY FEATURES:
-- INSTANT RATING PLATE SCANNER — Point your camera at any appliance badge. AI-powered OCR recognizes the brand, model, serial number, and specs in seconds.
-- STATUTORY WARRANTY COUNTDOWN — Tracks the 24-month Swiss OR Art. 210, Norwegian Forbrukerkjøpsloven, and EU Consumer Sales Directive timelines with real-time expiration alerts.
-- ERROR CODE WIZARD — Enter any fault code (E18, F20, i30, dE) and receive an instant step-by-step diagnostic with parts needed and statutory coverage assessment.
-- 1-TAP LEGAL DEFECT NOTICE — Generate a ready-to-send formal claim letter compliant with Swiss, Norwegian, and EU consumer protection law.
-- SPARE PARTS & WEAR TRACKING — Monitor filter, pump, seal, and belt lifecycle with predictive replacement schedules and OEM part numbers.
-- MAINTENANCE CHECKLISTS — Guided seasonal care routines for every major appliance brand.
-- 100% OFFLINE & PRIVATE — All data stored locally. No accounts, no cloud upload, no ads.
-
-FREE TO USE with up to 10 appliances. Upgrade to PRO for unlimited storage, iCloud backup, AI diagnostics, and PDF warranty report export.
-
-**What's New:**
-- Smart Rating Plate Scanner with enhanced OCR accuracy
-- Error Code Wizard with step-by-step diagnostics for 50+ fault codes
-- 1-Tap Legal Defect Notice generator for Swiss OR 210, Norwegian, and EU law
-- Multi-language support: English, German, French, Italian, Norwegian, Swedish, Danish, Turkish
+|---|---|---|
+| **App Name** | Appliance Warranty & Receipt | 28/30 |
+| **Subtitle** | Manuals, Bills & Maintenance | 28/30 |
+| **Keywords** | guarantee,receipts,scanner,ocr,bill,bills,vault,expiry,refrigerator,washer,dryer,dishwasher,repair | 98/100 |
+| **Promo Text** | Never lose an appliance warranty or receipt again. Scan rating plates with AI to track guarantee deadlines, error codes, user manuals and legal claim rights. | 157/170 |
 
 ---
 
 ## Turkish (tr)
 
 | Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garanti & Ürün Takibi` | 21/30 |
-| **Subtitle** | `Fiş, Fatura, Kılavuz, Bakım` | 27/30 |
-| **Keywords** | `beyazeşya,çamaşırmakinesi,buzdolabı,bulaşıkmakinesi,hatakodu,servis,garantibelgesi,tamir,yedekparça` | 99/100 |
-| **Promo Text** | `Garanti sürenizi, fişlerinizi ve kullanım kılavuzlarınızı tek yerde saklayın. Tip etiketini tarayın; hata kodu teşhisi, bakım takvimi ve yasal hak uyarıları anında hazır.` | 170/170 |
+|---|---|---|
+| **App Name** | Garanti & Fatura Takibi | 23/30 |
+| **Subtitle** | Fiş, Kılavuz, Servis & Bakım | 28/30 |
+| **Keywords** | atura,fiş,tarayıcı,kasa,çamaşır,bulaşık,makine,buzdolabı,klima,kombi,arıza,hata,servis,tamir,yedek | 99/100 |
+| **Promo Text** | Garanti sürenizi ve faturalarınızı asla kaybetmeyin. Etiket tarama ile anında kullanım kılavuzu, arıza kodları, bakım takvimi ve yasal hak ihtarnameleri cebinizde. | 163/170 |
+
+---
 
 ## German (de-DE)
 
 | Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garantie & Geräte Manager` | 25/30 |
-| **Subtitle** | `Belege, Handbuch & Wartung` | 26/30 |
-| **Keywords** | `haushalt,fehlercode,anleitung,ersatzteil,waschmaschine,backofen,kühlschrank,fust,galaxus,reparatur` | 98/100 |
-| **Promo Text** | `Automatische Garantieüberwachung nach Schweizer OR Art. 210. Typenschild scannen für Fehlercode-Diagnose, Handbücher und Wartungserinnerungen.` | 142/170 |
+|---|---|---|
+| **App Name** | Garantie & Geräte Manager | 25/30 |
+| **Subtitle** | Belege, Handbuch & Reparatur | 28/30 |
+| **Keywords** | kaufbeleg,rechnung,quittung,haushalt,fehlercode,ersatzteil,waschmaschine,kühlschrank,tresor,scanner | 99/100 |
+| **Promo Text** | Verlieren Sie nie wieder einen Kaufbeleg. Typenschild per KI scannen: Fehlercode-Diagnose, Handbücher, Gewährleistungsfristen und offizielle Mängelrügen auf Knopfdruck. | 168/170 |
+
+---
 
 ## French (fr-FR)
 
 | Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garantie & Suivi Appareils` | 26/30 |
-| **Subtitle** | `Reçus, Manuels et Entretien` | 27/30 |
-| **Keywords** | `lave-linge,lave-vaisselle,réfrigérateur,panne,facture,pièce,détachée,ménager,cuisine,réparation` | 95/100 |
+|---|---|---|
+| **App Name** | Garantie & Suivi Appareils | 26/30 |
+| **Subtitle** | Factures, Notices & Pannes | 26/30 |
+| **Keywords** | acture,ticket,caisse,électroménager,lave-linge,lave-vaisselle,réfrigérateur,panne,notice,dépannage | 99/100 |
+| **Promo Text** | Ne perdez plus jamais une facture ou garantie d’électroménager. Scannez la plaque signalétique pour vos notices, codes erreur, rappels et droits légaux de conformité. | 166/170 |
+
+---
 
 ## Italian (it)
 
 | Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garanzie & Elettrodomestici` | 27/30 |
-| **Subtitle** | `Ricevute, Manuali, Assistenza` | 29/30 |
-| **Keywords** | `lavatrice,lavastoviglie,frigorifero,guasto,manutenzione,ricambio,cucina,riparazione,scontrino` | 93/100 |
+|---|---|---|
+| **App Name** | Garanzie & Elettrodomestici | 27/30 |
+| **Subtitle** | Scontrini, Manuali & Guasti | 27/30 |
+| **Keywords** | scontrino,fattura,scanner,lavatrice,frigorifero,lavastoviglie,guasto,ricambio,avviso,riparare | 93/100 |
+| **Promo Text** | Non perdere mai più uno scontrino o una garanzia. Scansiona la targhetta con l’IA per manuali, codici errore, promemoria di scadenza e tutela legale del consumatore. | 165/170 |
 
-## Danish (da)
-
-| Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garanti & Apparat` | 17/30 |
-| **Subtitle** | `Kvittering, Manual, Service` | 27/30 |
-| **Keywords** | `hvidevarer,vaskemaskine,opvaskemaskine,køleskab,fejlkode,vedligeholdelse,reservedel,reparation` | 94/100 |
+---
 
 ## Swedish (sv)
 
 | Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garanti & Apparat` | 17/30 |
-| **Subtitle** | `Kvitto, Manual & Underhåll` | 26/30 |
-| **Keywords** | `vitvaror,tvättmaskin,diskmaskin,kylskåp,felkod,reservdel,bruksanvisning,service,reparera,hem,kök` | 96/100 |
-
-## Norwegian (nb)
-
-| Field | Value | Count |
-|-------|-------|-------|
-| **App Name** | `Garanti & Apparat` | 17/30 |
-| **Subtitle** | `Kvittering, Manual & Service` | 28/30 |
-| **Keywords** | `hvitevarer,vaskemaskin,oppvaskmaskin,kjøleskap,feilkode,vedlikehold,reservedel,bruksanvisning,hjem` | 98/100 |
+|---|---|---|
+| **App Name** | Vitvarugaranti & Kvitton | 24/30 |
+| **Subtitle** | Manualer, Felkoder & Service | 28/30 |
+| **Keywords** | kvitto,vitvaror,faktura,skanna,tvättmaskin,diskmaskin,kylskåp,felkod,reservdel,reklamation,spårning | 99/100 |
+| **Promo Text** | Tappa aldrig bort ett kvitto eller en garanti. Skanna typskylten för manualer, felkodsdiagnostik, underhållsplaner och lagstadgat konsumentskydd direkt i mobilen. | 162/170 |
 
 ---
+
+## Danish (da)
+
+| Field | Value | Count |
+|---|---|---|
+| **App Name** | Hvidevaregaranti & Kvitto | 25/30 |
+| **Subtitle** | Manualer, Fejlkoder, Service | 28/30 |
+| **Keywords** | kvittering,hvidevarer,faktura,scanner,vaskemaskine,opvaskemaskine,køleskab,fejlkode,reklamation,ovn | 99/100 |
+| **Promo Text** | Mist aldrig en kvittering eller garanti på dine hvidevarer. Scan typeskiltet med AI for manualer, fejlkoder, vedligeholdelsesplaner og juridisk reklamationsret. | 160/170 |
+
 ---
 
 # ☕ APP 2: Coffee Brew & Espresso Log

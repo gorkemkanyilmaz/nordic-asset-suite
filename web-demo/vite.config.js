@@ -7,6 +7,11 @@ export default {
         target: 'https://api.tavily.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/tavily/, '')
+      },
+      '/api/ddg': {
+        target: 'https://duckduckgo.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/ddg/, '')
       }
     }
   }

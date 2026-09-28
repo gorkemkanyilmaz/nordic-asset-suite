@@ -122,17 +122,70 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
     public static func defaultImageUrl(forCategory category: String, brand: String = "", model: String = "", fullTitle: String = "") -> String {
         let lower = "\(category) \(brand) \(model) \(fullTitle)".lowercased()
         
-        // 1. TVs, OLEDs, QLEDs, Electronics, Displays, Smart TVs (e.g. "Samsung QN85D", "LG C3", "Sony Bravia")
+        // 1. Laptops, Computers & Gaming Notebooks (e.g. "Monster Abra A5", "MacBook Pro", "Asus ROG", "Lenovo Legion")
+        if lower.contains("laptop") || lower.contains("notebook") || lower.contains("macbook") || lower.contains("abra") ||
+           lower.contains("tulpar") || lower.contains("semruk") || lower.contains("monster") || lower.contains("gaming pc") ||
+           lower.contains("thinkpad") || lower.contains("zenbook") || lower.contains("legion") || lower.contains("rog") ||
+           lower.contains("alienware") || lower.contains("xps") || lower.contains("omen") || lower.contains("victus") ||
+           lower.contains("predator") || lower.contains("bilgisayar") || lower.contains("dizüstü") || lower.contains("computer") {
+            return "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 2. Smartphones & Mobile Phones (e.g. "iPhone 15", "Samsung Galaxy S24", "Google Pixel")
+        if lower.contains("iphone") || lower.contains("galaxy s") || lower.contains("galaxy z") || lower.contains("pixel") ||
+           lower.contains("smartphone") || lower.contains("telefon") || lower.contains("xiaomi") || lower.contains("redmi") ||
+           lower.contains("oneplus") || lower.contains("huawei") || lower.contains("honor") || lower.contains("mobile") {
+            return "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 3. Audio, Headphones & Earbuds (e.g. "Sony WH-1000XM5", "AirPods Max", "Bose QC")
+        if lower.contains("headphone") || lower.contains("earbud") || lower.contains("airpod") || lower.contains("wh-1000") ||
+           lower.contains("wf-1000") || lower.contains("quietcomfort") || lower.contains("kulaklık") || lower.contains("audio") ||
+           lower.contains("sennheiser") || lower.contains("beats") || lower.contains("soundbar") || lower.contains("speaker") ||
+           lower.contains("sonos") || lower.contains("jbl") || lower.contains("marshall") || lower.contains("hoparlör") {
+            return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 4. Tablets & E-Readers (e.g. "iPad Pro", "Galaxy Tab", "Surface Pro")
+        if lower.contains("ipad") || lower.contains("tablet") || lower.contains("galaxy tab") || lower.contains("surface") || lower.contains("kindle") {
+            return "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 5. Gaming Consoles & Handhelds (e.g. "PlayStation 5", "Xbox Series X", "Nintendo Switch")
+        if lower.contains("playstation") || lower.contains("ps5") || lower.contains("ps4") || lower.contains("xbox") ||
+           lower.contains("nintendo") || lower.contains("switch") || lower.contains("steam deck") || lower.contains("konsol") {
+            return "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 6. Smartwatches & Wearables (e.g. "Apple Watch", "Garmin Fenix", "Galaxy Watch")
+        if lower.contains("apple watch") || lower.contains("smartwatch") || lower.contains("garmin") || lower.contains("fenix") ||
+           lower.contains("akıllı saat") || lower.contains("galaxy watch") || lower.contains("fitbit") {
+            return "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 7. Cameras & Photography (e.g. "Sony Alpha", "Canon EOS", "GoPro")
+        if lower.contains("camera") || lower.contains("canon") || lower.contains("nikon") || lower.contains("fujifilm") ||
+           lower.contains("gopro") || lower.contains("kamera") || lower.contains("alpha 7") || lower.contains("eos r") {
+            return "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 8. Air Fryers & Countertop Kitchen Small Appliances (e.g. "Philips Airfryer XXL", "Ninja Foodi")
+        if lower.contains("airfryer") || lower.contains("air fryer") || lower.contains("fritöz") || lower.contains("blender") ||
+           lower.contains("mixer") || lower.contains("kettle") || lower.contains("su ısıtıcı") || lower.contains("tost") {
+            return "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 9. TVs, OLEDs, QLEDs, Electronics, Displays, Smart TVs (e.g. "Samsung QN85D", "LG C3", "Sony Bravia")
         if lower.contains("tv") || lower.contains("oled") || lower.contains("qled") || lower.contains("neo qled") ||
            lower.contains("qn8") || lower.contains("qn9") || lower.contains("qn7") || lower.contains("the frame") ||
-           lower.contains("bravia") || lower.contains("television") || lower.contains("screen") || lower.contains("soundbar") ||
+           lower.contains("bravia") || lower.contains("television") || lower.contains("screen") ||
            lower.contains("display") || lower.contains("monitor") || lower.contains("televizyon") || lower.contains("fernseher") ||
            lower.contains("4k") || lower.contains("8k") ||
            ((brand.lowercased() == "samsung" || brand.lowercased() == "sony" || brand.lowercased() == "lg") && (category.lowercased().contains("electronic") || model.lowercased().contains("qn") || model.lowercased().contains("oled"))) {
             return "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 2. Coffee & Espresso Machines (e.g. "Tchibo Cafissimo", "Jura E8", "De'Longhi Magnifica", "Nespresso")
+        // 10. Coffee & Espresso Machines (e.g. "Tchibo Cafissimo", "Jura E8", "De'Longhi Magnifica", "Nespresso")
         if lower.contains("coffee") || lower.contains("espresso") || lower.contains("cafissimo") || lower.contains("nespresso") || 
            lower.contains("barista") || lower.contains("jura") || lower.contains("delonghi") || lower.contains("krups") || 
            lower.contains("tchibo") || lower.contains("gaggia") || lower.contains("breville") || lower.contains("sage") ||
@@ -140,38 +193,43 @@ public struct ProductCandidateMatch: Sendable, Codable, Identifiable {
             return "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 3. Washing Machines & Dryers (e.g. "Miele W1", "V-ZUG AdoraWaschen", "Bosch Serie 8")
+        // 11. Washing Machines & Dryers (e.g. "Miele W1", "V-ZUG AdoraWaschen", "Bosch Serie 8")
         if lower.contains("wash") || lower.contains("laundry") || lower.contains("dryer") || lower.contains("waschmaschine") || lower.contains("adorawaschen") || lower.contains("trockner") {
             return "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 4. Dishwashers & Kitchen Microwave / Built-in Appliances
+        // 12. Dishwashers & Built-in Kitchen Appliances
         if lower.contains("dish") || lower.contains("geschirrspüler") || lower.contains("spüler") || lower.contains("microwave") || lower.contains("sharp") || lower.contains("oven") || lower.contains("backofen") {
-            return "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=800&auto=format&fit=crop&q=80"
+            return "https://images.unsplash.com/photo-1585837575652-267c041d77d4?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 5. Refrigerators & Freezers
+        // 13. Refrigerators & Freezers
         if lower.contains("fridge") || lower.contains("refrigerat") || lower.contains("kühlschrank") || lower.contains("freezer") || lower.contains("gefrier") {
             return "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 6. Vacuum Cleaners & Robotic Vacuums
-        if lower.contains("vacuum") || lower.contains("dyson") || lower.contains("staubsauger") || lower.contains("roomba") || lower.contains("robot") {
+        // 14. Cordless Stick Vacuums (Dyson, Shark, Philips, Dreame)
+        if lower.contains("dyson") || lower.contains("cordless") || lower.contains("stick vacuum") || lower.contains("v15") || lower.contains("v12") || lower.contains("v11") {
+            return "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=800&auto=format&fit=crop&q=80"
+        }
+        
+        // 15. Robotic Vacuums & General Cleaners
+        if lower.contains("vacuum") || lower.contains("staubsauger") || lower.contains("roomba") || lower.contains("robot") || lower.contains("roborock") {
             return "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 7. E-Bikes & Smart Bicycles
+        // 15. E-Bikes & Smart Bicycles
         if lower.contains("ebike") || lower.contains("bike") || lower.contains("bicycle") || lower.contains("pedelec") || lower.contains("scott") || lower.contains("specialized") {
             return "https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 8. Ski Gear & Winter Equipment
+        // 16. Ski Gear & Winter Equipment
         if lower.contains("ski") || lower.contains("snowboard") || lower.contains("binding") || lower.contains("boots") || lower.contains("stöckli") || lower.contains("atomic") {
             return "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&auto=format&fit=crop&q=80"
         }
         
-        // 9. Premium Scandinavian Living Space & Clean Hardware Fallback (NOT the kitchen woman!)
-        return "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&auto=format&fit=crop&q=80"
+        // 17. Premium Modern Tech Hardware Fallback (Never a living room!)
+        return "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&auto=format&fit=crop&q=80"
     }
 }
 

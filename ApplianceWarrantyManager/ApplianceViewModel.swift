@@ -431,6 +431,52 @@ public final class ApplianceViewModel {
                 flags: "OPTIMAL_BALANCING"
             )
             
+            // 4. Dyson V15 Detect Absolute
+            let dysonImg = ProductCandidateMatch.defaultImageUrl(forCategory: "Cleaning Appliance", brand: "Dyson", model: "V15 Detect")
+            let dysonId = try await databaseWorker.createAndInsertAppliance(
+                brand: "Dyson",
+                modelName: "V15 Detect Absolute",
+                serialNumber: "SN-DYS-V15-8819",
+                category: "Cleaning Appliance",
+                roomLocation: "Living Room",
+                purchaseDate: Calendar.current.date(byAdding: .month, value: -2, to: Date()) ?? Date(),
+                manufacturerWarrantyMonths: 24,
+                purchasePrice: 799.0,
+                currencyCode: "CHF",
+                userNotes: "Cordless vacuum cleaner with acoustic piezo dust sensor.",
+                imageUrl: dysonImg
+            )
+            try await databaseWorker.recordApplianceHealthScore(
+                applianceID: dysonId,
+                score: 99,
+                degradationRate: 0.4,
+                remainingMonths: 140,
+                flags: "PIEZO_SENSOR_CALIBRATED"
+            )
+            
+            // 5. Siemens EQ.900 Espresso System
+            let siemensImg = ProductCandidateMatch.defaultImageUrl(forCategory: "Coffee Machine", brand: "Siemens", model: "EQ900")
+            let siemensId = try await databaseWorker.createAndInsertAppliance(
+                brand: "Siemens",
+                modelName: "EQ.900 Espresso System",
+                serialNumber: "SN-SIEM-EQ900-5541",
+                category: "Coffee Machine",
+                roomLocation: "Kitchen",
+                purchaseDate: Calendar.current.date(byAdding: .month, value: -4, to: Date()) ?? Date(),
+                manufacturerWarrantyMonths: 24,
+                purchasePrice: 2299.0,
+                currencyCode: "CHF",
+                userNotes: "DualBean system with dual SilentCeram grinders.",
+                imageUrl: siemensImg
+            )
+            try await databaseWorker.recordApplianceHealthScore(
+                applianceID: siemensId,
+                score: 95,
+                degradationRate: 0.7,
+                remainingMonths: 110,
+                flags: "DUAL_GRINDER_OPTIMAL"
+            )
+            
             self.appliances = try await databaseWorker.fetchAppliances()
         } catch {
             print("Demo injection error: \(error)")

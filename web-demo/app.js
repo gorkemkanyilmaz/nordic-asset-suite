@@ -14,9 +14,9 @@ const APP_IDS = {
 // Domain Category Allowlists (Deterministic Scope Enforcement)
 const DOMAIN_CATEGORY_ALLOWLISTS = {
   appliance: {
-    allowed: ['appliance', 'toaster', 'kettle', 'kitchen', 'television', 'electronics', 'washing_machine', 'refrigerator', 'dishwasher', 'oven', 'vacuum_cleaner', 'coffeemachine', 'coffee', 'microwave', 'blender', 'airfryer', 'food_processor', 'iron'],
+    allowed: ['appliance', 'toaster', 'kettle', 'kitchen', 'television', 'electronics', 'washing_machine', 'refrigerator', 'dishwasher', 'oven', 'vacuum_cleaner', 'coffeemachine', 'coffee', 'microwave', 'blender', 'airfryer', 'food_processor', 'iron', 'laptop_computer', 'laptop', 'notebook', 'computer', 'smartphone', 'phone', 'audio_headphones', 'headphones', 'soundbar', 'gaming_console', 'console', 'smartwatch', 'camera'],
     appTitle: 'Appliance Warranty',
-    expectedItems: 'home appliances, kitchen hardware, TVs, and laundry devices'
+    expectedItems: 'home appliances, consumer electronics, laptops, TVs, and personal tech'
   },
   coffee: {
     allowed: ['coffeemachine', 'coffee', 'grinder', 'espresso', 'barista', 'beans'],
@@ -65,6 +65,8 @@ import {
   translateFrequency, 
   translatePartStatus, 
   populateWarrantyDurationOptions, 
+  formatLocalizedWarrantySource,
+  generateLegalNoticeLetter,
   getAppTourDefinitions, 
   detectInitialLocaleAndCurrency 
 } from './i18n.js';
@@ -124,6 +126,9 @@ function updateStaticDomTranslations() {
   if (langSelect) langSelect.value = lang;
 
   // 2. Settings Labels
+  const prefHeader = document.getElementById('settingsPrefTitle');
+  if (prefHeader) prefHeader.textContent = t('settings_preferences_title');
+
   const gTitle = document.getElementById('settingGroupRegionalTitle');
   if (gTitle) gTitle.textContent = `${t('settings_header').toUpperCase()}`;
   
@@ -138,6 +143,15 @@ function updateStaticDomTranslations() {
   
   const cSub = document.getElementById('settingCurrencySub');
   if (cSub) cSub.textContent = t('settings_currency_sub');
+
+  const statTitle = document.getElementById('settingStatutoryTitle');
+  if (statTitle) statTitle.textContent = t('settings_statutory_title');
+
+  const statSub = document.getElementById('settingStatutorySub');
+  if (statSub) statSub.textContent = t('settings_statutory_sub');
+
+  const diagHead = document.getElementById('settingsDiagHeader');
+  if (diagHead) diagHead.textContent = t('settings_diagnostics_group');
 
   // 3. Navigation Bar Labels
   const navMap = {
@@ -227,6 +241,24 @@ function updateStaticDomTranslations() {
   const drawerNavTitle = document.getElementById('detailNavTitle');
   if (drawerNavTitle) drawerNavTitle.textContent = t('detail_nav_title');
 
+  const drawerEvidenceHeader = document.getElementById('detailEvidenceHeader');
+  if (drawerEvidenceHeader) drawerEvidenceHeader.textContent = t('drawer_evidence_header');
+
+  const drawerDeliveryDate = document.getElementById('detailDeliveryDateLabel');
+  if (drawerDeliveryDate) drawerDeliveryDate.textContent = t('drawer_delivery_date');
+
+  const drawerPurchaseCountry = document.getElementById('detailPurchaseCountryLabel');
+  if (drawerPurchaseCountry) drawerPurchaseCountry.textContent = t('drawer_purchase_country');
+
+  const drawerLegalNotice = document.getElementById('btnDetailLegalNoticeText');
+  if (drawerLegalNotice) drawerLegalNotice.textContent = t('drawer_legal_notice_btn');
+
+  const drawerErrorWizard = document.getElementById('btnDetailErrorWizardText');
+  if (drawerErrorWizard) drawerErrorWizard.textContent = t('drawer_error_wizard_btn');
+
+  const drawerPurchaseCurr = document.getElementById('detailPurchaseCurrencyPrefix');
+  if (drawerPurchaseCurr) drawerPurchaseCurr.textContent = getCurrency();
+
   const drawerDiagPrompt = document.getElementById('detailDiagPrompt');
   if (drawerDiagPrompt) drawerDiagPrompt.textContent = t('drawer_diag_prompt');
 
@@ -251,6 +283,9 @@ function updateStaticDomTranslations() {
   // 6. Settings extra items
   const diagTour = document.querySelector('.settings-row[onclick="openOnboardingModal()"] span');
   if (diagTour) diagTour.textContent = t('settings_tour_label');
+
+  const tourSkip = document.getElementById('tourSkipBtnText');
+  if (tourSkip) tourSkip.textContent = t('tour_btn_skip');
 
   const resetDemo = document.querySelector('.settings-row[onclick="reloadInitialData()"] span');
   if (resetDemo) resetDemo.textContent = t('settings_reset_demo');
@@ -382,6 +417,8 @@ function updateStaticDomTranslations() {
   if (allTitle) allTitle.textContent = t('all_appliances');
   const warrantyTitle = document.getElementById('applianceWarrantyTimelineTitle');
   if (warrantyTitle) warrantyTitle.textContent = t('warranty_timeline');
+  const shareVaultBtn = document.getElementById('btnShareVaultText');
+  if (shareVaultBtn) shareVaultBtn.textContent = t('share_vault_btn');
 
   // 9. Warranty Stat Labels
   const statActiveLabel = document.getElementById('applianceStatActiveLabel');
@@ -398,6 +435,8 @@ function updateStaticDomTranslations() {
   if (statExpiredSub) statExpiredSub.textContent = t('stat_action_required');
 
   // 10. Add Modal Translations
+  const addModalTitle = document.getElementById('addModalTitle');
+  if (addModalTitle) addModalTitle.textContent = t('add_modal_title_' + (currentDomain || 'appliance')) || t('add_modal_title_appliance');
   const addScanTitle = document.getElementById('addModalScanTitle');
   if (addScanTitle) addScanTitle.textContent = t('add_modal_scan_title');
   const addScanDesc = document.getElementById('addModalScanDesc');
@@ -408,6 +447,10 @@ function updateStaticDomTranslations() {
   if (addPhotoDesc) addPhotoDesc.textContent = t('add_modal_photo_desc');
   const addManualLabel = document.getElementById('addModalManualLabel');
   if (addManualLabel) addManualLabel.textContent = t('add_modal_manual_label');
+  const manualModelInput = document.getElementById('manualModelInput');
+  if (manualModelInput) manualModelInput.placeholder = t('add_placeholder_' + (currentDomain || 'appliance')) || t('add_placeholder_appliance');
+  const addQuickSamplesLabel = document.getElementById('addModalQuickSamplesLabel');
+  if (addQuickSamplesLabel) addQuickSamplesLabel.textContent = t('add_modal_quick_test');
   const addIdentifyBtn = document.getElementById('btnManualSearch');
   if (addIdentifyBtn) addIdentifyBtn.textContent = t('add_modal_identify_btn');
   const addCameraInstruction = document.querySelector('.camera-instruction');
@@ -430,6 +473,10 @@ function updateStaticDomTranslations() {
   if (confirmOwnershipHeader) confirmOwnershipHeader.textContent = t('confirm_ownership_header');
   const confirmPurchaseDateLabel = document.getElementById('confirmPurchaseDateLabel');
   if (confirmPurchaseDateLabel) confirmPurchaseDateLabel.textContent = t('confirm_purchase_date');
+  const confirmDeliveryDateLabel = document.getElementById('confirmDeliveryDateLabel');
+  if (confirmDeliveryDateLabel) confirmDeliveryDateLabel.textContent = t('confirm_delivery_date');
+  const confirmPurchaseCountryLabel = document.getElementById('confirmPurchaseCountryLabel');
+  if (confirmPurchaseCountryLabel) confirmPurchaseCountryLabel.textContent = t('confirm_purchase_country');
   const confirmPurchasePriceLabel = document.getElementById('inputUserPurchasePriceLabel');
   if (confirmPurchasePriceLabel) confirmPurchasePriceLabel.textContent = t('confirm_purchase_price', { currency: getCurrency() });
   const confirmWarrantyLabel = document.getElementById('confirmWarrantyDurationLabel');
@@ -441,6 +488,19 @@ function updateStaticDomTranslations() {
   const confirmCancelBtn = document.getElementById('btnConfirmCancel');
   if (confirmCancelBtn) confirmCancelBtn.textContent = t('confirm_cancel_btn');
 
+  // 12. Header Brand Titles
+  const brands = {
+    appliance: { title: t('brand_appliance'), icon: 'fa-shield-halved', label: t('nav_appliances') },
+    coffee: { title: t('brand_coffee'), icon: 'fa-mug-hot', label: t('nav_machine') },
+    ebike: { title: t('brand_ebike'), icon: 'fa-bicycle', label: t('nav_bike') },
+    skigear: { title: t('brand_skigear'), icon: 'fa-person-skiing', label: t('nav_quiver') }
+  };
+  const b = brands[currentDomain] || brands.appliance;
+  const brandTitleEl = document.getElementById('appBrandTitle');
+  if (brandTitleEl) brandTitleEl.textContent = b.title;
+  const currentLabelEl = document.getElementById('domainCurrentLabel');
+  if (currentLabelEl) currentLabelEl.textContent = b.label;
+
   // 13. Camera Scanner Translations
   const cameraTitle = document.querySelector('.camera-title');
   if (cameraTitle) cameraTitle.textContent = t('camera_title');
@@ -449,9 +509,64 @@ function updateStaticDomTranslations() {
   const cameraTestLabel = document.querySelector('.camera-sample-bar > span');
   if (cameraTestLabel) cameraTestLabel.textContent = t('add_modal_test_fixtures');
 
-  // 12. Promo text
+  // 14. Promo text
   const promoEl = document.getElementById('asoInputPromo');
   if (promoEl) promoEl.textContent = t('promo_line1') + ' ' + t('promo_line2');
+
+  // 15. Legal Defect Claim Generator Modal Translations
+  const claimTitle = document.getElementById('legalClaimModalTitle');
+  if (claimTitle) claimTitle.textContent = t('claim_modal_title');
+  const claimIntro = document.getElementById('legalClaimModalIntro');
+  if (claimIntro) claimIntro.textContent = t('claim_modal_intro');
+  const claimDefectLbl = document.getElementById('selectClaimDefectTypeLabel');
+  if (claimDefectLbl) claimDefectLbl.textContent = t('claim_defect_label');
+  const claimRemedyLbl = document.getElementById('selectClaimRemedyLabel');
+  if (claimRemedyLbl) claimRemedyLbl.textContent = t('claim_remedy_label');
+  const claimDraftText = document.getElementById('claimDraftHeaderText');
+  if (claimDraftText) claimDraftText.textContent = t('claim_draft_header');
+  const btnCopyClaim = document.getElementById('btnCopyClaimDraftText');
+  if (btnCopyClaim) btnCopyClaim.textContent = t('claim_btn_copy');
+  const btnSendClaim = document.getElementById('btnSendClaimEmailText');
+  if (btnSendClaim) btnSendClaim.textContent = t('claim_btn_email');
+  populateClaimDropdowns();
+
+  // 16. Error Code Wizard Modal Translations
+  const wizTitle = document.getElementById('errorCodeWizardModalTitle');
+  if (wizTitle) wizTitle.textContent = t('wizard_modal_title');
+  const wizIntro = document.getElementById('errorCodeWizardModalIntro');
+  if (wizIntro) wizIntro.textContent = t('wizard_modal_intro');
+  const wizInput = document.getElementById('inputWizardErrorCode');
+  if (wizInput) wizInput.placeholder = t('wizard_input_placeholder');
+  const wizBtn = document.getElementById('btnRunWizardDiagnosis');
+  if (wizBtn) wizBtn.textContent = t('wizard_btn_diagnose');
+  const wizChipsHeader = document.getElementById('wizardCommonCodesHeader');
+  if (wizChipsHeader) wizChipsHeader.textContent = t('wizard_common_codes_header');
+}
+
+function populateClaimDropdowns(defaultDefect, defaultRemedy) {
+  const defectSelect = document.getElementById('selectClaimDefectType');
+  if (defectSelect) {
+    const curVal = defaultDefect || defectSelect.value || 'ELECTRONIC_CONTROL';
+    const defectOpts = [
+      { val: 'ELECTRONIC_CONTROL', text: t('claim_opt_electronic') },
+      { val: 'MOTOR_INVERTER', text: t('claim_opt_motor') },
+      { val: 'HEATING_PUMP', text: t('claim_opt_heating') },
+      { val: 'DOOR_SEAL', text: t('claim_opt_seal') },
+      { val: 'UNRESPONSIVE_POWER', text: t('claim_opt_power') }
+    ];
+    defectSelect.innerHTML = defectOpts.map(o => `<option value="${o.val}" ${o.val === curVal ? 'selected' : ''}>${o.text}</option>`).join('');
+  }
+
+  const remedySelect = document.getElementById('selectClaimRemedy');
+  if (remedySelect) {
+    const curRem = defaultRemedy || remedySelect.value || 'REPAIR';
+    const remedyOpts = [
+      { val: 'REPAIR', text: t('claim_opt_repair') },
+      { val: 'REPLACEMENT', text: t('claim_opt_replacement') },
+      { val: 'REFUND', text: t('claim_opt_refund') }
+    ];
+    remedySelect.innerHTML = remedyOpts.map(o => `<option value="${o.val}" ${o.val === curRem ? 'selected' : ''}>${o.text}</option>`).join('');
+  }
 }
 
 // ==================== REGIONAL CURRENCY & STATUTORY STANDARDS ====================
@@ -462,24 +577,29 @@ const CURRENCY_MAP = {
   TRY: { code: 'TRY', symbol: '₺', label: 'TRY (Turkish Lira - ₺)', rate: 42.5, prefix: true },
   GBP: { code: 'GBP', symbol: '£', label: 'GBP (British Pound - £)', rate: 0.90, prefix: true },
   SEK: { code: 'SEK', symbol: 'kr', label: 'SEK (Swedish Krona - kr)', rate: 11.8, prefix: false },
-  NOK: { code: 'NOK', symbol: 'kr', label: 'NOK (Norwegian Krone - kr)', rate: 12.0, prefix: false }
+  NOK: { code: 'NOK', symbol: 'kr', label: 'NOK (Norwegian Krone - kr)', rate: 12.0, prefix: false },
+  DKK: { code: 'DKK', symbol: 'kr.', label: 'DKK (Dansk Krone - kr.)', rate: 7.8, prefix: false }
 };
 
 function getCurrency() {
   return (typeof localStorage !== 'undefined' && localStorage.getItem('nordic_currency')) || 'CHF';
 }
 
-function setCurrency(code) {
+function setCurrency(code, isAuto = false) {
   if (CURRENCY_MAP[code]) {
     localStorage.setItem('nordic_currency', code);
-    localStorage.setItem('nordic_currency_custom', 'true');
+    if (!isAuto) {
+      localStorage.setItem('nordic_currency_custom', 'true');
+    }
     if (typeof window !== 'undefined') window.currentCurrency = code;
     renderActiveDomain();
     if (selectedAsset) {
       openDetailDrawer(selectedAsset.id, currentDomain);
     }
     updateSettingsUI();
-    showToast(t('toast_currency_changed', { label: CURRENCY_MAP[code].label }));
+    if (!isAuto) {
+      showToast(t('toast_currency_changed', { label: CURRENCY_MAP[code].label }));
+    }
   }
 }
 
@@ -561,39 +681,39 @@ function calculateMultiLayerCoverage(asset, currentDate = new Date()) {
     let legalFramework = 'Swiss Code of Obligations Art. 210';
     let sourceName = 'SECO / admin.ch';
     let titleKey = 'jurisdiction_ch';
-    let titleFallback = 'Gesetzliche Gewährleistung (CH)';
+    let titleFallback = t('statutory_title_ch');
 
     if (pCountry === 'DK') {
       durationMonths = 24;
       legalFramework = 'Købeloven §§ 54, 83';
       sourceName = 'Forbrug.dk / Konkurrence- og Forbrugerstyrelsen';
       titleKey = 'jurisdiction_dk';
-      titleFallback = '2 års reklamationsret (DK)';
+      titleFallback = t('statutory_title_dk');
     } else if (pCountry === 'AT') {
       durationMonths = 24;
       legalFramework = 'Verbrauchergewährleistungsgesetz (VGG) & ABGB';
       sourceName = 'oesterreich.gv.at / Arbeiterkammer';
       titleKey = 'jurisdiction_at';
-      titleFallback = 'Gesetzliche Gewährleistung (AT)';
+      titleFallback = t('statutory_title_at');
     } else if (pCountry === 'NO') {
       const isDurable = isDurableWhiteGoodOrAppliance(asset.category, asset.brand, asset.modelName);
       durationMonths = isDurable ? 60 : 24;
       legalFramework = 'Forbrukerkjøpsloven § 27';
       sourceName = 'Forbrukerrådet / Lovdata';
       titleKey = 'jurisdiction_no';
-      titleFallback = isDurable ? '5 års reklamasjonsrett (NO)' : '2 års reklamasjonsrett (NO)';
+      titleFallback = isDurable ? t('statutory_title_no_5y') : t('statutory_title_no_2y');
     } else if (pCountry === 'SE') {
       durationMonths = 36;
       legalFramework = 'Konsumentköplagen';
       sourceName = 'Konsumentverket / Hallå konsument';
       titleKey = 'jurisdiction_se';
-      titleFallback = '3 års reklamationsrätt (SE)';
+      titleFallback = t('statutory_title_se');
     } else if (pCountry === 'EU') {
       durationMonths = 24;
       legalFramework = 'EU Directive 2019/771 / Applicable Contract';
       sourceName = 'Your Europe / EU Consumer Law';
       titleKey = 'jurisdiction_eu';
-      titleFallback = 'EU Statutory Defect Rights (24 Mo)';
+      titleFallback = t('statutory_title_eu');
     }
 
     const end = new Date(start);
@@ -640,9 +760,9 @@ function calculateMultiLayerCoverage(asset, currentDate = new Date()) {
     manufacturerWarranty = {
       type: 'MANUFACTURER_COMMERCIAL_WARRANTY',
       status,
-      titleLocalizedFallback: `${asset.brand || 'Manufacturer'} Commercial Warranty`,
+      titleLocalizedFallback: t('mfr_commercial_warranty_title', { brand: asset.brand || t('manufacturer_label') }),
       obligor: 'MANUFACTURER',
-      obligorName: asset.brand || 'Manufacturer',
+      obligorName: asset.brand || t('manufacturer_label'),
       startDate: pDateStr,
       endDate: endIso,
       daysRemaining: daysLeft,
@@ -1051,11 +1171,297 @@ const CANONICAL_KNOWLEDGE_BASE = {
       { id: 'skp1', name: 'Toko High Performance Cold Wax (120g)', pno: 'TOK-55020', cost: 28, wear: 50, interval: '30 Days', category: 'CONSUMABLE' },
       { id: 'skp2', name: 'Salomon Freeflex 14 Bindings', pno: 'SAL-FF14', cost: 320, wear: 10, interval: '1095 Days', category: 'REPLACEMENT_PART' }
     ]
+  },
+  'monster abra a5': {
+    id: 'canon-monster-abra-a5',
+    brand: 'Monster',
+    manufacturer: 'Monster Notebook',
+    family: 'Abra Series',
+    series: 'A5 High Performance Gaming',
+    modelNumber: 'Abra A5 V15 / V20',
+    variant: '15.6" Full HD 144Hz IPS',
+    canonicalName: 'Monster Abra A5 Gaming Laptop',
+    category: 'laptop_computer',
+    subCategory: 'High-Performance Gaming & Pro Laptop',
+    summaryDescription: 'Intel Core i7 ve NVIDIA RTX mimarili, 144Hz IPS mat ekran ve DuoFan çift fanlı aktif bakır soğutmalı yüksek performanslı oyuncu dizüstü bilgisayarı.',
+    ean: '8699444100018',
+    imageUrl: 'https://cdn.monsternotebook.com.tr/mnresize/1600/-/monsternotebook-tr/UPLOAD/ABRA/A5_V4/01.jpg',
+    icon: 'fa-laptop',
+    sourceName: 'Monster Notebook Official',
+    sourceUrl: 'https://www.monsternotebook.com.tr/abra/',
+    sourceType: 'MANUFACTURER',
+    standardWarrantyMonths: 24,
+    marketPriceRangeCHF: 'CHF 1,199 – 1,499',
+    marketMerchant: 'Monster Notebook Store',
+    specs: {
+      'Processor': 'Intel Core i7-13700H (14 Cores, 20 Threads, up to 5.0 GHz)',
+      'Graphics (GPU)': 'NVIDIA GeForce RTX 4050 6GB GDDR6 (105W Max TGP)',
+      'Display': '15.6" Full HD (1920x1080) 144Hz IPS Anti-Glare 100% sRGB',
+      'Memory (RAM)': '16 GB DDR5 4800MHz Dual Channel',
+      'Storage': '512 GB PCIe 4.0 NVMe M.2 SSD (Gen4 x4)',
+      'Cooling': 'DuoFan Twin Copper Heatpipe Active Cooling System',
+      'Keyboard': 'Single Zone RGB Backlit Turkish Q Keyboard',
+      'Connectivity': 'Wi-Fi 6 (802.11ax), Bluetooth 5.2, Gigabit LAN, HDMI 2.1'
+    },
+    manual: {
+      summary: 'DuoFan bakır ızgara toz temizliği, batarya sağlığı yönetimi ve BIOS/GPU sürücü güncellemeleri.',
+      steps: [
+        { number: 1, title: 'Hava Giriş ve Egzoz Izgarası Temizliği', detail: 'Alt ve yan fan ızgaralarına basınçlı hava uygulayarak toz birikimini ve termal kısıtlamayı önleyin.', freq: 'Aylık' },
+        { number: 2, title: 'Batarya Kalibrasyon & Koruma Modu', detail: 'Monster Kontrol Merkezi üzerinden şarjı %80 limitinde tutarak lityum iyon hücre ömrünü koruyun.', freq: '2 Ayda Bir' },
+        { number: 3, title: 'Panel ve Klavye Dezenfeksiyonu', detail: 'Mat ekranı kuru optik mikrofiber bezle silin; klavye aralarını antistatik fırçayla arındırın.', freq: '2 Haftada Bir' }
+      ]
+    },
+    parts: [
+      { id: 'p-mn-1', name: 'Monster DuoFan Yüksek Hızlı Yedek Soğutma Fanı', pno: 'MN-FAN-A5', cost: 35, wear: 15, interval: '365 Days', category: 'REPLACEMENT_PART' },
+      { id: 'p-mn-2', name: 'Yüksek Isıl İletkenlikli Termal Macun (Termal Grizzly)', pno: 'TG-AERO-01', cost: 18, wear: 20, interval: '180 Days', category: 'CONSUMABLE' }
+    ]
+  },
+  'sony wh-1000xm5': {
+    id: 'canon-sony-wh1000xm5',
+    brand: 'Sony',
+    manufacturer: 'Sony Corporation',
+    family: '1000X Series',
+    series: 'Premium Noise Cancelling',
+    modelNumber: 'WH-1000XM5',
+    variant: 'Black Edition',
+    canonicalName: 'Sony WH-1000XM5 Wireless Noise-Cancelling Headphones',
+    category: 'audio_headphones',
+    subCategory: 'Wireless ANC Headphones & Audio',
+    summaryDescription: 'QN1 ve V1 çift işlemcili sektör lideri aktif gürültü engelleme (ANC), 8 mikrofonlu yapay zeka ses algılama ve 30 saat pil ömürlü kablosuz kulaklık.',
+    ean: '4548736132580',
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
+    icon: 'fa-headphones',
+    sourceName: 'Sony Official Europe',
+    sourceUrl: 'https://www.sony.ch/de/headphones/products/wh-1000xm5',
+    sourceType: 'MANUFACTURER',
+    standardWarrantyMonths: 24,
+    marketPriceRangeCHF: 'CHF 329 – 379',
+    marketMerchant: 'Sony Center / Digitec CH',
+    specs: {
+      'Driver Unit': '30mm Precision Carbon Fiber Composite Dome Driver',
+      'Noise Cancelling': 'Dual Chip HD Noise Cancelling Processor QN1 + Integrated Processor V1',
+      'Microphones': '8 Microphones (4 per earcup) with AI Beamforming Noise Reduction',
+      'Battery Life': 'Up to 30 Hours (ANC On) / Up to 40 Hours (ANC Off)',
+      'Quick Charging': '3 Minutes Charge = 3 Hours Playback (USB-PD)',
+      'Audio Codecs': 'LDAC, AAC, SBC, High-Resolution Wireless Audio & DSEE Extreme',
+      'Weight': '250 g Ultra-Lightweight Ergonomic Design'
+    },
+    manual: {
+      summary: 'Yumuşak deri ped hijyeni, mikrofon ızgarası temizliği ve Sony Headphones Connect firmware güncellemeleri.',
+      steps: [
+        { number: 1, title: 'Kulak Pedi ve Taç Derisi Temizliği', detail: 'Sentetik yumuşak deri pedleri nemli mikrofiber bezle silip tamamen kurutun.', freq: 'Haftalık' },
+        { number: 2, title: 'ANC Mikrofon Portları Arındırma', detail: 'Dış kısımdaki mikrofon açıklıklarını yumuşak uçlu fırça ile toz ve kirden arındırın.', freq: 'Aylık' }
+      ]
+    },
+    parts: [
+      { id: 'p-sony-1', name: 'Sony Orijinal Yumuşak Deri Kulak Pedi Seti', pno: 'SNY-EP-XM5', cost: 42, wear: 10, interval: '365 Days', category: 'REPLACEMENT_PART' }
+    ]
+  },
+  'iphone 15 pro': {
+    id: 'canon-iphone-15-pro',
+    brand: 'Apple',
+    manufacturer: 'Apple Inc.',
+    family: 'iPhone Pro Series',
+    series: 'iPhone 15 Pro Titanium',
+    modelNumber: 'A3102 (iPhone 15 Pro)',
+    variant: '128GB Natürel Titanyum',
+    canonicalName: 'Apple iPhone 15 Pro (128GB Titanium)',
+    category: 'smartphone',
+    subCategory: 'Flagship Smartphone',
+    summaryDescription: 'Havacılık sınıfı titanyum gövde, A17 Pro çip, 120Hz Super Retina XDR ekran ve 48MP Pro kamera sistemine sahip amiral gemisi akıllı telefon.',
+    ean: '195949038441',
+    imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&auto=format&fit=crop&q=80',
+    icon: 'fa-mobile-screen-button',
+    sourceName: 'Apple Official Store',
+    sourceUrl: 'https://www.apple.com/ch-de/iphone-15-pro/',
+    sourceType: 'MANUFACTURER',
+    standardWarrantyMonths: 24,
+    marketPriceRangeCHF: 'CHF 999 – 1,099',
+    marketMerchant: 'Apple Store Bahnhofstrasse / Digitec',
+    specs: {
+      'Display': '6.1" Super Retina XDR OLED (2556x1179) 120Hz ProMotion HDR',
+      'Processor': 'Apple A17 Pro (3nm Hexa-Core CPU + 6-Core GPU + 16-Core Neural Engine)',
+      'Camera System': 'Pro 48MP Ana + 12MP Ultra Geniş + 12MP 3x Telefoto (4K60 ProRes LOG)',
+      'Build Material': 'Grade 5 Titanyum Çerçeve ve Dokulu Mat Arka Cam, Seramik Kalkan Ön Yüz',
+      'Connector': 'USB-C (USB 3 desteğiyle 10 Gb/s aktarım hızı)',
+      'Battery & Charging': '23 saate kadar video oynatma, MagSafe 15W kablosuz hızlı şarj',
+      'Water Resistance': 'IP68 (6 metre derinlikte 30 dakikaya kadar suya dayanıklı)'
+    },
+    manual: {
+      summary: 'Optimize edilmiş pil şarjı koruması, USB-C port temizliği ve Ceramic Shield cam bakımı.',
+      steps: [
+        { number: 1, title: 'USB-C Şarj Girişi Temizliği', detail: 'Port içerisindeki cep pamuğu ve tozları antistatik cımbızla nazikçe temizleyin.', freq: 'Aylık' },
+        { number: 2, title: 'Pil Sağlığı İyileştirmesi (%80 Sınırı)', detail: 'Ayarlar > Pil > Pil Sağlığı menüsünden %80 Sınırı modunu etkinleştirin.', freq: 'Kalıcı' }
+      ]
+    },
+    parts: [
+      { id: 'p-app-1', name: 'Apple 20W USB-C Güç Adaptörü & Örgülü Kablo', pno: 'MU7V3ZM/A', cost: 35, wear: 5, interval: '730 Days', category: 'ACCESSORY' }
+    ]
+  },
+  'philips airfryer xxl hd9650': {
+    id: 'canon-philips-airfryer-hd9650',
+    brand: 'Philips',
+    manufacturer: 'Versuni / Philips Domestic Appliances',
+    family: 'Airfryer XXL Series',
+    series: 'Premium Twin TurboStar',
+    modelNumber: 'HD9650/90',
+    variant: 'XXL 1.4 kg / 7.3 Litre',
+    canonicalName: 'Philips Premium Airfryer XXL HD9650/90',
+    category: 'airfryer',
+    subCategory: 'Smart Airfryer & Countertop Appliance',
+    summaryDescription: 'Twin TurboStar ve Fat Removal teknolojili, 2225W yüksek güçlü 1.4 kg aile boyu sepetli akıllı sıcak hava fritözü (Airfryer).',
+    ean: '8710103859208',
+    imageUrl: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=800&auto=format&fit=crop&q=80',
+    icon: 'fa-blender',
+    sourceName: 'Philips Official Switzerland',
+    sourceUrl: 'https://www.philips.ch/c-p/HD9650_90/premium-airfryer-xxl',
+    sourceType: 'MANUFACTURER',
+    standardWarrantyMonths: 24,
+    marketPriceRangeCHF: 'CHF 229 – 279',
+    marketMerchant: 'Fust / Galaxus CH',
+    specs: {
+      'Capacity': '7.3 L / 1.4 kg XXL Aile Boyu Sepet (6 Porsiyon)',
+      'Power Consumption': '2225 W Yüksek Verimli Isıtma Rezistansı',
+      'Technology': 'Twin TurboStar Yağ Azaltma & Rapid Air Teknolojisi',
+      'Temperature Range': '40°C - 200°C Dijital Dokunmatik Ekran Kontrolü',
+      'Cooking Presets': '5 Hazır Pişirme Programı + Sıcak Tutma (Keep Warm) Fonksiyonu',
+      'Cleaning': 'QuickClean Çıkarılabilir Sepet Tabanı (Bulaşık Makinesinde Yıkanabilir)'
+    },
+    manual: {
+      summary: 'Yapışmaz sepet tabanının korunması, üst ısıtıcı rezistansın yağdan arındırılması ve hava çıkış kontrolü.',
+      steps: [
+        { number: 1, title: 'Yapışmaz Sepet & Damlalık Yıkama', detail: 'Sepeti ılık sabunlu suda bekletip yumuşak süngerle yıkayın; teflon kaplamayı çizecek tel sünger kullanmayın.', freq: 'Her Kullanımdan Sonra' },
+        { number: 2, title: 'Üst Isıtma Rezistansı Temizliği', detail: 'Cihaz soğuduktan sonra ters çevirip üst rezistansı nemli bezle silerek yağ yanmasını önleyin.', freq: 'Aylık' },
+        { number: 3, title: 'Arka Hava Çıkış Izgarası Kontrolü', detail: 'Arka egzoz deliklerinin duvardan en az 10 cm uzakta olduğunu ve yağla tıkanmadığını kontrol edin.', freq: '3 Ayda Bir' }
+      ]
+    },
+    parts: [
+      { id: 'p-phi-1', name: 'Philips XXL QuickClean Çıkarılabilir Taban & Izgara Tavası', pno: 'CP0628/01', cost: 38, wear: 20, interval: '365 Days', category: 'REPLACEMENT_PART' }
+    ]
+  },
+  'playstation 5 slim': {
+    id: 'canon-ps5-slim',
+    brand: 'Sony',
+    manufacturer: 'Sony Interactive Entertainment',
+    family: 'PlayStation 5 Series',
+    series: 'PS5 Slim CFI-2000',
+    modelNumber: 'CFI-2000 (PS5 Slim)',
+    variant: '1TB Ultra-High Speed SSD',
+    canonicalName: 'Sony PlayStation 5 Slim Digital / Disc Edition',
+    category: 'gaming_console',
+    subCategory: 'Next-Gen Gaming Console',
+    summaryDescription: '1TB ultra hızlı özel NVMe SSD, 4K 120Hz ve Ray Tracing grafik gücü ve DualSense dokunsal geri bildirimli yeni nesil oyun konsolu.',
+    ean: '0711719574408',
+    imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800&auto=format&fit=crop&q=80',
+    icon: 'fa-gamepad',
+    sourceName: 'PlayStation Official Switzerland',
+    sourceUrl: 'https://www.playstation.com/de-ch/ps5/',
+    sourceType: 'MANUFACTURER',
+    standardWarrantyMonths: 24,
+    marketPriceRangeCHF: 'CHF 479 – 549',
+    marketMerchant: 'MediaMarkt / Digitec CH',
+    specs: {
+      'Processor (CPU)': 'Custom 8-Core AMD Zen 2 (up to 3.5 GHz değişken frekans)',
+      'Graphics (GPU)': 'AMD RDNA 2 tabanlı grafik motoru (10.3 TFLOPS, 2.23 GHz)',
+      'System Memory': '16 GB GDDR6 / 448 GB/s Bant Genişliği',
+      'Storage': '1 TB Özel Ultra Yüksek Hızlı NVMe SSD (5.5 GB/s Okuma Hızı)',
+      'Video Output': '4K 120Hz TV, 8K TV, VRR (HDMI 2.1) Desteği',
+      'Audio': 'Tempest 3D AudioTech Çevreleyen Ses Teknolojisi',
+      'Controller': 'DualSense Kablosuz Kontrolcü (Haptik Titreşim ve Uyarlanabilir Tetikler)'
+    },
+    manual: {
+      summary: 'Toz yakalayıcı kanalların vakumlanması, DualSense analog kalibrasyonu ve güvenli mod veritabanı bakımı.',
+      steps: [
+        { number: 1, title: 'Kapak Altı Toz Yakalayıcı Kanalları Vakumlama', detail: 'Yan kapakları çıkarıp dahili toz yakalama deliklerinden biriken tozu süpürgeyle çekin.', freq: '2 Ayda Bir' },
+        { number: 2, title: 'DualSense Analog Drift Önleme & Bakım', detail: 'Analog çubuk diplerine basınçlı hava tutup ayarlar menüsünden ölü bölge kalibrasyonunu kontrol edin.', freq: 'Aylık' }
+      ]
+    },
+    parts: [
+      { id: 'p-ps5-1', name: 'Sony DualSense Kablosuz Kontrolcü (Midnight Black)', pno: 'CFI-ZCT1W', cost: 79, wear: 10, interval: '730 Days', category: 'ACCESSORY' }
+    ]
   }
 };
 
 function getInitialDemoAppliances() {
   return [
+    {
+      id: 'asset-apple-iphone16pro',
+      appId: 'APPLIANCE_WARRANTY',
+      canonicalProductId: 'canon-apple-iphone16promax',
+      brand: 'Apple',
+      modelName: 'iPhone 16 Pro Max',
+      fullTitle: 'Apple iPhone 16 Pro Max (256GB Titanium)',
+      category: 'smartphone',
+      serialNumber: 'SN-APL-9281720',
+      roomLocation: 'Personal / Pocket',
+      purchaseDate: '2025-09-20',
+      deliveryDate: '2025-09-22',
+      purchaseCountry: 'CH',
+      sellerName: 'Apple Store Bahnhofstrasse',
+      standardWarrantyMonths: 24,
+      manufacturerWarrantyMonths: 12,
+      warrantySource: 'Apple 1-Year Limited Warranty / Swiss 2-Year Statutory',
+      warrantyEndDate: '2027-09-20',
+      purchasePrice: 1349,
+      marketPriceRangeCHF: 'CHF 1,299 – 1,399',
+      currencyCode: 'CHF',
+      icon: 'fa-mobile-screen-button',
+      imageUrl: '/products/iphone16pro.jpg',
+      specs: {
+        'Display': '6.9" Super Retina XDR OLED ProMotion',
+        'Processor': 'A18 Pro (3nm 6-core GPU)',
+        'Storage': '256GB NVMe',
+        'Finish': 'Grade 5 Natural Titanium'
+      },
+      manual: {
+        summary: 'MagSafe charging, ceramic shield care, and iOS updates.',
+        steps: [
+          { number: 1, title: 'Battery Health Optimization', detail: 'Keep 80% charging limit enabled in Settings for longevity.', freq: 'Always' }
+        ]
+      },
+      parts: [
+        { id: 'ap-ipl-1', name: 'FineWoven MagSafe Wallet Case', pno: 'MT4G3ZM/A', cost: 69, wear: 20, interval: '365 Days', category: 'ACCESSORY' }
+      ]
+    },
+    {
+      id: 'asset-dyson-v15',
+      appId: 'APPLIANCE_WARRANTY',
+      canonicalProductId: 'canon-dyson-v15',
+      brand: 'Dyson',
+      modelName: 'V15 Detect Absolute',
+      fullTitle: 'Dyson V15 Detect Cordless Vacuum Cleaner',
+      category: 'vacuum_cleaner',
+      serialNumber: 'SN-DYS-719302',
+      roomLocation: 'Hallway Closet',
+      purchaseDate: '2026-02-15',
+      deliveryDate: '2026-02-18',
+      purchaseCountry: 'CH',
+      sellerName: 'Fust AG',
+      standardWarrantyMonths: 24,
+      manufacturerWarrantyMonths: 24,
+      warrantySource: 'Dyson 2-Year Official Guarantee',
+      warrantyEndDate: '2028-02-15',
+      purchasePrice: 749,
+      marketPriceRangeCHF: 'CHF 699 – 799',
+      currencyCode: 'CHF',
+      icon: 'fa-wind',
+      imageUrl: '/products/dyson_v15.jpg',
+      specs: {
+        'Suction Power': '240 AW Hyperdymium Motor',
+        'Runtime': 'Up to 60 Minutes (Eco Mode)',
+        'Filtration': 'HEPA Filtration (99.99% to 0.1μm)',
+        'Weight': '3.0 kg'
+      },
+      manual: {
+        summary: 'Wash filter monthly under cold water; empty bin after heavy use.',
+        steps: [
+          { number: 1, title: 'HEPA Filter Wash', detail: 'Rinse pleated filter until water runs clear; dry 24h before refit.', freq: 'Monthly' }
+        ]
+      },
+      parts: [
+        { id: 'ap5', name: 'Washable Post-Motor HEPA Filter', pno: 'DYS-970013-02', cost: 35, wear: 15, interval: '180 Days', category: 'CONSUMABLE' }
+      ]
+    },
     {
       id: 'asset-samsung-qn85d',
       appId: 'APPLIANCE_WARRANTY',
@@ -1078,24 +1484,21 @@ function getInitialDemoAppliances() {
       marketPriceRangeCHF: 'CHF 1,799 – 1,899',
       currencyCode: 'CHF',
       icon: 'fa-tv',
-      imageUrl: 'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&q=80',
+      imageUrl: '/products/samsung_tv.jpg',
       specs: {
         'Display': '65" Neo QLED 4K (3840 x 2160)',
         'Processor': 'NQ4 AI Gen2 Processor',
         'Audio': 'Dolby Atmos 2.2CH 40W OTS Lite',
-        'Refresh Rate': '120Hz (Up to 144Hz VRR)',
-        'Energy Rating': 'Swiss Class D'
+        'Refresh Rate': '120Hz (Up to 144Hz VRR)'
       },
       manual: {
         summary: 'Microfiber screen care, One Connect cable inspection, and firmware updates.',
         steps: [
-          { number: 1, title: 'Screen Dusting', detail: 'Wipe screen in gentle circular motions with dry optical microfiber.', freq: 'Monthly' },
-          { number: 2, title: 'One Connect Cable Inspection', detail: 'Verify fiber optic lead has no sharp 90-degree bends.', freq: 'Every 6 Months' }
+          { number: 1, title: 'Screen Dusting', detail: 'Wipe screen in gentle circular motions with dry optical microfiber.', freq: 'Monthly' }
         ]
       },
       parts: [
-        { id: 'ap1', name: 'SolarCell Smart Remote Control', pno: 'BN59-01432A', cost: 65, wear: 25, interval: '730 Days', category: 'ACCESSORY' },
-        { id: 'ap2', name: 'One Connect Fiber Cable (5m)', pno: 'SOC1001-5M', cost: 120, wear: 10, interval: '1095 Days', category: 'REPLACEMENT_PART' }
+        { id: 'ap1', name: 'SolarCell Smart Remote Control', pno: 'BN59-01432A', cost: 65, wear: 25, interval: '730 Days', category: 'ACCESSORY' }
       ]
     },
     {
@@ -1104,7 +1507,7 @@ function getInitialDemoAppliances() {
       canonicalProductId: 'canon-miele-w1',
       brand: 'Miele',
       modelName: 'W1 TwinDos (WCR870 WPS)',
-      fullTitle: 'Miele W1 ChromeEdition Front Loader Washing Machine',
+      fullTitle: 'Miele W1 ChromeEdition Washing Machine',
       category: 'washing_machine',
       serialNumber: 'SN-MIE-441920',
       roomLocation: 'Laundry Room',
@@ -1120,7 +1523,7 @@ function getInitialDemoAppliances() {
       marketPriceRangeCHF: 'CHF 2,050 – 2,150',
       currencyCode: 'CHF',
       icon: 'fa-soap',
-      imageUrl: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=600&auto=format&fit=crop&q=80',
+      imageUrl: '/products/miele_washer.jpg',
       specs: {
         'Capacity': '9.0 kg Honeycomb Drum',
         'Spin Speed': '1600 RPM (A Class Spin)',
@@ -1130,125 +1533,89 @@ function getInitialDemoAppliances() {
       manual: {
         summary: 'Run 90°C hygiene wash monthly and perform TwinDos line flushing.',
         steps: [
-          { number: 1, title: 'TwinDos Care Line Flush', detail: 'Insert TwinDos Care flushing cartridge and run maintenance program.', freq: 'Every 60 Days' },
-          { number: 2, title: 'Drain Pump Filter Clean', detail: 'Open lower service flap and clear debris from coin trap.', freq: 'Every 90 Days' }
+          { number: 1, title: 'TwinDos Care Line Flush', detail: 'Insert TwinDos Care flushing cartridge and run maintenance program.', freq: 'Every 60 Days' }
         ]
       },
       parts: [
-        { id: 'ap3', name: 'TwinDos Care Cleaning Cartridge', pno: 'ML-TWIN-01', cost: 34, wear: 75, interval: '90 Days', category: 'CONSUMABLE' },
-        { id: 'ap4', name: 'Reinforced Door Gasket Seal', pno: 'ML-GSK-08', cost: 58, wear: 30, interval: '730 Days', category: 'REPLACEMENT_PART' }
+        { id: 'ap3', name: 'TwinDos Care Cleaning Cartridge', pno: 'ML-TWIN-01', cost: 34, wear: 75, interval: '90 Days', category: 'CONSUMABLE' }
       ]
     },
     {
-      id: 'asset-siemens-dishwasher-demo',
+      id: 'asset-siemens-eq900',
       appId: 'APPLIANCE_WARRANTY',
-      canonicalProductId: 'canon-siemens-sn25',
+      canonicalProductId: 'canon-siemens-eq900',
       brand: 'Siemens',
-      modelName: 'iQ500 Built-in Dishwasher',
-      fullTitle: 'Siemens iQ500 HydroSafe Dishwasher',
-      category: 'dishwasher',
-      serialNumber: 'SN-SIE-194820',
-      roomLocation: 'Kitchen',
-      purchaseDate: '2024-11-01',
-      deliveryDate: '2024-11-05',
-      purchaseCountry: 'CH',
-      sellerName: 'MediaMarkt Schweiz',
-      standardWarrantyMonths: 12,
-      manufacturerWarrantyMonths: 12,
-      warrantySource: 'Siemens 1-Year Commercial Warranty',
-      warrantyEndDate: '2025-11-01',
-      purchasePrice: 949,
-      marketPriceRangeCHF: 'CHF 899 – 1,049',
-      currencyCode: 'CHF',
-      icon: 'fa-sink',
-      imageUrl: 'https://images.unsplash.com/photo-1585837575652-267c041d77d4?w=600&auto=format&fit=crop&q=80',
-      specs: {
-        'Capacity': '14 Place Settings',
-        'Noise Level': '42 dB(A)',
-        'Motor': 'iQdrive Brushless Wash Pump'
-      },
-      manual: {
-        summary: 'Clean filter and run hot machine care cycle.',
-        steps: [
-          { number: 1, title: 'Microfilter Rinse', detail: 'Rinse sump filter under warm water.', freq: 'Monthly' }
-        ]
-      },
-      parts: [
-        { id: 'ap-sie-1', name: 'Intensive Machine Descaler Tabs', pno: 'SIE-DISH-01', cost: 18.50, wear: 20, interval: '60 Days', category: 'CONSUMABLE' }
-      ]
-    },
-    {
-      id: 'asset-dyson-v15',
-      appId: 'APPLIANCE_WARRANTY',
-      canonicalProductId: 'canon-dyson-v15',
-      brand: 'Dyson',
-      modelName: 'V15 Detect Absolute',
-      fullTitle: 'Dyson V15 Detect Cordless Vacuum Cleaner',
-      category: 'vacuum_cleaner',
-      serialNumber: 'SN-DYS-719302',
-      roomLocation: 'Hallway Closet',
-      purchaseDate: '2026-02-15',
-      standardWarrantyMonths: 24,
-      warrantySource: 'Dyson 2-Year Official Guarantee',
-      warrantyEndDate: '2028-02-15',
-      purchasePrice: 749,
-      marketPriceRangeCHF: 'CHF 699 – 799',
-      currencyCode: 'CHF',
-      icon: 'fa-wind',
-      imageUrl: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&auto=format&fit=crop&q=80',
-      specs: {
-        'Suction Power': '240 AW Hyperdymium Motor',
-        'Runtime': 'Up to 60 Minutes (Eco Mode)',
-        'Filtration': 'Whole-machine HEPA Filtration (99.99% to 0.1μm)',
-        'Weight': '3.0 kg'
-      },
-      manual: {
-        summary: 'Wash filter monthly under cold water; empty bin after heavy use.',
-        steps: [
-          { number: 1, title: 'HEPA Filter Wash', detail: 'Rinse pleated filter until water runs clear; dry 24h before refit.', freq: 'Monthly' },
-          { number: 2, title: 'Fluffy Optic Brush Clean', detail: 'Remove roller bar and clear tangled fibers.', freq: 'Bi-Weekly' }
-        ]
-      },
-      parts: [
-        { id: 'ap5', name: 'Washable Post-Motor HEPA Filter', pno: 'DYS-970013-02', cost: 35, wear: 15, interval: '180 Days', category: 'CONSUMABLE' },
-        { id: 'ap6', name: 'Click-in Replacement Battery Pack', pno: 'DYS-969352-02', cost: 120, wear: 5, interval: '730 Days', category: 'REPLACEMENT_PART' }
-      ]
-    },
-    {
-      id: 'asset-delonghi-dedica',
-      appId: 'APPLIANCE_WARRANTY',
-      canonicalProductId: 'canon-delonghi-dedica',
-      brand: 'De\'Longhi',
-      modelName: 'Dedica Deluxe (EC685.M)',
-      fullTitle: 'De\'Longhi Dedica Deluxe Slim Espresso Machine',
+      modelName: 'EQ.900 Plus (TI9553X9RW)',
+      fullTitle: 'Siemens EQ.900 Plus Automatic Espresso System',
       category: 'coffeemachine',
-      serialNumber: 'SN-DLG-551982',
-      roomLocation: 'Kitchen',
-      purchaseDate: '2024-09-01',
+      serialNumber: 'SN-SIE-984210',
+      roomLocation: 'Kitchen Counter',
+      purchaseDate: '2025-01-15',
+      deliveryDate: '2025-01-18',
+      purchaseCountry: 'CH',
+      sellerName: 'MediaMarkt Schweiz AG',
       standardWarrantyMonths: 24,
-      warrantySource: 'De\'Longhi 2-Year European Warranty',
-      warrantyEndDate: '2026-09-01',
-      purchasePrice: 229,
-      marketPriceRangeCHF: 'CHF 199 – 249',
+      manufacturerWarrantyMonths: 24,
+      warrantySource: 'Siemens 24-Month Commercial Warranty',
+      warrantyEndDate: '2027-01-15',
+      purchasePrice: 2299,
+      marketPriceRangeCHF: 'CHF 2,190 – 2,450',
       currencyCode: 'CHF',
       icon: 'fa-mug-hot',
-      imageUrl: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=600&auto=format&fit=crop&q=80',
+      imageUrl: '/products/siemens_eq900.jpg',
       specs: {
-        'Pump Pressure': '15 Bar Thermoblock',
-        'Body Width': '15 cm Ultra-Slim Metal',
-        'Steam Wand': 'Manual Panarello Milk Frother',
-        'Cup Warmer': 'Integrated Top Plate'
+        'Grinder': 'Dual SilentCeram',
+        'Pump Pressure': '19 Bar',
+        'Display': '6.8-inch iSelect TFT',
+        'Connectivity': 'Home Connect WiFi'
       },
       manual: {
-        summary: 'Regular descaling cycle and steam wand purge after milk texturing.',
+        summary: 'Daily milk nozzle rinse, weekly brew group rinse, and descaling as prompted.',
         steps: [
-          { number: 1, title: 'Steam Wand Flush', detail: 'Purge steam for 3 seconds and wipe wand with damp cloth.', freq: 'Daily' },
-          { number: 2, title: 'EcoDecalk Descaling', detail: 'Run descaling program when orange descale light flashes.', freq: 'Every 90 Days' }
+          { number: 1, title: 'Brew Group Rinse', detail: 'Rinse brew group under warm running water.', freq: 'Weekly' }
         ]
       },
       parts: [
-        { id: 'ap7', name: 'EcoDecalk Descaler 500ml', pno: 'DLSC500', cost: 19.50, wear: 70, interval: '90 Days', category: 'CONSUMABLE' },
-        { id: 'ap8', name: 'Portafilter Double Basket 51mm', pno: 'DL-7313285819', cost: 16.00, wear: 20, interval: '365 Days', category: 'REPLACEMENT_PART' }
+        { id: 'ap-eq9-1', name: 'Intenzia Water Filter Cartridge', pno: 'TZ70033', cost: 16.50, wear: 30, interval: '60 Days', category: 'CONSUMABLE' }
+      ]
+    },
+    {
+      id: 'asset-sony-ps5pro',
+      appId: 'APPLIANCE_WARRANTY',
+      canonicalProductId: 'canon-sony-ps5pro',
+      brand: 'Sony',
+      modelName: 'PlayStation 5 Pro',
+      fullTitle: 'Sony PlayStation 5 Pro 2TB Console',
+      category: 'gaming',
+      serialNumber: 'SN-SNY-884029',
+      roomLocation: 'Living Room',
+      purchaseDate: '2024-11-07',
+      deliveryDate: '2024-11-10',
+      purchaseCountry: 'CH',
+      sellerName: 'Digitec Galaxus AG',
+      standardWarrantyMonths: 24,
+      manufacturerWarrantyMonths: 12,
+      warrantySource: 'Sony 1-Year Commercial Warranty / 2-Year Swiss CO',
+      warrantyEndDate: '2026-11-07',
+      purchasePrice: 799,
+      marketPriceRangeCHF: 'CHF 779 – 829',
+      currencyCode: 'CHF',
+      icon: 'fa-gamepad',
+      imageUrl: '/products/ps5_pro.jpg',
+      specs: {
+        'GPU': 'Advanced Ray Tracing 16.7 TFLOPs',
+        'Storage': '2TB Custom Ultra-High Speed NVMe',
+        'Upscaling': 'PlayStation Spectral Super Resolution (PSSR)',
+        'Output': 'Up to 4K 120Hz & 8K Support'
+      },
+      manual: {
+        summary: 'Dust catchers clean every 3 months; keep horizontal clearance for airflow.',
+        steps: [
+          { number: 1, title: 'Dust Port Vacuum', detail: 'Vacuum dust catchers with low-suction handheld nozzle.', freq: 'Every 90 Days' }
+        ]
+      },
+      parts: [
+        { id: 'ap-ps5-1', name: 'DualSense Edge Wireless Controller', pno: 'CFI-ZCP1', cost: 219, wear: 10, interval: '730 Days', category: 'ACCESSORY' }
       ]
     }
   ];
@@ -1302,7 +1669,7 @@ const suiteData = {
         roasterTastingNotes: ['Jasmine', 'Bergamot', 'Candied Peach', 'Meyer Lemon'],
         userNotes: 'Optimal at 1:2.0 ratio with 93.5°C water. Extremely clean cup.',
         userRating: 5,
-        imageUrl: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/coffee_beans.jpg'
       },
       {
         id: 'bean-2',
@@ -1321,7 +1688,7 @@ const suiteData = {
         roasterTastingNotes: ['Caramel', 'Red Apple', 'Milk Chocolate', 'Pecan'],
         userNotes: 'Rich golden crema, great for morning café crème and flat whites.',
         userRating: 4.5,
-        imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/espresso_cup.jpg'
       },
       {
         id: 'bean-3',
@@ -1340,7 +1707,7 @@ const suiteData = {
         roasterTastingNotes: ['Blackcurrant', 'Pink Grapefruit', 'Raw Honey', 'Rhubarb'],
         userNotes: 'Stunning V60 pour-over with bright malic acidity.',
         userRating: 5,
-        imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/pourover.jpg'
       }
     ],
     recipes: [
@@ -1406,7 +1773,7 @@ const suiteData = {
           'Coarser espresso grind (step 4.2).',
           'Extract to 48.0g yield for a smooth long Swiss morning cup.'
         ],
-        imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/espresso_cup.jpg'
       },
       {
         id: 'rec-4',
@@ -1427,7 +1794,7 @@ const suiteData = {
           'Steam whole milk to 60–65°C with silky microfoam.',
           'Pour with steady center flow and integrate for velvety mouthfeel.'
         ],
-        imageUrl: 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/espresso_cup.jpg'
       },
       {
         id: 'rec-5',
@@ -1450,7 +1817,7 @@ const suiteData = {
           '0:45 - 1:30: Pour in slow spiral circles up to 135g.',
           '1:30 - 2:15: Final pour up to 225g; gentle swirl and let draw down completely.'
         ],
-        imageUrl: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/pourover.jpg'
       },
       {
         id: 'rec-6',
@@ -1473,7 +1840,7 @@ const suiteData = {
           'Pour remaining 100g water, attach rinsed cap and filter.',
           'At 1:30, invert onto server and press steadily for 30s.'
         ],
-        imageUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=600&auto=format&fit=crop&q=80'
+        imageUrl: '/products/pourover.jpg'
       },
       {
         id: 'rec-7',
@@ -1779,7 +2146,7 @@ function reloadInitialData() {
     marketPriceRangeCHF: 'CHF 649 – 699',
     currencyCode: 'CHF',
     icon: 'fa-mug-hot',
-    imageUrl: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=600&auto=format&fit=crop&q=80',
+    imageUrl: '/products/sage_barista.jpg',
     waterHardnessDH: 8.5,
     filterLifePercent: 88,
     daysUntilDescale: 62,
@@ -1822,7 +2189,7 @@ function reloadInitialData() {
     marketPriceRangeCHF: 'CHF 7,499 – 7,899',
     currencyCode: 'CHF',
     icon: 'fa-bicycle',
-    imageUrl: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=600&auto=format&fit=crop&q=80',
+    imageUrl: '/products/scott_ebike.jpg',
     specs: {
       'Drive System': 'Bosch Performance Line CX (85 Nm)',
       'Battery Capacity': 'Bosch PowerTube 750 Wh Internal',
@@ -1859,7 +2226,7 @@ function reloadInitialData() {
     marketPriceRangeCHF: 'CHF 1,390 – 1,450',
     currencyCode: 'CHF',
     icon: 'fa-person-skiing',
-    imageUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&auto=format&fit=crop&q=80',
+    imageUrl: '/products/stockli_skis.jpg',
     specs: {
       'Length / Radius': '165 cm (Radius 13.6 m)',
       'Sidecut Profile': '120 - 66 - 102 mm',
@@ -1945,7 +2312,7 @@ function renderApplianceDomain() {
       subEl.textContent = t('empty_appliance_desc');
     } else {
       const activeCount = analyzed.filter(a => a.coverage?.hasActiveProtection).length;
-      subEl.textContent = `${counts.total} ${t('nav_appliances')} · ${activeCount} with active protection`;
+      subEl.textContent = t('active_protection_count', { total: counts.total, active: activeCount });
     }
   }
   
@@ -2053,7 +2420,7 @@ function renderApplianceDomain() {
             </div>
             <div class="asset-meta-row">
               <span>${item.warrantyEndDate ? t('expires_on', { date: formatDate(item.warrantyEndDate) }) : t('add_purchase_date')}</span>
-              <span style="color: var(--text-muted); font-size: 11px;">${item.warrantySource || (item.standardWarrantyMonths ? item.standardWarrantyMonths + ' ' + t('mo_policy') : t('statutory_standard'))}</span>
+              <span style="color: var(--text-muted); font-size: 11px;">${formatLocalizedWarrantySource(item.warrantySource, getLanguage()) || (item.standardWarrantyMonths ? item.standardWarrantyMonths + ' ' + t('mo_policy') : t('statutory_standard'))}</span>
             </div>
           </div>
         </div>
@@ -2173,7 +2540,7 @@ function renderCoffeeDomain() {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 8px;">
               <div>
                 <span style="font-size: 10px; color: var(--text-muted); font-weight: 700; display: block;">${t('coffee_aroma_strength')}</span>
-                <strong style="font-size: 13px; color: var(--accent-primary);">${t('coffee_strength_level', { level: currentStrength })} · ${activeBean.coffeeName}</strong>
+                <strong style="font-size: 13px; color: var(--accent-primary);">${t('coffee_strength_level', { n: currentStrength, level: currentStrength })} · ${activeBean.coffeeName}</strong>
               </div>
               <div style="display: flex; gap: 4px;">
                 ${[1,2,3,4,5].map(s => `
@@ -2241,7 +2608,7 @@ function renderCoffeeDomain() {
     activeBeanContainer.innerHTML = `
       <div class="section-header" style="margin-bottom: 8px;">
         <h2>${t('coffee_active_bean_title')}</h2>
-        <button class="btn-text-link" onclick="openBeanLibraryModal()">${t('coffee_bean_cellar_link')} (${beans.length}) →</button>
+        <button class="btn-text-link" onclick="openBeanLibraryModal()">${t('coffee_bean_cellar_link', { count: beans.length })}</button>
       </div>
 
       <div class="coffee-care-card">
@@ -2689,9 +3056,70 @@ async function callGeminiCached(prompt) {
 // Live Tavily Web Intelligence Integration (key loaded from gitignored gemini-key.local.js)
 const TAVILY_API_KEY = window.TAVILY_API_KEY_LOCAL || '';
 
+async function searchLiveProductImage(queryText) {
+  const cleanInput = sanitizeProductSearchQueryAndTitle(queryText);
+  if (!cleanInput) return null;
+
+  // 1. Tavily Shopping / Product Image Search
+  if (TAVILY_API_KEY) {
+    try {
+      const endpoints = ['/api/tavily/search', 'https://api.tavily.com/search'];
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              api_key: TAVILY_API_KEY,
+              query: `${cleanInput} official product image`,
+              max_results: 5,
+              include_images: true
+            })
+          });
+          if (res.ok) {
+            const d = await res.json();
+            const imgs = (d.images || []).map(i => (typeof i === 'string' ? i : i?.url)).filter(Boolean);
+            const ranked = rankAndFilterProductImages(cleanInput, imgs);
+            if (ranked.length > 0) return ranked[0];
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  // 2. DuckDuckGo Shopping & Product Image Index
+  try {
+    const endpoints = ['/api/ddg/?q=', 'https://duckduckgo.com/?q='];
+    for (const ep of endpoints) {
+      try {
+        const tokenRes = await fetch(ep + encodeURIComponent(cleanInput + ' official product'));
+        if (tokenRes.ok) {
+          const html = await tokenRes.text();
+          const vqdMatch = html.match(/vqd=([0-9-]+)/) || html.match(/vqd="([^"]+)"/);
+          if (vqdMatch && vqdMatch[1]) {
+            const vqd = vqdMatch[1];
+            const imgEp = ep.startsWith('/api') ? '/api/ddg/i.js' : 'https://duckduckgo.com/i.js';
+            const imgRes = await fetch(`${imgEp}?l=us-en&o=json&q=${encodeURIComponent(cleanInput + ' product')}&vqd=${vqd}&f=,,,`);
+            if (imgRes.ok) {
+              const imgData = await imgRes.json();
+              if (imgData && imgData.results && imgData.results.length > 0) {
+                const candidates = imgData.results.map(r => r.image).filter(Boolean);
+                const ranked = rankAndFilterProductImages(cleanInput, candidates);
+                if (ranked.length > 0) return ranked[0];
+              }
+            }
+          }
+        }
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  return null;
+}
+
 async function fetchProductViaTavily(queryText, barcode = null) {
   const cleanInput = sanitizeProductSearchQueryAndTitle(queryText || barcode);
-  const searchQuery = `${cleanInput} official product image specifications white background -manual -pdf -manualslib -bedienungsanleitung -instructions`;
+  const searchQuery = `${cleanInput} official product image specifications white background -pdf`;
   
   // Try proxy endpoint first (avoids browser CORS/adblocker), then direct
   const endpoints = ['/api/tavily/search', 'https://api.tavily.com/search'];
@@ -2801,14 +3229,24 @@ function detectProductCategory(rawQuery, textSnippet = '') {
     };
   }
 
-  if (/\b(v11|v12|v15|gen5|q8|q7|s8|s7|x10|x40|l10)\b/i.test(q)) {
-    const isRobot = /\b(q8|q7|s8|s7|x10|x40|l10|roborock|roomba|dreame|ecovacs|deebot)\b/i.test(q);
+  // Dedicated Vacuum Cleaners (Dyson Cordless & PreciSense LiDAR Robots)
+  if (/\b(dyson|cordless\s*vacuum|stick\s*vacuum|süpürge|supurge|staubsauger|aspirateur)\b/i.test(combined) && /\b(v11|v12|v15|gen5|omni-glide|outsize|micro)\b/i.test(combined)) {
     return {
       category: 'vacuum_cleaner',
-      subCategory: isRobot ? 'Robot Vacuum & Mop Cleaner' : 'Cordless Vacuum Cleaner',
-      icon: isRobot ? 'fa-robot' : 'fa-wind',
-      defaultPrice: isRobot ? 'CHF 499 – 799' : 'CHF 599 – 799',
-      fallbackImg: isRobot ? 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&auto=format&fit=crop&q=80'
+      subCategory: 'Cordless Vacuum Cleaner',
+      icon: 'fa-wind',
+      defaultPrice: 'CHF 599 – 799',
+      fallbackImg: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&auto=format&fit=crop&q=80'
+    };
+  }
+
+  if (/\b(roborock|roomba|dreame|ecovacs|deebot|robot\s*vacuum|robot\s*süpürge|saugroboter)\b/i.test(combined) && /\b(q8|q7|s8|s7|x10|x40|l10|q\s*revo|s8\s*maxv|combo)\b/i.test(combined)) {
+    return {
+      category: 'vacuum_cleaner',
+      subCategory: 'Robot Vacuum & Mop Cleaner',
+      icon: 'fa-robot',
+      defaultPrice: 'CHF 499 – 799',
+      fallbackImg: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&auto=format&fit=crop&q=80'
     };
   }
 
@@ -2944,6 +3382,75 @@ function detectProductCategory(rawQuery, textSnippet = '') {
       defaultPrice: 'CHF 1,190 – 1,450',
       fallbackImg: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&auto=format&fit=crop&q=80',
       keywords: ['ski', 'skis', 'snowboard', 'kayak', 'laser', 'stoeckli', 'stockli', 'atomic redster', 'head supershape', 'salomon s/race', 'volkl deacon']
+    },
+    {
+      category: 'laptop_computer',
+      subCategory: 'High-Performance Gaming & Pro Laptop',
+      icon: 'fa-laptop',
+      defaultPrice: 'CHF 1,199 – 1,899',
+      fallbackImg: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600&auto=format&fit=crop&q=80',
+      keywords: [
+        'monster', 'abra', 'tulpar', 'semruk', 'huma', 'laptop', 'notebook', 'macbook', 'macbook pro', 'macbook air',
+        'asus rog', 'rog strix', 'tuf gaming', 'lenovo legion', 'thinkpad', 'ideapad', 'yoga', 'zenbook',
+        'alienware', 'dell xps', 'hp omen', 'victus', 'pavilion', 'acer predator', 'nitro', 'swift',
+        'msi raider', 'katana', 'stealth', 'gigabyte', 'razer blade', 'surface laptop', 'bilgisayar', 'dizüstü', 'pc'
+      ]
+    },
+    {
+      category: 'smartphone',
+      subCategory: 'Flagship Smartphone',
+      icon: 'fa-mobile-screen-button',
+      defaultPrice: 'CHF 899 – 1,399',
+      fallbackImg: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&auto=format&fit=crop&q=80',
+      keywords: [
+        'iphone', 'galaxy s2', 'galaxy s3', 'galaxy s4', 'galaxy z', 'pixel 7', 'pixel 8', 'pixel 9',
+        'smartphone', 'telefon', 'cep telefonu', 'xiaomi', 'redmi', 'poco', 'oneplus', 'huawei', 'honor',
+        'oppo', 'realme', 'vivo'
+      ]
+    },
+    {
+      category: 'audio_headphones',
+      subCategory: 'Wireless ANC Headphones & Audio',
+      icon: 'fa-headphones',
+      defaultPrice: 'CHF 279 – 399',
+      fallbackImg: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+      keywords: [
+        'wh-1000', 'wf-1000', 'airpod', 'airpods', 'airpods max', 'quietcomfort', 'headphone', 'headphones',
+        'earbuds', 'kulaklık', 'sennheiser', 'beats', 'bose', 'soundbar', 'hoparlör', 'speaker', 'sonos',
+        'jbl charge', 'jbl flip', 'marshall stanmore', 'marshall emberton'
+      ]
+    },
+    {
+      category: 'gaming_console',
+      subCategory: 'Next-Gen Gaming Console',
+      icon: 'fa-gamepad',
+      defaultPrice: 'CHF 499 – 599',
+      fallbackImg: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&auto=format&fit=crop&q=80',
+      keywords: [
+        'playstation', 'ps5', 'ps4', 'xbox', 'series x', 'series s', 'nintendo', 'switch oled',
+        'steam deck', 'rog ally', 'konsol', 'dualsense'
+      ]
+    },
+    {
+      category: 'smartwatch',
+      subCategory: 'Fitness & Smart Watch',
+      icon: 'fa-clock',
+      defaultPrice: 'CHF 349 – 799',
+      fallbackImg: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80',
+      keywords: [
+        'apple watch', 'watch ultra', 'galaxy watch', 'garmin', 'fenix', 'forerunner',
+        'akıllı saat', 'smartwatch', 'fitbit'
+      ]
+    },
+    {
+      category: 'airfryer',
+      subCategory: 'Smart Airfryer & Countertop Appliance',
+      icon: 'fa-blender',
+      defaultPrice: 'CHF 189 – 299',
+      fallbackImg: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=600&auto=format&fit=crop&q=80',
+      keywords: [
+        'airfryer', 'air fryer', 'fritöz', 'ninja foodi', 'hd9650', 'hd9867', 'hd9252', 'hd9270', 'hd9280', 'cosori'
+      ]
     }
   ];
 
@@ -2973,13 +3480,13 @@ function detectProductCategory(rawQuery, textSnippet = '') {
     }
   }
 
-  // Default General Appliance
+  // Default General Appliance / Clean Hardware
   return {
     category: 'appliance',
-    subCategory: 'Home Appliance',
-    icon: 'fa-box',
+    subCategory: 'Certified Hardware',
+    icon: 'fa-microchip',
     defaultPrice: 'CHF 299 – 499',
-    fallbackImg: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600&auto=format&fit=crop&q=80'
+    fallbackImg: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&auto=format&fit=crop&q=80'
   };
 }
 
@@ -2990,12 +3497,12 @@ function rankAndFilterProductImages(rawQuery, allImages) {
     const l = url.toLowerCase();
     let score = 0;
     
-    // Hard negative filters (SVGs, logos, badges, rating stars, payment/shipping icons, avatars, manuals, diagrams, PDFs)
+    // Hard negative filters (SVGs, logos, badges, rating stars, payment/shipping icons, avatars, diagrams, PDFs)
     if (l.endsWith('.svg') || l.includes('logo') || l.includes('trustpilot') || l.includes('badge') ||
         l.includes('avatar') || l.includes('icon') || l.includes('shipping') || l.includes('payment') ||
         l.includes('comment') || l.includes('star') || l.includes('80x80') || l.includes('50x50') ||
         l.includes('32x32') || l.includes('flag') || l.includes('banner') || l.includes('sprite') ||
-        l.includes('leaflet') || l.includes('manual') || l.includes('diagram') || l.includes('pdf')) {
+        l.includes('leaflet') || l.includes('diagram') || l.includes('.pdf') || l.includes('schematic')) {
       return { url, score: -100 };
     }
     
@@ -3005,30 +3512,38 @@ function rankAndFilterProductImages(rawQuery, allImages) {
       score += 200;
     }
     
-    // 2. Official Manufacturer Media CDNs (Roborock, Samsung, Philips, DeLonghi, Miele, Dyson, etc.)
-    if (l.includes('roborock.com') || l.includes('images.samsung.com') || l.includes('samsung.com/is/image') || 
+    // 2. Official Manufacturer Media CDNs (Monster, Apple, Sony, Philips, Samsung, Roborock, DeLonghi, etc.)
+    if (l.includes('monsternotebook') || l.includes('mncdn.com') || l.includes('apple.com') || l.includes('cdsassets.apple.com') ||
+        l.includes('sony.com') || l.includes('sony.net') || l.includes('philips.com') || l.includes('philipsconsumer') ||
+        l.includes('roborock.com') || l.includes('images.samsung.com') || l.includes('samsung.com/is/image') || 
         l.includes('dam.delonghi.com') || l.includes('delonghi.com') || l.includes('bsh-group.com') || 
-        l.includes('philips.com') || l.includes('miele.') || l.includes('dyson.com') || 
+        l.includes('bosch-home.com') || l.includes('miele.') || l.includes('dyson.com') || 
         l.includes('stoeckli.ch') || l.includes('scott-sports.com') || l.includes('jura.com') || 
         l.includes('sageappliances.com') || l.includes('vzug.com') || l.includes('irobot.com') ||
-        l.includes('dreame-technology.com') || l.includes('ecovacs.com') || l.includes('notebookcheck.net')) {
+        l.includes('dreame-technology.com') || l.includes('ecovacs.com') || l.includes('playstation.com')) {
       score += 180;
-      if (l.includes('png') || l.includes('624_468') || l.includes('720_576') || l.includes('1000x1000') || l.includes('1200x') || l.includes('1500_')) score += 20;
+      if (l.includes('png') || l.includes('product') || l.includes('1000x1000') || l.includes('1200x') || l.includes('1500_')) score += 20;
     }
     
     // Model token relevance match
     const cleanTokens = rawQuery.toLowerCase().split(/[\s\-_/]+/).filter(t => t.length > 2);
     if (cleanTokens.some(t => l.includes(t))) {
-      score += 40;
+      score += 50;
     }
     
-    // 3. High-resolution retail / e-commerce product photos
-    if (l.includes('media-amazon.com/images/i/') || l.includes('tradeinn.com') ||
-        l.includes('seattlecoffeegear.com') || l.includes('cdn.shopify.com') ||
+    // 3. High-resolution retail / e-commerce / Shopping product photos
+    if (l.includes('media-amazon.com/images/i/') || l.includes('akakce.com') || l.includes('cimri.io') || l.includes('cimri.com') ||
+        l.includes('bbystatic.com') || l.includes('bhphotovideo.com') || l.includes('microless.com') ||
+        l.includes('tradeinn.com') || l.includes('seattlecoffeegear.com') || l.includes('cdn.shopify.com') ||
         l.includes('galaxus.ch') || l.includes('digitec.ch') || l.includes('otto.de') ||
-        l.includes('mediamarkt') || l.includes('coolblue') || l.includes('hepsiburada.net') || l.includes('a101.com')) {
-      score += 60;
-      if (l.includes('sl1500') || l.includes('1000_ql80') || l.includes('800x800')) score += 15;
+        l.includes('mediamarkt') || l.includes('coolblue') || l.includes('hepsiburada.net') || l.includes('trendyol.com')) {
+      score += 100;
+      if (l.includes('sl1500') || l.includes('1000_ql80') || l.includes('800x800') || l.includes('1200x1200')) score += 20;
+    }
+    
+    // Favor actual product shot filenames
+    if (l.includes('product') || l.includes('hero') || l.includes('front') || l.includes('laptop')) {
+      score += 30;
     }
     
     return { url, score };
@@ -3090,8 +3605,30 @@ function cleanAndSynthesizeDescription(rawSnippet, brand, modelName, category, s
   const cleanCat = (category || 'Home Appliance').replace(/_/g, ' ');
   const targetLang = typeof getLanguage === 'function' ? getLanguage() : 'en';
 
+  const catLower = (category || '').toLowerCase();
   if (targetLang === 'tr') {
-    return `${cleanSubject}, sessiz çalışma, yüksek enerji verimliliği ve uzun ömürlü kullanım için tasarlanmış yüksek performanslı bir ${cleanCat} modelidir.`;
+    if (catLower.includes('laptop') || catLower.includes('computer') || catLower.includes('dizüstü') || catLower.includes('bilgisayar')) {
+      return `${cleanSubject}, güçlü işlemci ve grafik mimarisi, yüksek tazeleme hızlı ekranı ve optimize edilmiş soğutma sistemiyle donatılmış yüksek performanslı bir oyuncu dizüstü bilgisayarıdır.`;
+    }
+    if (catLower.includes('smartphone') || catLower.includes('phone') || catLower.includes('telefon')) {
+      return `${cleanSubject}, gelişmiş kamera sensörleri, akıcı ekran teknolojisi ve tüm gün dayanan pil ömrü sunan yeni nesil bir amiral gemisi akıllı telefondur.`;
+    }
+    if (catLower.includes('audio') || catLower.includes('headphone') || catLower.includes('kulaklık')) {
+      return `${cleanSubject}, endüstri lideri aktif gürültü engelleme (ANC), yüksek çözünürlüklü ses kodekleri ve uzun pil ömrü sağlayan birinci sınıf bir kablosuz kulaklıktır.`;
+    }
+    if (catLower.includes('console') || catLower.includes('playstation') || catLower.includes('xbox') || catLower.includes('konsol')) {
+      return `${cleanSubject}, ultra hızlı NVMe SSD depolama, 4K 120Hz akıcı grafik desteği ve yenilikçi kontrolcü deneyimi sunan yeni nesil bir oyun konsoludur.`;
+    }
+    if (catLower.includes('airfryer') || catLower.includes('fritöz')) {
+      return `${cleanSubject}, az yağlı sağlıklı pişirme teknolojisi, geniş haznesi ve hızlı sıcak hava sirkülasyonu sağlayan akıllı sıcak hava fritözüdür (Airfryer).`;
+    }
+    if (catLower.includes('television') || catLower.includes('tv')) {
+      return `${cleanSubject}, kristal netliğinde 4K görüntüleme, zengin HDR kontrast ve akıllı televizyon işletim sistemi sunan yeni nesil bir televizyondur.`;
+    }
+    if (catLower.includes('vacuum') || catLower.includes('süpürge')) {
+      return `${cleanSubject}, güçlü motor emiş performansı, gelişmiş filtrasyon teknolojisi ve ergonomik tasarımıyla etkili derinlemesine temizlik sunan bir süpürgedir.`;
+    }
+    return `${cleanSubject}, sessiz çalışma, yüksek enerji verimliliği ve uzun ömürlü kullanım için tasarlanmış birinci sınıf bir ${cleanCat} modelidir.`;
   }
   if (targetLang === 'de') {
     return `${cleanSubject} ist ein leistungsstarkes ${cleanCat}-Gerät, entwickelt für leisen Betrieb, maximale Energieeffizienz und Schweizer Langlebigkeit.`;
@@ -3268,6 +3805,62 @@ function getCategoryMaintenanceProtocol(category, brand, modelName) {
         { number: 1, title: 'OLED / QLED Pixel Refresh Cycle', detail: 'Allow automated panel compensation cycle to complete in standby without disconnecting power.', freq: 'Automatic / Monthly' },
         { number: 2, title: 'Chassis Air Intake Vent Vacuuming', detail: 'Gently vacuum rear heat exhaust vents with brush attachment to prevent thermal throttling.', freq: 'Quarterly' },
         { number: 3, title: 'Anti-Reflective Panel Microfiber Clean', detail: 'Wipe display with dry optical-grade microfiber cloth; avoid alcohol or ammonia sprays.', freq: 'Bi-Weekly' }
+      ]
+    };
+  }
+
+  if (cat.includes('laptop') || cat.includes('computer') || mLower.includes('monster') || mLower.includes('macbook')) {
+    return {
+      summary: `Thermal optimization, battery health management, and cooling vent maintenance protocol for ${brand} ${modelName}.`,
+      steps: [
+        { number: 1, title: 'Cooling Fin & Intake Vent De-Dusting', detail: 'Use compressed air canister in short bursts across bottom and side exhaust vents to clear dust buildup and prevent thermal throttling.', freq: 'Monthly' },
+        { number: 2, title: 'Battery Calibration & Health Optimization', detail: 'Cycle battery charge between 20% and 80%, check battery health in BIOS / Control Center to maximize lifespan.', freq: 'Bi-Monthly' },
+        { number: 3, title: 'Display Screen & Keyboard Sanitization', detail: 'Wipe anti-glare screen with dry microfiber cloth; clean mechanical/chiclet keyboard with isopropyl alcohol wipe.', freq: 'Bi-Weekly' },
+        { number: 4, title: 'Firmware, BIOS & GPU Driver Updates', detail: 'Verify latest OEM BIOS updates and install Game Ready / Studio GPU drivers for maximum stability.', freq: 'Monthly' }
+      ]
+    };
+  }
+
+  if (cat.includes('audio') || cat.includes('headphone')) {
+    return {
+      summary: `Acoustic driver preservation, ear cushion hygiene, and firmware optimization protocol for ${brand} ${modelName}.`,
+      steps: [
+        { number: 1, title: 'Ear Cushion & Headband Sanitization', detail: 'Wipe synthetic leather cushions with slightly damp microfiber cloth; air dry completely.', freq: 'Weekly' },
+        { number: 2, title: 'Acoustic Mesh & ANC Microphone Port Cleaning', detail: 'Gently brush dust and lint from exterior ANC microphone grilles using soft-bristled brush.', freq: 'Monthly' },
+        { number: 3, title: 'Battery Charging & Firmware Sync', detail: 'Charge via certified 5V USB-PD supply and check OEM companion app for ANC tuning updates.', freq: 'Monthly' }
+      ]
+    };
+  }
+
+  if (cat.includes('smartphone') || cat.includes('phone')) {
+    return {
+      summary: `OLED display care, USB-C port maintenance, and battery health protocol for ${brand} ${modelName}.`,
+      steps: [
+        { number: 1, title: 'Charging Port & Speaker Grille Cleaning', detail: 'Carefully clear pocket lint from USB-C/Lightning socket using anti-static precision pick.', freq: 'Monthly' },
+        { number: 2, title: 'Battery Health & Optimized Charging Cycle', detail: 'Enable 80% charge limit or optimized battery charging in settings to prevent lithium degradation.', freq: 'Permanent' },
+        { number: 3, title: 'Oleophobic Coating Preservation & Backup', detail: 'Clean front and back ceramic/glass panels with optical microfiber; verify iCloud/Google cloud backup.', freq: 'Weekly' }
+      ]
+    };
+  }
+
+  if (cat.includes('console') || mLower.includes('playstation') || mLower.includes('xbox')) {
+    return {
+      summary: `High-airflow cooling intake cleaning and storage optimization protocol for ${brand} ${modelName}.`,
+      steps: [
+        { number: 1, title: 'Cooling Duct Dust Catchers Vacuuming', detail: 'Remove faceplates and vacuum accumulated dust from dedicated dust catcher holes to maintain silent operation.', freq: 'Every 60 Days' },
+        { number: 2, title: 'DualSense / Controller Stick Drift Prevention', detail: 'Clear stick perimeter with compressed air and calibrate deadzones in system settings.', freq: 'Monthly' },
+        { number: 3, title: 'System Software & Cache Rebuild', detail: 'Install latest system software and rebuild database in Safe Mode for optimal SSD performance.', freq: 'Quarterly' }
+      ]
+    };
+  }
+
+  if (cat.includes('airfryer') || mLower.includes('airfryer')) {
+    return {
+      summary: `Non-stick basket preservation and heating coil degreasing protocol for ${brand} ${modelName}.`,
+      steps: [
+        { number: 1, title: 'Non-Stick Crisper Pan Soak & Wash', detail: 'Soak basket in warm water with mild dish soap; avoid abrasive scouring pads to preserve Teflon coating.', freq: 'After Each Use' },
+        { number: 2, title: 'Upper Heating Coil & Fan Degreasing', detail: 'Turn unit upside down once cooled, wipe heating element with soft damp sponge to prevent smoke.', freq: 'Monthly' },
+        { number: 3, title: 'Air Outlet Vent Inspection', detail: 'Ensure rear air exhaust vents have 10cm clearance from walls and are free from grease buildup.', freq: 'Quarterly' }
       ]
     };
   }
@@ -3588,6 +4181,37 @@ function parseTavilyProductData(rawQuery, tavilyData) {
     specs['Runtime'] = 'Up to 60 Minutes (Eco Mode)';
     specs['Filtration'] = 'Whole-machine HEPA Filtration (99.99% to 0.1μm)';
     specs['Weight'] = '3.0 kg';
+  } else if (catInfo.category === 'laptop_computer') {
+    specs['Processor'] = 'Intel Core i7-13700H / AMD Ryzen 7 (14 Cores, up to 5.0 GHz)';
+    specs['Graphics (GPU)'] = 'NVIDIA GeForce RTX 4050 / RTX 4060 6GB GDDR6';
+    specs['Display'] = '15.6" Full HD (1920x1080) 144Hz IPS Anti-Glare 100% sRGB';
+    specs['Memory (RAM)'] = '16 GB DDR5 4800MHz';
+    specs['Storage'] = '512 GB PCIe 4.0 NVMe M.2 SSD';
+    specs['Cooling'] = 'DuoFan Twin Copper Heatpipe Active Cooling';
+    specs['Connectivity'] = 'Wi-Fi 6 (802.11ax), Bluetooth 5.2, HDMI 2.1, USB-C';
+  } else if (catInfo.category === 'smartphone') {
+    specs['Display'] = '6.1" – 6.7" Super Retina XDR / AMOLED 120Hz ProMotion';
+    specs['Processor'] = 'Flagship Octa-Core AI Neural Engine Processor';
+    specs['Camera System'] = 'Triple 48MP Pro System with 5x Telephoto & 4K ProRes';
+    specs['Battery & Charging'] = 'All-day Battery Life, Fast Wireless MagSafe / Qi2';
+    specs['Build Material'] = 'Aerospace-Grade Titanium / Ceramic Shield Front';
+  } else if (catInfo.category === 'audio_headphones') {
+    specs['Driver Unit'] = '30mm / 40mm Precision Carbon Fiber Dome Driver';
+    specs['Active Noise Cancelling'] = 'Industry-leading Multi-Microphone Adaptive ANC';
+    specs['Battery Life'] = 'Up to 30 Hours (ANC On), Quick Charge 3 hrs in 3 min';
+    specs['Audio Codecs'] = 'LDAC, AAC, SBC, High-Resolution Wireless Audio';
+    specs['Microphones'] = '4 Beamforming Mics with AI Wind Noise Reduction';
+  } else if (catInfo.category === 'gaming_console') {
+    specs['Processor / GPU'] = 'Custom AMD Zen 2 (8 Cores) + RDNA 2 GPU (10.3 TFLOPS)';
+    specs['Storage'] = '1 TB Ultra-High Speed Custom NVMe SSD';
+    specs['Video Output'] = 'Supports 4K 120Hz TVs, 8K TVs, VRR (HDMI 2.1)';
+    specs['Audio'] = 'Tempest 3D AudioTech';
+    specs['Controller'] = 'Haptic Feedback & Adaptive Triggers Wireless Controller';
+  } else if (catInfo.category === 'airfryer') {
+    specs['Capacity'] = '7.2 L / 1.4 kg XXL Family Basket';
+    specs['Technology'] = 'Rapid CombiAir & Fat Removal Technology';
+    specs['Power Consumption'] = '2225 W High Efficiency Heating Element';
+    specs['Programs'] = 'Smart Chef Pre-sets (Fry, Bake, Grill, Roast, Reheat)';
   } else {
     specs['Manufacturer'] = brand;
     specs['Model'] = cleanInput;
@@ -3718,6 +4342,37 @@ function buildResilientHardwareProfile(rawQuery, barcode = null) {
     specs['Suction Power'] = '240 AW Hyperdymium Motor';
     specs['Runtime'] = 'Up to 60 Minutes (Eco Mode)';
     specs['Filtration'] = 'Whole-machine HEPA Filtration (99.99% to 0.1μm)';
+  } else if (catInfo.category === 'laptop_computer') {
+    specs['Processor'] = 'Intel Core i7-13700H / AMD Ryzen 7 (14 Cores, up to 5.0 GHz)';
+    specs['Graphics (GPU)'] = 'NVIDIA GeForce RTX 4050 / RTX 4060 6GB GDDR6';
+    specs['Display'] = '15.6" Full HD (1920x1080) 144Hz IPS Anti-Glare 100% sRGB';
+    specs['Memory (RAM)'] = '16 GB DDR5 4800MHz';
+    specs['Storage'] = '512 GB PCIe 4.0 NVMe M.2 SSD';
+    specs['Cooling'] = 'DuoFan Twin Copper Heatpipe Active Cooling';
+    specs['Connectivity'] = 'Wi-Fi 6 (802.11ax), Bluetooth 5.2, HDMI 2.1, USB-C';
+  } else if (catInfo.category === 'smartphone') {
+    specs['Display'] = '6.1" – 6.7" Super Retina XDR / AMOLED 120Hz ProMotion';
+    specs['Processor'] = 'Flagship Octa-Core AI Neural Engine Processor';
+    specs['Camera System'] = 'Triple 48MP Pro System with 5x Telephoto & 4K ProRes';
+    specs['Battery & Charging'] = 'All-day Battery Life, Fast Wireless MagSafe / Qi2';
+    specs['Build Material'] = 'Aerospace-Grade Titanium / Ceramic Shield Front';
+  } else if (catInfo.category === 'audio_headphones') {
+    specs['Driver Unit'] = '30mm / 40mm Precision Carbon Fiber Dome Driver';
+    specs['Active Noise Cancelling'] = 'Industry-leading Multi-Microphone Adaptive ANC';
+    specs['Battery Life'] = 'Up to 30 Hours (ANC On), Quick Charge 3 hrs in 3 min';
+    specs['Audio Codecs'] = 'LDAC, AAC, SBC, High-Resolution Wireless Audio';
+    specs['Microphones'] = '4 Beamforming Mics with AI Wind Noise Reduction';
+  } else if (catInfo.category === 'gaming_console') {
+    specs['Processor / GPU'] = 'Custom AMD Zen 2 (8 Cores) + RDNA 2 GPU (10.3 TFLOPS)';
+    specs['Storage'] = '1 TB Ultra-High Speed Custom NVMe SSD';
+    specs['Video Output'] = 'Supports 4K 120Hz TVs, 8K TVs, VRR (HDMI 2.1)';
+    specs['Audio'] = 'Tempest 3D AudioTech';
+    specs['Controller'] = 'Haptic Feedback & Adaptive Triggers Wireless Controller';
+  } else if (catInfo.category === 'airfryer') {
+    specs['Capacity'] = '7.2 L / 1.4 kg XXL Family Basket';
+    specs['Technology'] = 'Rapid CombiAir & Fat Removal Technology';
+    specs['Power Consumption'] = '2225 W High Efficiency Heating Element';
+    specs['Programs'] = 'Smart Chef Pre-sets (Fry, Bake, Grill, Roast, Reheat)';
   } else {
     specs['Manufacturer'] = brand;
     specs['Model'] = cleanInput;
@@ -3920,8 +4575,28 @@ async function identifyProduct(queryText, barcode = null) {
   showSearchLoading(norm.cleanQuery);
 
   const cleanLower = norm.cleanQuery.toLowerCase();
-  
-  // 1. Check Verified Canonical Knowledge Base
+  const isDirectBarcode = /^\d{8,14}$/.test(norm.cleanQuery.trim());
+  const effectiveBarcode = barcode || (isDirectBarcode ? norm.cleanQuery.trim() : null);
+
+  // 1. Direct Barcode Lookups (EAN-13 / UPC-A) - Prioritize exact hardware barcode matches
+  if (effectiveBarcode) {
+    for (const canonical of Object.values(CANONICAL_KNOWLEDGE_BASE)) {
+      if (canonical.ean === effectiveBarcode) {
+        hideSearchLoading();
+        const validation = validateCategoryForCurrentApp(canonical.category, currentDomain);
+        if (!validation.valid) {
+          showToast(validation.reason);
+          return;
+        }
+
+        currentCandidateMatch = canonical;
+        showConfirmModal(canonical);
+        return;
+      }
+    }
+  }
+
+  // 2. Check Verified Canonical Knowledge Base by Name/Model
   for (const [key, canonical] of Object.entries(CANONICAL_KNOWLEDGE_BASE)) {
     if (cleanLower.includes(key) || key.includes(cleanLower)) {
       hideSearchLoading();
@@ -3937,24 +4612,6 @@ async function identifyProduct(queryText, barcode = null) {
     }
   }
 
-  // 2. Barcode Lookups (EAN-13 / UPC-A)
-  if (barcode) {
-    for (const canonical of Object.values(CANONICAL_KNOWLEDGE_BASE)) {
-      if (canonical.ean === barcode) {
-        hideSearchLoading();
-        const validation = validateCategoryForCurrentApp(canonical.category, currentDomain);
-        if (!validation.valid) {
-          showToast(validation.reason);
-          return;
-        }
-
-        currentCandidateMatch = canonical;
-        showConfirmModal(canonical);
-        return;
-      }
-    }
-  }
-
   // 3. Live Tavily Web Search & Sourced Extraction
   try {
     const candidate = await fetchProductViaTavily(norm.cleanQuery, barcode);
@@ -3965,6 +4622,12 @@ async function identifyProduct(queryText, barcode = null) {
     if (!validation.valid) {
       showToast(validation.reason);
       return;
+    }
+
+    // Ensure best live product image
+    if (!candidate.imageUrl || candidate.imageUrl.includes('unsplash.com/photo-1550009158') || candidate.imageUrl.includes('unsplash.com/photo-1556911220') || candidate.imageUrl.includes('unsplash.com/photo-1618221195')) {
+      const liveImg = await searchLiveProductImage(candidate.canonicalName || norm.cleanQuery);
+      if (liveImg) candidate.imageUrl = liveImg;
     }
 
     // Cache candidate locally
@@ -3979,10 +4642,10 @@ Identify exact physical product for query: "${norm.cleanQuery}".
 Active Application: "${currentDomain}" (appliance, coffee, ebike, skigear).
 Return strict JSON:
 {
-  "brand": "string (e.g. Samsung, Miele, DeLonghi, Bosch, Scott, Salomon)",
+  "brand": "string (e.g. Samsung, Miele, DeLonghi, Bosch, Scott, Salomon, Monster, Sony, Apple)",
   "canonicalName": "string (full commercial title)",
   "modelNumber": "string",
-  "category": "television"|"refrigerator"|"dishwasher"|"washingmachine"|"coffee_machine"|"ebike"|"skigear",
+  "category": "television"|"refrigerator"|"dishwasher"|"washingmachine"|"coffee_machine"|"ebike"|"skigear"|"laptop_computer"|"electronics",
   "subCategory": "string",
   "estimatedPrice": "string (e.g. CHF 1,299)",
   "warrantyMonths": 24,
@@ -3993,19 +4656,23 @@ Return strict JSON:
       const aiProduct = await callGeminiCached(prompt);
       hideSearchLoading();
       if (aiProduct && aiProduct.canonicalName) {
+        const catInfo = detectProductCategory(aiProduct.canonicalName, aiProduct.category || '');
+        const liveImg = await searchLiveProductImage(aiProduct.canonicalName || norm.cleanQuery);
         const candidate = {
           brand: aiProduct.brand || 'Hardware',
           canonicalName: aiProduct.canonicalName,
           modelNumber: aiProduct.modelNumber || norm.cleanQuery,
-          category: aiProduct.category || (currentDomain === 'coffee' ? 'coffee_machine' : currentDomain === 'ebike' ? 'ebike' : currentDomain === 'skigear' ? 'skigear' : 'appliance'),
-          subCategory: aiProduct.subCategory || 'Certified Hardware',
-          estimatedPrice: aiProduct.estimatedPrice || 'CHF 1,199',
+          category: catInfo.category || (currentDomain === 'coffee' ? 'coffee_machine' : currentDomain === 'ebike' ? 'ebike' : currentDomain === 'skigear' ? 'skigear' : 'appliance'),
+          subCategory: aiProduct.subCategory || catInfo.subCategory || 'Certified Hardware',
+          estimatedPrice: aiProduct.estimatedPrice || catInfo.defaultPrice || 'CHF 1,199',
           warrantyMonths: aiProduct.warrantyMonths || 24,
           summaryDescription: aiProduct.summaryDescription || 'Verified hardware profile extracted via Gemini Neural AI.',
           technicalSpecs: aiProduct.technicalSpecs || {},
           careInstructions: aiProduct.careInstructions || ['Follow OEM maintenance protocol'],
-          imageUrl: '',
-          icon: currentDomain === 'coffee' ? 'fa-mug-hot' : currentDomain === 'ebike' ? 'fa-bicycle' : currentDomain === 'skigear' ? 'fa-person-skiing' : 'fa-shield-halved'
+          imageUrl: liveImg || catInfo.fallbackImg,
+          icon: catInfo.icon || (currentDomain === 'coffee' ? 'fa-mug-hot' : currentDomain === 'ebike' ? 'fa-bicycle' : currentDomain === 'skigear' ? 'fa-person-skiing' : 'fa-microchip'),
+          manual: getCategoryMaintenanceProtocol(catInfo.category, aiProduct.brand, aiProduct.canonicalName),
+          parts: getCategoryPartsAndWear(catInfo.category, aiProduct.brand, aiProduct.canonicalName)
         };
         CANONICAL_KNOWLEDGE_BASE[cleanLower] = candidate;
         currentCandidateMatch = candidate;
@@ -4019,6 +4686,8 @@ Return strict JSON:
     hideSearchLoading();
     const fallbackProfile = buildResilientHardwareProfile(norm.cleanQuery, barcode);
     if (fallbackProfile) {
+      const liveImg = await searchLiveProductImage(fallbackProfile.canonicalName || norm.cleanQuery);
+      if (liveImg) fallbackProfile.imageUrl = liveImg;
       currentCandidateMatch = fallbackProfile;
       showConfirmModal(fallbackProfile);
     } else {
@@ -4048,7 +4717,10 @@ function showConfirmModal(c) {
 
   const warEl = document.getElementById('confirmWarranty');
   const detectedMonths = c.manufacturerWarrantyMonths || c.standardWarrantyMonths || 24;
-  if (warEl) warEl.textContent = `${detectedMonths} Months (${c.warrantySource || 'Manufacturer Commercial Policy'})`;
+  if (warEl) {
+    const localizedSource = formatLocalizedWarrantySource(c.warrantySource || t('confirm_standard_policy'), getLanguage());
+    warEl.textContent = `${t('confirm_warranty_months', { val: detectedMonths })} (${localizedSource})`;
+  }
   
   const priceEl = document.getElementById('confirmPrice');
   if (priceEl) priceEl.textContent = formatPriceRange(c.marketPriceRangeCHF) || t('confirm_market_unavailable');
@@ -4280,8 +4952,10 @@ function openDetailDrawer(id, domain) {
 
   const descEl = document.getElementById('detailWarrantyDesc');
   if (descEl) {
-    const statName = coverage.statutoryProtection?.titleLocalizedFallback || 'Statutory Defect Rights';
-    const mfrName = coverage.manufacturerWarranty ? `${coverage.manufacturerWarranty.durationMonths} Mo Commercial Warranty` : 'No Commercial Warranty';
+    const statName = coverage.statutoryProtection?.titleLocalizedFallback || t('statutory_defect_rights_default');
+    const mfrName = coverage.manufacturerWarranty 
+      ? t('mfr_warranty_summary_mo', { months: coverage.manufacturerWarranty.durationMonths }) 
+      : t('no_commercial_warranty');
     descEl.textContent = `${statName} · ${mfrName}`;
   }
 
@@ -4298,11 +4972,11 @@ function openDetailDrawer(id, domain) {
     if (sp) {
       if (titleEl) titleEl.textContent = sp.titleLocalizedFallback;
       if (deadlineEl) {
-        const daysText = sp.daysRemaining >= 0 ? `${sp.daysRemaining}d remaining` : 'Expired';
+        const daysText = sp.daysRemaining >= 0 ? t('warranty_days_remaining', { days: sp.daysRemaining }) : t('status_expired');
         deadlineEl.textContent = `${formatDate(sp.endDate)} (${daysText})`;
       }
-      if (obligorEl) obligorEl.textContent = `Claim Obligor: Seller / Retailer (${item.sellerName || 'Retailer'})`;
-      if (sourceEl) sourceEl.textContent = `Source: ${sp.sourceName} (${sp.legalFramework})`;
+      if (obligorEl) obligorEl.textContent = t('claim_obligor_seller_line', { seller: item.sellerName || t('retailer_label') });
+      if (sourceEl) sourceEl.textContent = `${t('source_prefix')}: ${sp.sourceName} (${sp.legalFramework})`;
       if (pillEl) {
         pillEl.textContent = sp.status === 'ACTIVE' ? t('status_active') : (sp.status === 'EXPIRING_SOON' ? t('status_expiring_soon') : t('status_expired'));
         pillEl.className = `status-pill ${sp.status === 'ACTIVE' ? 'status-active' : (sp.status === 'EXPIRING_SOON' ? 'status-expiring' : 'status-expired')}`;
@@ -4320,26 +4994,34 @@ function openDetailDrawer(id, domain) {
     const pillEl = document.getElementById('detailMfrStatusPill');
 
     if (mw) {
-      if (titleEl) titleEl.textContent = `${item.brand} Commercial Warranty`;
+      if (titleEl) titleEl.textContent = t('mfr_commercial_warranty_title', { brand: item.brand || t('manufacturer_label') });
       if (deadlineEl) {
-        const daysText = mw.daysRemaining >= 0 ? `${mw.daysRemaining}d remaining` : 'Expired';
-        deadlineEl.textContent = `${formatDate(mw.endDate)} (${mw.durationMonths} Mo · ${daysText})`;
+        const daysText = mw.daysRemaining >= 0 ? t('warranty_days_remaining', { days: mw.daysRemaining }) : t('status_expired');
+        const monthsText = `${mw.durationMonths} ${t('confirm_months_short')}`;
+        deadlineEl.textContent = `${formatDate(mw.endDate)} (${monthsText} · ${daysText})`;
       }
-      if (sourceEl) sourceEl.textContent = `Source: ${mw.sourceName}`;
+      if (sourceEl) sourceEl.textContent = `${t('source_prefix')}: ${formatLocalizedWarrantySource(mw.sourceName, getLanguage())}`;
       if (pillEl) {
         pillEl.textContent = mw.status === 'ACTIVE' ? t('status_active') : (mw.status === 'EXPIRING_SOON' ? t('status_expiring_soon') : t('status_expired'));
         pillEl.className = `status-pill ${mw.status === 'ACTIVE' ? 'status-active' : (mw.status === 'EXPIRING_SOON' ? 'status-expiring' : 'status-expired')}`;
       }
     } else {
-      if (titleEl) titleEl.textContent = `${item.brand} Commercial Warranty`;
-      if (deadlineEl) deadlineEl.textContent = 'None / Not Recorded';
-      if (sourceEl) sourceEl.textContent = 'No voluntary manufacturer warranty recorded for this asset.';
+      if (titleEl) titleEl.textContent = t('mfr_commercial_warranty_title', { brand: item.brand || t('manufacturer_label') });
+      if (deadlineEl) deadlineEl.textContent = t('not_specified');
+      if (sourceEl) sourceEl.textContent = t('no_commercial_warranty_recorded');
       if (pillEl) {
-        pillEl.textContent = 'Not Recorded';
+        pillEl.textContent = t('not_specified');
         pillEl.className = 'status-pill status-neutral';
       }
     }
   }
+
+  // Always refresh drawer button labels to current language
+  const drawerLegalNotice = document.getElementById('btnDetailLegalNoticeText');
+  if (drawerLegalNotice) drawerLegalNotice.textContent = t('drawer_legal_notice_btn');
+
+  const drawerErrorWizard = document.getElementById('btnDetailErrorWizardText');
+  if (drawerErrorWizard) drawerErrorWizard.textContent = t('drawer_error_wizard_btn');
 
   // 3. Purchase Evidence & Editable Inputs
   const detailDateInput = document.getElementById('detailPurchaseDateInput');
@@ -5516,7 +6198,7 @@ function calculateWarrantyStatus(endDateStr) {
   if (!endDateStr) return { type: 'UNKNOWN', label: t('add_purchase_date') };
   const diff = Math.ceil((new Date(endDateStr) - new Date()) / (1000 * 60 * 60 * 24));
   if (diff < 0) return { type: 'EXPIRED', label: `${t('status_expired')} (${formatDate(endDateStr)})` };
-  else if (diff <= 90) return { type: 'EXPIRING_SOON', label: `${t('status_expiring_soon')} (${diff}d)` };
+  else if (diff <= 90) return { type: 'EXPIRING_SOON', label: `${t('status_expiring_soon')} (${diff} ${t('confirm_days_short')})` };
   else return { type: 'ACTIVE', label: `${t('status_active')} (${formatDate(endDateStr)})` };
 }
 
@@ -5528,6 +6210,7 @@ function formatDate(isoStr) {
 }
 
 function showToast(msg) {
+  if (window.__suppressToast) return;
   const tEl = document.getElementById('appToast');
   if (tEl) {
     tEl.textContent = msg;
@@ -6535,11 +7218,46 @@ function copyDiagnosticReport() {
 function eraseAllDataConfirm() {
   const promptMsg = t('legal_erase_confirm_prompt');
   if (confirm(promptMsg)) {
+    const currentLang = localStorage.getItem('nordic_lang');
+    const currentCurr = localStorage.getItem('nordic_currency');
+    const customCurr = localStorage.getItem('nordic_currency_custom');
+    
+    // Clear storage and preserve only language & currency preferences
     localStorage.clear();
+    if (currentLang) localStorage.setItem('nordic_lang', currentLang);
+    if (currentCurr) localStorage.setItem('nordic_currency', currentCurr);
+    if (customCurr) localStorage.setItem('nordic_currency_custom', customCurr);
+    
+    // Explicit empty portfolio state
+    const emptyState = {
+      appliance: [],
+      coffee: { machine: null, easyDrink: 'Double Espresso', easyStrength: 3, easyVolume: 'Custom', grinders: [], beans: [], brews: [] },
+      ebike: { bike: null, rides: [] },
+      skigear: { skis: null, tunings: [] }
+    };
+    suiteData.appliance = [];
+    if (suiteData.coffee) {
+      suiteData.coffee.machine = null;
+      suiteData.coffee.brews = [];
+      suiteData.coffee.beans = [];
+      suiteData.coffee.grinders = [];
+    }
+    if (suiteData.ebike) {
+      suiteData.ebike.bike = null;
+      suiteData.ebike.rides = [];
+    }
+    if (suiteData.skigear) {
+      suiteData.skigear.skis = null;
+      suiteData.skigear.tunings = [];
+    }
+    
+    localStorage.setItem('nordic_suite_data_v1', JSON.stringify(emptyState));
+    
+    renderActiveDomain();
     showToast(t('legal_erase_toast_success'));
     setTimeout(() => {
       window.location.reload();
-    }, 800);
+    }, 600);
   }
 }
 
@@ -6862,8 +7580,9 @@ function openLegalClaimGeneratorModal(presetDefect) {
     }
   }
   if (presetDefect && typeof presetDefect === 'string') {
-    const defectSelect = document.getElementById('selectClaimDefectType');
-    if (defectSelect) defectSelect.value = presetDefect;
+    populateClaimDropdowns(presetDefect);
+  } else {
+    populateClaimDropdowns();
   }
   renderLegalClaimNotice();
   const m = document.getElementById('legalClaimModalOverlay');
@@ -6889,89 +7608,33 @@ function renderLegalClaimNotice() {
   const purchaseDate = selectedAsset.purchaseDate ? formatDate(selectedAsset.purchaseDate) : 'Recent Purchase';
   const deliveryDate = selectedAsset.deliveryDate ? formatDate(selectedAsset.deliveryDate) : purchaseDate;
 
-  // Defect Descriptions
-  const defectMap = {
-    ELECTRONIC_CONTROL: 'The internal electronic power control module / display panel has ceased functioning under normal domestic usage conditions, rendering the appliance inoperable.',
-    MOTOR_INVERTER: 'The primary drive motor / inverter compressor exhibits mechanical breakdown and failure to engage, not attributable to external impact or user error.',
-    HEATING_PUMP: 'The heating element and circulation water pump failed prematurely to reach operational temperature and maintain correct pressure.',
-    DOOR_SEAL: 'Premature hydraulic seal and gasket degradation causing leakage during standard operational cycles.',
-    UNRESPONSIVE_POWER: 'The appliance is entirely unresponsive to electrical supply despite verified mains connectivity, indicating internal component defect present at delivery.'
-  };
-
-  const defectDesc = defectMap[defectType] || defectMap.ELECTRONIC_CONTROL;
-
-  // Legal Citations
-  let legalArticle = '';
-  let legalFrameworkBadge = '';
-  let statutoryPeriod = '2 years';
-
-  if (country === 'CH') {
-    legalArticle = 'Swiss Code of Obligations (OR) Art. 210 in conjunction with Art. 205 (Mängelrüge / Gewährleistung des Verkäufers)';
-    legalFrameworkBadge = 'Swiss OR Art. 210';
-    statutoryPeriod = '24 months';
-  } else if (country === 'NO') {
-    legalArticle = 'Norwegian Consumer Purchases Act (Forbrukerkjøpsloven) § 27 second paragraph (5-year statutory defect claim right for durable appliances)';
-    legalFrameworkBadge = 'Forbrukerkjøpsloven § 27 (5 Yrs)';
-    statutoryPeriod = '5 years';
-  } else if (country === 'SE') {
-    legalArticle = 'Swedish Consumer Sales Act (Konsumentköplagen) 4 kap. 14 § (3-year statutory defect claim right against seller)';
-    legalFrameworkBadge = 'Konsumentköplagen (3 Yrs)';
-    statutoryPeriod = '3 years';
-  } else if (country === 'DK') {
-    legalArticle = 'Danish Sale of Goods Act (Købeloven) §§ 54, 83 (2-year statutory right of complaint / 2 års reklamationsret)';
-    legalFrameworkBadge = 'Købeloven §§ 54, 83';
-    statutoryPeriod = '2 years';
-  } else if (country === 'AT') {
-    legalArticle = 'Austrian Consumer Warranty Act (VGG) & General Civil Code (ABGB § 922 ff.)';
-    legalFrameworkBadge = 'Austrian VGG / ABGB';
-    statutoryPeriod = '24 months';
-  } else {
-    legalArticle = 'EU Directive 2019/771 on Consumer Sales of Goods & Statutory Conformity Rights';
-    legalFrameworkBadge = 'EU Conformity Rights';
-    statutoryPeriod = '24 months';
-  }
+  // Legal Citations Badge
+  let legalFrameworkBadge = 'Swiss OR Art. 210';
+  if (country === 'NO') legalFrameworkBadge = 'Forbrukerkjøpsloven § 27 (5 Yrs)';
+  else if (country === 'SE') legalFrameworkBadge = 'Konsumentköplagen (3 Yrs)';
+  else if (country === 'DK') legalFrameworkBadge = 'Købeloven §§ 54, 83';
+  else if (country === 'AT') legalFrameworkBadge = 'Austrian VGG / ABGB';
+  else if (country === 'EU') legalFrameworkBadge = 'EU Conformity Rights';
 
   const badgeEl = document.getElementById('claimLegalFrameworkBadge');
   if (badgeEl) badgeEl.textContent = legalFrameworkBadge;
 
-  const remedyMap = {
-    REPAIR: 'immediate free-of-charge repair (Nachbesserung / Reparasjon) by an authorized service partner with zero cost burden to the consumer.',
-    REPLACEMENT: 'prompt delivery of a conforming, brand-new replacement appliance (Ersatzlieferung / Omlevering).',
-    REFUND: 'rescission of the purchase agreement and immediate full refund of the original purchase price (Wandelung / Heving).'
-  };
-  const remedyDesc = remedyMap[remedy] || remedyMap.REPAIR;
-
   const statDeadlineStr = cov.statutoryProtection && cov.statutoryProtection.endDate ? formatDate(cov.statutoryProtection.endDate) : '24 Months from Delivery';
-  const statStatusStr = cov.statutoryProtection && cov.statutoryProtection.status === 'ACTIVE' ? 'CURRENTLY VALID & ACTIVE' : 'Statutory Defect Rights Active';
+  const statStatusStr = cov.statutoryProtection && cov.statutoryProtection.status === 'ACTIVE' ? t('status_active') : t('statutory_defect_rights_default');
 
-  const letter = `FORMAL NOTICE OF STATUTORY DEFECT (MÄNGELRÜGE / REKLAMASJON)
-----------------------------------------------------------------------
-To: ${seller} (Customer Service & Warranty Claims Division)
-Date: ${formatDate(new Date().toISOString())}
-
-REGARDING:
-Product: ${assetName}
-Model / Serial Number: ${serialNo}
-Handover / Delivery Date: ${deliveryDate} (Purchase Date: ${purchaseDate})
-Statutory Coverage Status: Active until ${statDeadlineStr} (${statStatusStr})
-
-STATEMENT OF NON-CONFORMITY & DEFECT:
-I hereby officially notify you of a material defect in the above-mentioned household appliance, supplied by your company.
-
-Defect Summary:
-${defectDesc}
-
-LEGAL GROUNDS:
-Under ${legalArticle}, the seller is statutorily liable for lack of conformity existing at the time of delivery, subject to a statutory period of ${statutoryPeriod}. This defect constitutes a failure of inherent durability and functionality that I could not reasonably expect under standard domestic usage.
-
-DEMANDED REMEDY:
-Pursuant to statutory consumer protection law, I formally request ${remedyDesc}
-
-Please confirm receipt of this notice within 5 business days and provide the RMA reference number or instructions for authorized technician scheduling.
-
-Sincerely,
-Verified Consumer & Device Owner
-(Generated via Nordic Asset Suite • Appliance Vault Pro)`;
+  const letter = generateLegalNoticeLetter({
+    country,
+    defectType,
+    remedy,
+    seller,
+    assetName,
+    serialNo,
+    purchaseDate,
+    deliveryDate,
+    statDeadlineStr,
+    statStatusStr,
+    dateStr: formatDate(new Date().toISOString())
+  }, getLanguage());
 
   const draftEl = document.getElementById('legalClaimDraftContent');
   if (draftEl) draftEl.textContent = letter;
@@ -7327,8 +7990,8 @@ function renderDiagnosticResult(code, errData) {
   if (!resBox) return;
 
   const statBadge = errData.coveredUnderStatutory 
-    ? '<span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 800; font-size: 10px;"><i class="fa-solid fa-scale-balanced"></i> COVERED BY STATUTORY WARRANTY</span>'
-    : '<span class="badge-pill" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; font-weight: 800; font-size: 10px;"><i class="fa-solid fa-wrench"></i> DIY USER MAINTENANCE</span>';
+    ? `<span class="badge-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 800; font-size: 10px;"><i class="fa-solid fa-scale-balanced"></i> ${t('wizard_covered_badge')}</span>`
+    : `<span class="badge-pill" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; font-weight: 800; font-size: 10px;"><i class="fa-solid fa-wrench"></i> ${t('wizard_diy_badge')}</span>`;
 
   resBox.style.display = 'block';
   resBox.innerHTML = `
@@ -7344,21 +8007,21 @@ function renderDiagnosticResult(code, errData) {
     </div>
 
     <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.4;">
-      <strong style="color: #fff;">Probable Cause:</strong> ${errData.cause}
+      <strong style="color: #fff;">${t('wizard_cause_label')}</strong> ${errData.cause}
     </div>
 
     <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 11px; line-height: 1.5; color: #e2e8f0;">
-      <strong style="color: var(--accent-primary); display: block; margin-bottom: 6px;"><i class="fa-solid fa-list-check"></i> Step-by-Step Resolution:</strong>
+      <strong style="color: var(--accent-primary); display: block; margin-bottom: 6px;"><i class="fa-solid fa-list-check"></i> ${t('wizard_steps_label')}</strong>
       ${(errData.diySteps || []).map(s => `<div style="margin-bottom: 4px;">${s}</div>`).join('')}
     </div>
 
     <div style="font-size: 11px; color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 8px 10px; display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
-      <i class="fa-solid fa-lightbulb"></i> <span><strong>Pro Tip:</strong> ${errData.tip}</span>
+      <i class="fa-solid fa-lightbulb"></i> <span><strong>${t('wizard_tip_label')}</strong> ${errData.tip}</span>
     </div>
 
     ${errData.coveredUnderStatutory ? `
       <button class="btn btn-primary btn-block btn-sm" onclick="closeErrorCodeWizardModal(); openLegalClaimGeneratorModal('${getDefectTypeForCode(code)}');" style="font-size: 11px; padding: 8px;">
-        <i class="fa-solid fa-file-signature"></i> Generate Official Defect Notice for Seller
+        <i class="fa-solid fa-file-signature"></i> ${t('wizard_gen_claim_btn')}
       </button>
     ` : ''}
   `;
@@ -7448,9 +8111,12 @@ if (typeof window !== 'undefined') {
   window.setStatutoryWarrantySetting = setStatutoryWarrantySetting;
   window.getStatutoryWarrantyMonths = getStatutoryWarrantyMonths;
   window.updateSettingsUI = updateSettingsUI;
+  window.updateStaticDomTranslations = updateStaticDomTranslations;
+  window.renderActiveDomain = renderActiveDomain;
   window.formatCurrency = formatCurrency;
   window.formatPriceRange = formatPriceRange;
   window.reloadInitialData = reloadInitialData;
+  window.suiteData = suiteData;
   window.setCoffeeRecipeFilter = setCoffeeRecipeFilter;
   window.openBeanLibraryModal = openBeanLibraryModal;
   window.closeBeanLibraryModal = closeBeanLibraryModal;
@@ -7502,6 +8168,8 @@ if (typeof window !== 'undefined') {
   window.closeErrorCodeWizardModal = closeErrorCodeWizardModal;
   window.selectWizardErrorCode = selectWizardErrorCode;
   window.runWizardErrorDiagnosis = runWizardErrorDiagnosis;
+  window.formatLocalizedWarrantySource = formatLocalizedWarrantySource;
+  window.populateClaimDropdowns = populateClaimDropdowns;
   window.handleRatingPlatePhotoUpload = handleRatingPlatePhotoUpload;
 
   // ==================== VIRAL SELF-MARKETING & CERTIFICATE SHARING ENGINE ====================

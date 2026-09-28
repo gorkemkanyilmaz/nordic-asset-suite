@@ -73,6 +73,12 @@ public final class AIExtractionService: Sendable {
                 defaultSpecs = ["Enerji Sınıfı": "A+++", "Garanti": "24 Ay Resmi", "Voltaj": "230V / 50Hz", "Tip": "Akıllı Ev Donanımı"]
             }
             
+            let liveImg = await ProductImageSearchService.shared.searchProductImage(
+                brand: brand,
+                model: model,
+                category: category
+            )
+            
             return ProductCandidateMatch(
                 brand: brand,
                 modelName: model,
@@ -87,7 +93,7 @@ public final class AIExtractionService: Sendable {
                 summaryDescription: "Donanım modeli başarıyla tanımlandı.",
                 confidenceScore: 0.85,
                 providerUsed: .localFallback,
-                imageUrl: ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model, fullTitle: fullTitle)
+                imageUrl: liveImg ?? ProductCandidateMatch.defaultImageUrl(forCategory: category, brand: brand, model: model, fullTitle: fullTitle)
             )
         }
     }

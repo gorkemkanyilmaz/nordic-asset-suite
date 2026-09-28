@@ -62,9 +62,28 @@ public struct WarrantiesTimelineView: View {
                     }
                     
                     // Warranty Alert Cards List
-                    VStack(spacing: 12) {
-                        ForEach(viewModel.appliances) { appliance in
-                            warrantyCard(appliance)
+                    if viewModel.appliances.isEmpty {
+                        BaseCardView(theme: theme) {
+                            VStack(spacing: 12) {
+                                Image(systemName: "shield.slash")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(theme.primaryAccent)
+                                Text("No Warranties Recorded")
+                                    .font(.headline)
+                                    .foregroundColor(theme.textPrimary)
+                                Text("Add your home appliances and electronics to track statutory defect rights and manufacturer guarantees.")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.appliances) { appliance in
+                                warrantyCard(appliance)
+                            }
                         }
                     }
                 }
