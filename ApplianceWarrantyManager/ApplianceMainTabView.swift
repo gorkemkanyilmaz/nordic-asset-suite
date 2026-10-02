@@ -15,7 +15,7 @@ import AssetCoreSubscription
 public struct ApplianceMainTabView: View {
     @Bindable public var viewModel: ApplianceViewModel
     private let theme = ApplianceTheme()
-    private let lang = LanguageManager.shared
+    @State private var lang = LanguageManager.shared
     
     public init(viewModel: ApplianceViewModel) {
         self.viewModel = viewModel
@@ -25,19 +25,19 @@ public struct ApplianceMainTabView: View {
         TabView(selection: $viewModel.selectedTab) {
             RoomsDashboardView(viewModel: viewModel)
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label(lang.t(.navHome), systemImage: "house.fill")
                 }
                 .tag(0)
             
             AllAppliancesListView(viewModel: viewModel)
                 .tabItem {
-                    Label("Appliances", systemImage: "list.bullet")
+                    Label(lang.t(.navAppliances), systemImage: "list.bullet")
                 }
                 .tag(1)
             
             WarrantiesTimelineView(viewModel: viewModel)
                 .tabItem {
-                    Label("Warranties", systemImage: "shield.lefthalf.filled")
+                    Label(lang.t(.navWarranties), systemImage: "shield.lefthalf.filled")
                 }
                 .badge(viewModel.appliances.filter { !$0.isWarrantyActive }.count)
                 .tag(2)
@@ -57,7 +57,7 @@ public struct ApplianceMainTabView: View {
                 )
             }
             .tabItem {
-                Label("Settings", systemImage: "gearshape.fill")
+                Label(lang.t(.navSettings), systemImage: "gearshape.fill")
             }
             .tag(3)
         }

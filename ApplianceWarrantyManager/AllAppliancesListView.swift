@@ -15,7 +15,7 @@ import AssetCoreSubscription
 public struct AllAppliancesListView: View {
     @Bindable public var viewModel: ApplianceViewModel
     private let theme = ApplianceTheme()
-    private let lang = LanguageManager.shared
+    @State private var lang = LanguageManager.shared
     
     public init(viewModel: ApplianceViewModel) {
         self.viewModel = viewModel
@@ -28,11 +28,11 @@ public struct AllAppliancesListView: View {
                     // Header with count
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("All Appliances")
+                            Text(lang.t(.allAppliances))
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
-                            Text("\(viewModel.filteredAppliances.count) items registered")
+                            Text("\(viewModel.filteredAppliances.count) \(lang.t(.appliancesTitle).lowercased())")
                                 .font(.caption)
                                 .foregroundColor(theme.textSecondary)
                         }
@@ -88,7 +88,7 @@ public struct AllAppliancesListView: View {
             }
             .background(theme.backgroundGrouped.ignoresSafeArea())
             .preferredColorScheme(.dark)
-            .navigationTitle("Appliances")
+            .navigationTitle(lang.t(.allAppliances))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -191,15 +191,13 @@ public struct AllAppliancesListView: View {
     private func translateRoom(_ room: String) -> String {
         switch room.lowercased() {
         case "all": return lang.t(.roomAll)
-        case "kitchen", "kitchen counter": return lang.t(.kitchen)
-        case "living room": return lang.t(.roomLivingFull)
-        case "laundry room": return lang.t(.roomLaundryFull)
-        case "hallway closet": return "Hallway Closet"
-        case "personal / pocket": return "Personal / Pocket"
-        case "bathroom": return lang.t(.applianceRoomBathroom)
-        case "basement": return lang.t(.basement)
-        case "utility closet": return lang.t(.utilityCloset)
-        case "office": return lang.t(.office)
+        case "kitchen", "kitchen counter": return lang.t(.roomKitchen)
+        case "living room": return lang.t(.roomLiving)
+        case "laundry room": return lang.t(.roomLaundry)
+        case "bathroom": return lang.t(.roomBathroom)
+        case "bedroom": return lang.t(.roomBedroom)
+        case "basement": return lang.t(.roomBasement)
+        case "hallway closet", "personal / pocket": return lang.t(.roomLiving)
         default: return room
         }
     }

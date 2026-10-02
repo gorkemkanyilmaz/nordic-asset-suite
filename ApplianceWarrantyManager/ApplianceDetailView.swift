@@ -16,7 +16,7 @@ public struct ApplianceDetailView: View {
     public let appliance: ApplianceDTO
     public let viewModel: ApplianceViewModel
     private let theme = ApplianceTheme()
-    private let lang = LanguageManager.shared
+    @State private var lang = LanguageManager.shared
     
     @Environment(\.dismiss) private var dismiss
     @State private var selectedTab: Int = 0
@@ -103,7 +103,7 @@ public struct ApplianceDetailView: View {
                     Button(action: { showingLegalDefectModal = true }) {
                         HStack(spacing: 6) {
                             Image(systemName: "filemenu.and.selection")
-                            Text("Legal Defect Notice")
+                            Text(lang.t(.drawerLegalNoticeBtn))
                                 .font(.caption)
                                 .fontWeight(.bold)
                         }
@@ -121,7 +121,7 @@ public struct ApplianceDetailView: View {
                     Button(action: { showingErrorCodeWizard = true }) {
                         HStack(spacing: 6) {
                             Image(systemName: "wrench.and.screwdriver.fill")
-                            Text("Error Code Wizard")
+                            Text(lang.t(.drawerErrorWizardBtn))
                                 .font(.caption)
                                 .fontWeight(.bold)
                         }
@@ -139,10 +139,10 @@ public struct ApplianceDetailView: View {
                 
                 // 5. Segmented Tab Selector (Specs, Maintenance, Parts & Wear, Diagnostics)
                 Picker("Detail View", selection: $selectedTab) {
-                    Text("Specs").tag(0)
-                    Text(lang.t(.protocolTab)).tag(1)
-                    Text(lang.t(.spareParts)).tag(2)
-                    Text("Diagnostics").tag(3)
+                    Text(lang.t(.drawerTabSpecs)).tag(0)
+                    Text(lang.t(.drawerTabMaintenance)).tag(1)
+                    Text(lang.t(.drawerTabParts)).tag(2)
+                    Text(lang.t(.drawerTabDiagnostics)).tag(3)
                 }
                 .pickerStyle(.segmented)
                 
@@ -163,7 +163,7 @@ public struct ApplianceDetailView: View {
                 Button(action: { showingDeleteAlert = true }) {
                     HStack {
                         Image(systemName: "trash")
-                        Text("Delete Asset from Portfolio")
+                        Text(lang.t(.drawerDeleteBtn))
                             .fontWeight(.semibold)
                     }
                     .font(.caption)
@@ -229,11 +229,11 @@ public struct ApplianceDetailView: View {
             BaseCardView(theme: theme) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("PROTECTION OVERVIEW")
+                        Text(lang.t(.coverageOverview).uppercased())
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(theme.textMuted)
                         Spacer()
-                        Text(summary.hasActiveProtection ? "Active Protection" : "Protection Expired")
+                        Text(summary.hasActiveProtection ? lang.t(.statusActive) : lang.t(.statusExpired))
                             .font(.system(size: 10, weight: .bold))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -242,7 +242,7 @@ public struct ApplianceDetailView: View {
                             .clipShape(Capsule())
                     }
                     
-                    Text(summary.hasActiveProtection ? "Multi-layer protection active" : "Standard protection expired")
+                    Text(summary.hasActiveProtection ? lang.t(.statFullyCovered) : lang.t(.statusExpired))
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundColor(theme.textPrimary)
@@ -257,12 +257,12 @@ public struct ApplianceDetailView: View {
             if let statutory = summary.statutoryProtection {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
-                        Label(statutory.titleLocalizedFallback, systemImage: "scale.3d")
+                        Label(lang.t(.statutoryProtectionTitle), systemImage: "scale.3d")
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.cyan)
                         Spacer()
-                        Text(statutory.status == .active ? "Active" : "Expired")
+                        Text(statutory.status == .active ? lang.t(.statusActive) : lang.t(.statusExpired))
                             .font(.system(size: 9, weight: .bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -272,7 +272,7 @@ public struct ApplianceDetailView: View {
                     }
                     
                     if let end = statutory.endDate {
-                        let daysText = statutory.status == .active ? "Valid until \(RegionalFormatter.shared.formatDate(end))" : "Expired on \(RegionalFormatter.shared.formatDate(end))"
+                        let daysText = statutory.status == .active ? "\(lang.t(.statusActive)) · \(RegionalFormatter.shared.formatDate(end))" : "\(lang.t(.statusExpired)) · \(RegionalFormatter.shared.formatDate(end))"
                         Text(daysText)
                             .font(.subheadline)
                             .fontWeight(.bold)
@@ -301,12 +301,12 @@ public struct ApplianceDetailView: View {
             if let mfr = summary.manufacturerWarranty {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
-                        Label("Manufacturer Commercial Warranty", systemImage: "shield.lefthalf.filled")
+                        Label(lang.t(.manufacturerCommercialTitle), systemImage: "shield.lefthalf.filled")
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(Color.purple)
                         Spacer()
-                        Text(mfr.status == .active ? "Active" : "Expired")
+                        Text(mfr.status == .active ? lang.t(.statusActive) : lang.t(.statusExpired))
                             .font(.system(size: 9, weight: .bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -317,7 +317,7 @@ public struct ApplianceDetailView: View {
                     
                     if let end = mfr.endDate {
                         let dur = mfr.durationMonths ?? 24
-                        Text("Valid until \(RegionalFormatter.shared.formatDate(end)) (\(dur) Mo)")
+                        Text("\(RegionalFormatter.shared.formatDate(end)) (\(dur) \(lang.t(.monthsWarranty)))")
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(theme.textPrimary)
@@ -343,7 +343,7 @@ public struct ApplianceDetailView: View {
     private var purchaseEvidenceBox: some View {
         BaseCardView(theme: theme) {
             VStack(alignment: .leading, spacing: 10) {
-                Label("Purchase Evidence & Legal Context", systemImage: "doc.text")
+                Label(lang.t(.drawerEvidenceHeader), systemImage: "doc.text")
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(theme.textPrimary)

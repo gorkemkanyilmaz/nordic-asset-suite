@@ -29,11 +29,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
     @AppStorage("nordic_warranty_notif_enabled") private var warrantyNotifsEnabled: Bool = true
     @AppStorage("nordic_maint_notif_enabled") private var maintNotifsEnabled: Bool = true
     
-    private var lang = LanguageManager.shared
+    @State private var lang = LanguageManager.shared
     
     private var appVersionDisplay: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "15"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "16"
         return "Version \(version) (Build \(build))"
     }
     
@@ -91,7 +91,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                 // 1. Regional Standards & Localization (Matches localhost lines 474–520)
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("REGIONAL STANDARDS & LOCALIZATION", systemImage: "globe.europe.africa.fill")
+                        Label(lang.t(.settingsRegionalTitle).uppercased(), systemImage: "globe.europe.africa.fill")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(theme.secondaryAccent)
                         
@@ -99,11 +99,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Language / Sprache / Sprog")
+                                    Text(lang.t(.settingsLangLabel))
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(theme.textPrimary)
-                                    Text("Nordic & European native interface translation")
+                                    Text(lang.t(.settingsLangSub))
                                         .font(.system(size: 11))
                                         .foregroundColor(theme.textSecondary)
                                 }
@@ -131,11 +131,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Currency Format")
+                                    Text(lang.t(.settingsCurrencyLabel))
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(theme.textPrimary)
-                                    Text("Applied across asset values, parts & market prices")
+                                    Text(lang.t(.settingsCurrencySub))
                                         .font(.system(size: 11))
                                         .foregroundColor(theme.textSecondary)
                                 }
@@ -163,11 +163,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Statutory Legal Warranty")
+                                    Text(lang.t(.settingsStatutoryTitle))
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(theme.textPrimary)
-                                    Text("Default policy duration for standard appliances")
+                                    Text(lang.t(.settingsStatutorySub))
                                         .font(.system(size: 11))
                                         .foregroundColor(theme.textSecondary)
                                 }
@@ -263,13 +263,13 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                 // 3. Diagnostics & Onboarding (Matches localhost lines 521–531)
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("DIAGNOSTICS & ONBOARDING", systemImage: "sparkles")
+                        Label(lang.t(.settingsDiagnosticsGroup), systemImage: "sparkles")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(theme.secondaryAccent)
                         
                         Button(action: { showingOnboarding = true }) {
                             HStack {
-                                Text("Guided Onboarding Tour")
+                                Text(lang.t(.settingsTourLabel))
                                     .font(.subheadline)
                                     .foregroundColor(theme.textPrimary)
                                 Spacer()
@@ -288,7 +288,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                             }
                         }) {
                             HStack {
-                                Text("Reset Demo Hardware")
+                                Text(lang.t(.settingsResetDemo))
                                     .font(.subheadline)
                                     .foregroundColor(theme.textPrimary)
                                 Spacer()
@@ -303,17 +303,17 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                 // 4. Warranty & Service Notifications (Matches localhost lines 532–558)
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("WARRANTY & SERVICE NOTIFICATIONS", systemImage: "bell.badge.fill")
+                        Label(lang.t(.notifSettingsGroup), systemImage: "bell.badge.fill")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(theme.secondaryAccent)
                         
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Warranty Expiry Reminders")
+                                Text(lang.t(.notifSettingsWarrantyTitle))
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                                     .foregroundColor(theme.textPrimary)
-                                Text("Notify 30 days, 7 days, and 1 day before statutory warranty cutoff")
+                                Text(lang.t(.notifSettingsWarrantyDesc))
                                     .font(.system(size: 11))
                                     .foregroundColor(theme.textSecondary)
                             }
@@ -327,11 +327,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                         
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Maintenance & Service Reminders")
+                                Text(lang.t(.notifSettingsMaintTitle))
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                                     .foregroundColor(theme.textPrimary)
-                                Text("Descaling, filter replacements, and tuning intervals")
+                                Text(lang.t(.notifSettingsMaintDesc))
                                     .font(.system(size: 11))
                                     .foregroundColor(theme.textSecondary)
                             }
@@ -347,7 +347,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                             statusFeedback = "Local push notifications are active for statutory expirations."
                         }) {
                             HStack {
-                                Label("View Scheduled Alert Timeline", systemImage: "bell.fill")
+                                Label(lang.t(.notifSettingsTimeline), systemImage: "bell.fill")
                                     .font(.subheadline)
                                     .foregroundColor(theme.primaryAccent)
                                 Spacer()
@@ -399,7 +399,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                             Button(role: .destructive, action: { showingResetAlert = true }) {
                                 HStack {
                                     Image(systemName: "trash")
-                                    Text("Erase Local Vault")
+                                    Text(lang.t(.settingsEraseTitle))
                                 }
                                 .font(.caption)
                                 .fontWeight(.bold)
@@ -448,7 +448,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                 // 7. Legal, Privacy & Support (Matches localhost lines 570–600)
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Label("LEGAL, PRIVACY & SUPPORT", systemImage: "shield.lefthalf.filled")
+                        Label(lang.t(.settingsGroupLegal), systemImage: "shield.lefthalf.filled")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundColor(theme.secondaryAccent)
                         
@@ -458,11 +458,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                                     HStack(spacing: 6) {
                                         Image(systemName: "person.badge.shield.checkmark.fill")
                                             .foregroundColor(theme.primaryAccent)
-                                        Text("Privacy Policy")
+                                        Text(lang.t(.settingsPrivacyTitle))
                                             .font(.subheadline)
                                             .foregroundColor(theme.textPrimary)
                                     }
-                                    Text("On-device storage, zero tracking, GDPR & Swiss FADP compliance")
+                                    Text(lang.t(.settingsPrivacySub))
                                         .font(.system(size: 11))
                                         .foregroundColor(theme.textSecondary)
                                 }
@@ -481,11 +481,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                                     HStack(spacing: 6) {
                                         Image(systemName: "doc.plaintext.fill")
                                             .foregroundColor(theme.primaryAccent)
-                                        Text("Terms of Use (EULA)")
+                                        Text(lang.t(.settingsTermsTitle))
                                             .font(.subheadline)
                                             .foregroundColor(theme.textPrimary)
                                     }
-                                    Text("Warranty disclaimers, safety guidelines & Apple standard EULA")
+                                    Text(lang.t(.settingsTermsSub))
                                         .font(.system(size: 11))
                                         .foregroundColor(theme.textSecondary)
                                 }
@@ -504,11 +504,11 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                                     HStack(spacing: 6) {
                                         Image(systemName: "headset")
                                             .foregroundColor(theme.primaryAccent)
-                                        Text("Contact Support & Diagnostics")
+                                        Text(lang.t(.settingsSupportTitle))
                                             .font(.subheadline)
                                             .foregroundColor(theme.textPrimary)
                                     }
-                                    Text("Email help desk, system telemetry & hardware FAQ")
+                                    Text(lang.t(.settingsSupportSub))
                                         .font(.system(size: 11))
                                         .foregroundColor(theme.textSecondary)
                                 }
@@ -539,7 +539,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
             .padding()
         }
         .background(theme.backgroundGrouped.ignoresSafeArea())
-        .navigationTitle("Preferences & Data")
+        .navigationTitle(lang.t(.settingsPreferencesTitle))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

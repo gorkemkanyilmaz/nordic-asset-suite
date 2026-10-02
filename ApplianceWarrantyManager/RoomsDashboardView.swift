@@ -15,7 +15,7 @@ import AssetCoreSubscription
 public struct RoomsDashboardView: View {
     @Bindable public var viewModel: ApplianceViewModel
     private let theme = ApplianceTheme()
-    private let lang = LanguageManager.shared
+    @State private var lang = LanguageManager.shared
     
     public init(viewModel: ApplianceViewModel) {
         self.viewModel = viewModel
@@ -31,13 +31,13 @@ public struct RoomsDashboardView: View {
                     
                     // My Appliances Header with See all link matching localhost
                     HStack {
-                        Text("My Appliances")
+                        Text(lang.t(.myAppliances))
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(theme.textPrimary)
                         Spacer()
                         Button(action: { viewModel.switchToTab(1) }) {
-                            Text("See all →")
+                            Text(lang.t(.seeAll))
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(theme.primaryAccent)
@@ -107,12 +107,12 @@ public struct RoomsDashboardView: View {
                 .fontWeight(.medium)
                 .foregroundColor(theme.textSecondary)
             
-            Text(lang.t(.yourHome))
+            Text(lang.t(.homeTitle))
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(theme.textPrimary)
             
-            Text("\(viewModel.appliances.count) appliances · \(viewModel.appliances.filter { $0.isWarrantyActive }.count) covered by warranty")
+            Text(lang.t(.appliancesCount, viewModel.appliances.count, viewModel.appliances.filter { $0.isWarrantyActive }.count))
                 .font(.subheadline)
                 .foregroundColor(theme.textSecondary)
         }
@@ -133,11 +133,11 @@ public struct RoomsDashboardView: View {
                         .foregroundColor(theme.statusCritical)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(expiredList.count == 1 ? "1 warranty has expired" : "\(expiredList.count) warranties have expired")
+                        Text(expiredList.count == 1 ? lang.t(.attentionExpiredOne) : String(format: lang.t(.attentionExpiredPlural), expiredList.count))
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(theme.textPrimary)
-                        Text("\(firstExpired.brand) \(firstExpired.modelName) warranty ended \(RegionalFormatter.shared.formatDate(firstExpired.warrantyEndDate))")
+                        Text("\(firstExpired.brand) \(firstExpired.modelName) (\(RegionalFormatter.shared.formatDate(firstExpired.warrantyEndDate)))")
                             .font(.caption2)
                             .foregroundColor(theme.textSecondary)
                     }
@@ -271,11 +271,11 @@ public struct RoomsDashboardView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Add an appliance")
+                    Text(lang.t(.addApplianceCtaTitle))
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundColor(theme.textPrimary)
-                    Text("Scan barcode, photograph rating plate or search model")
+                    Text(lang.t(.addApplianceCtaDesc))
                         .font(.caption2)
                         .foregroundColor(theme.textSecondary)
                 }
@@ -333,15 +333,13 @@ public struct RoomsDashboardView: View {
     private func translateRoom(_ room: String) -> String {
         switch room.lowercased() {
         case "all": return lang.t(.roomAll)
-        case "kitchen", "kitchen counter": return lang.t(.kitchen)
-        case "living room": return lang.t(.roomLivingFull)
-        case "laundry room": return lang.t(.roomLaundryFull)
-        case "hallway closet": return "Hallway Closet"
-        case "personal / pocket": return "Personal / Pocket"
-        case "bathroom": return lang.t(.applianceRoomBathroom)
-        case "basement": return lang.t(.basement)
-        case "utility closet": return lang.t(.utilityCloset)
-        case "office": return lang.t(.office)
+        case "kitchen", "kitchen counter": return lang.t(.roomKitchen)
+        case "living room": return lang.t(.roomLiving)
+        case "laundry room": return lang.t(.roomLaundry)
+        case "bathroom": return lang.t(.roomBathroom)
+        case "bedroom": return lang.t(.roomBedroom)
+        case "basement": return lang.t(.roomBasement)
+        case "hallway closet", "personal / pocket": return lang.t(.roomLiving)
         default: return room
         }
     }

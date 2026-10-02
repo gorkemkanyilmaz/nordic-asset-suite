@@ -14,7 +14,7 @@ import AssetCoreLocalization
 public struct WarrantiesTimelineView: View {
     @Bindable public var viewModel: ApplianceViewModel
     private let theme = ApplianceTheme()
-    private let lang = LanguageManager.shared
+    @State private var lang = LanguageManager.shared
     
     @State private var selectedApplianceForClaim: ApplianceDTO? = nil
     
@@ -42,7 +42,7 @@ public struct WarrantiesTimelineView: View {
                     // Header with Share Vault button
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Warranty Timeline")
+                            Text(lang.t(.warrantyTimeline))
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
@@ -59,7 +59,7 @@ public struct WarrantiesTimelineView: View {
                         ) {
                             HStack(spacing: 6) {
                                 Image(systemName: "square.and.arrow.up")
-                                Text("Share Vault")
+                                Text(lang.t(.shareVaultBtn))
                                     .fontWeight(.semibold)
                             }
                             .font(.caption)
@@ -78,9 +78,9 @@ public struct WarrantiesTimelineView: View {
                     
                     // 3-Column Overview Grid
                     HStack(spacing: 10) {
-                        statCard(title: "ACTIVE", count: activeCount, subtitle: "Fully covered", color: theme.statusSuccess)
-                        statCard(title: "EXPIRING", count: expiringSoonCount, subtitle: "Within 90d", color: theme.statusWarning)
-                        statCard(title: "EXPIRED", count: expiredCount, subtitle: "Action req.", color: theme.statusCritical)
+                        statCard(title: lang.t(.statusActive), count: activeCount, subtitle: lang.t(.statFullyCovered), color: theme.statusSuccess)
+                        statCard(title: lang.t(.statusExpiringSoon), count: expiringSoonCount, subtitle: lang.t(.statWithin90Days), color: theme.statusWarning)
+                        statCard(title: lang.t(.statusExpired), count: expiredCount, subtitle: lang.t(.statActionRequired), color: theme.statusCritical)
                     }
                     
                     // Warranty Alert Cards List
@@ -90,10 +90,10 @@ public struct WarrantiesTimelineView: View {
                                 Image(systemName: "shield.slash")
                                 .font(.system(size: 36))
                                 .foregroundColor(theme.primaryAccent)
-                                Text("No Warranties Recorded")
+                                Text(lang.t(.noAppliancesRegistered))
                                     .font(.headline)
                                     .foregroundColor(theme.textPrimary)
-                                Text("Add your home appliances and electronics to track statutory defect rights and manufacturer guarantees.")
+                                Text(lang.t(.addApplianceCtaDesc))
                                     .font(.caption)
                                     .foregroundColor(theme.textSecondary)
                                     .multilineTextAlignment(.center)
@@ -113,7 +113,7 @@ public struct WarrantiesTimelineView: View {
             }
             .background(theme.backgroundGrouped.ignoresSafeArea())
             .preferredColorScheme(.dark)
-            .navigationTitle("Warranties")
+            .navigationTitle(lang.t(.navWarranties))
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $selectedApplianceForClaim) { appliance in
                 LegalDefectNoticeModal(appliance: appliance)
@@ -166,7 +166,7 @@ public struct WarrantiesTimelineView: View {
                             Spacer()
                             
                             if appliance.isWarrantyActive {
-                                Text("ACTIVE")
+                                Text(lang.t(.statusActive))
                                     .font(.system(size: 10, weight: .bold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
@@ -174,7 +174,7 @@ public struct WarrantiesTimelineView: View {
                                     .foregroundColor(theme.statusSuccess)
                                     .clipShape(Capsule())
                             } else {
-                                Text("EXPIRED")
+                                Text(lang.t(.statusExpired))
                                     .font(.system(size: 10, weight: .bold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
@@ -191,11 +191,11 @@ public struct WarrantiesTimelineView: View {
                         
                         HStack(spacing: 4) {
                             if appliance.isWarrantyActive {
-                                Text("Expires on \(RegionalFormatter.shared.formatDate(appliance.warrantyEndDate))")
+                                Text(String(format: lang.t(.warrantyUntil), RegionalFormatter.shared.formatDate(appliance.warrantyEndDate)))
                                     .font(.caption2)
                                     .foregroundColor(theme.statusSuccess)
                             } else {
-                                Text("Expired on \(RegionalFormatter.shared.formatDate(appliance.warrantyEndDate))")
+                                Text(lang.t(.warrantyExpired))
                                     .font(.caption2)
                                     .foregroundColor(theme.statusCritical)
                             }
@@ -203,7 +203,7 @@ public struct WarrantiesTimelineView: View {
                             Text("·")
                                 .foregroundColor(theme.textMuted)
                             
-                            Text("\(appliance.manufacturerWarrantyMonths ?? 24) Mo Policy")
+                            Text("\(appliance.manufacturerWarrantyMonths ?? 24) \(lang.t(.monthsWarranty))")
                                 .font(.caption2)
                                 .foregroundColor(theme.textMuted)
                         }
@@ -216,7 +216,7 @@ public struct WarrantiesTimelineView: View {
                 Button(action: { selectedApplianceForClaim = appliance }) {
                     HStack {
                         Image(systemName: "filemenu.and.selection")
-                        Text("Generate Statutory Defect Notice")
+                        Text(lang.t(.drawerLegalNoticeBtn))
                             .font(.caption)
                             .fontWeight(.bold)
                     }
