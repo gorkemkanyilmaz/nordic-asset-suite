@@ -221,6 +221,10 @@ public struct AllAppliancesListView: View {
 private struct LocalizedCurrencyFormatter {
     static let shared = LocalizedCurrencyFormatter()
     func format(amount: Decimal, currencyCode: String) -> String {
-        RegionalFormatter.shared.formatCurrency(amount: amount, currencyCode: currencyCode, locale: LanguageManager.shared.currentLocale)
+        RegionalFormatter.shared.convertAndFormat(
+            amountInCHF: amount,
+            targetCurrency: LanguageManager.shared.currentCurrencyCode,
+            locale: LanguageManager.shared.currentLocale
+        )
     }
 }

@@ -535,7 +535,7 @@ public struct ApplianceDetailView: View {
                             .font(.caption2)
                             .foregroundColor(theme.textSecondary)
                         Spacer()
-                        Text(RegionalFormatter.shared.formatCurrency(amount: appliance.purchasePrice, currencyCode: appliance.currencyCode, locale: lang.currentLocale))
+                        Text(RegionalFormatter.shared.convertAndFormat(amountInCHF: appliance.purchasePrice, targetCurrency: lang.currentCurrencyCode, locale: lang.currentLocale))
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(theme.textPrimary)

@@ -65,11 +65,18 @@ public struct RoomsDashboardView: View {
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { viewModel.triggerAddFlow() }) {
-                        Image(systemName: "plus")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(theme.primaryAccent)
+                    HStack(spacing: 14) {
+                        Button(action: { viewModel.switchToTab(3) }) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.subheadline)
+                                .foregroundColor(theme.primaryAccent)
+                        }
+                        Button(action: { viewModel.triggerAddFlow() }) {
+                            Image(systemName: "plus")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.primaryAccent)
+                        }
                     }
                 }
             }
@@ -356,6 +363,10 @@ public struct RoomsDashboardView: View {
 private struct LocalizedCurrencyFormatter {
     static let shared = LocalizedCurrencyFormatter()
     func format(amount: Decimal, currencyCode: String) -> String {
-        RegionalFormatter.shared.formatCurrency(amount: amount, currencyCode: currencyCode, locale: LanguageManager.shared.currentLocale)
+        RegionalFormatter.shared.convertAndFormat(
+            amountInCHF: amount,
+            targetCurrency: LanguageManager.shared.currentCurrencyCode,
+            locale: LanguageManager.shared.currentLocale
+        )
     }
 }

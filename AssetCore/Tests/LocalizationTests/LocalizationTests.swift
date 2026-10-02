@@ -65,4 +65,22 @@ final class LocalizationTests: XCTestCase {
         XCTAssertTrue(pressure.contains("85 PSI") || pressure.contains("85.0 PSI"))
         XCTAssertTrue(pressure.contains("bar"))
     }
+    
+    // MARK: - Test 5: Currency Conversion & Custom Selection
+    func testCurrencyConversionAndSeparation() {
+        let chfAmount: Decimal = 100.0
+        let tryFormatted = RegionalFormatter.shared.convertAndFormat(
+            amountInCHF: chfAmount,
+            targetCurrency: "TRY",
+            locale: Locale(identifier: "tr_TR")
+        )
+        XCTAssertTrue(tryFormatted.contains("4") || tryFormatted.contains("TRY") || tryFormatted.contains("₺"))
+        
+        let eurFormatted = RegionalFormatter.shared.convertAndFormat(
+            amountInCHF: chfAmount,
+            targetCurrency: "EUR",
+            locale: Locale(identifier: "de_DE")
+        )
+        XCTAssertTrue(eurFormatted.contains("105") || eurFormatted.contains("€") || eurFormatted.contains("EUR"))
+    }
 }

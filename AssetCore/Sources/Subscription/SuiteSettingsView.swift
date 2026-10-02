@@ -4,6 +4,7 @@
 //
 //  Created for Nordic Asset Suite.
 //  Strict Concurrency: Complete. Apple App Store Guidelines 5.1.1 & 3.1.2 Compliant Settings Screen.
+//  Matches localhost Preferences & Data architecture.
 //
 
 import SwiftUI
@@ -25,7 +26,16 @@ public struct SuiteSettingsView<CustomContent: View>: View {
     @State private var statusFeedback: String? = nil
     @State private var isProcessingAction: Bool = false
     
-    private let lang = LanguageManager.shared
+    @AppStorage("nordic_warranty_notif_enabled") private var warrantyNotifsEnabled: Bool = true
+    @AppStorage("nordic_maint_notif_enabled") private var maintNotifsEnabled: Bool = true
+    
+    private var lang = LanguageManager.shared
+    
+    private var appVersionDisplay: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "15"
+        return "Version \(version) (Build \(build))"
+    }
     
     public init(
         appName: String,
@@ -47,7 +57,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
     
     public var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 18) {
                 // Header: App Identity & Version Info
                 BaseCardView(theme: theme) {
                     HStack(spacing: 16) {
@@ -66,7 +76,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
                             
-                            Text("Version 1.0.0 (Build 7)")
+                            Text(appVersionDisplay)
                                 .font(.caption2)
                                 .foregroundColor(theme.textSecondary)
                             
@@ -78,7 +88,110 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                     }
                 }
                 
-                // Subscription & StoreKit 2 Section (Guideline 3.1.2)
+                // 1. Regional Standards & Localization (Matches localhost lines 474–520)
+                BaseCardView(theme: theme) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("REGIONAL STANDARDS & LOCALIZATION", systemImage: "globe.europe.africa.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(theme.secondaryAccent)
+                        
+                        // Language Selection
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Language / Sprache / Sprog")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text("Nordic & European native interface translation")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                
+                                Picker("", selection: Binding(
+                                    get: { lang.currentLanguage },
+                                    set: { newLang in
+                                        lang.setLanguage(newLang)
+                                        statusFeedback = "Language updated to \(newLang.nativeDisplayName)"
+                                    }
+                                )) {
+                                    ForEach(LanguageCode.allCases, id: \.self) { code in
+                                        Text(code.localizedDisplayName).tag(code)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .tint(theme.primaryAccent)
+                            }
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        // Currency Format Selection
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Currency Format")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text("Applied across asset values, parts & market prices")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                
+                                Picker("", selection: Binding(
+                                    get: { lang.currentCurrencyCode },
+                                    set: { newCurr in
+                                        lang.setCurrency(newCurr)
+                                        statusFeedback = "Currency updated to \(newCurr)"
+                                    }
+                                )) {
+                                    ForEach(LanguageManager.supportedCurrencies) { curr in
+                                        Text(curr.label).tag(curr.code)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .tint(theme.primaryAccent)
+                            }
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        // Statutory Legal Warranty Selection
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Statutory Legal Warranty")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(theme.textPrimary)
+                                    Text("Default policy duration for standard appliances")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                
+                                Picker("", selection: Binding(
+                                    get: { lang.statutoryWarrantyMonths },
+                                    set: { newMonths in
+                                        lang.setStatutoryWarrantyMonths(newMonths)
+                                        statusFeedback = "Statutory standard set to \(newMonths) months"
+                                    }
+                                )) {
+                                    ForEach(LanguageManager.supportedStatutoryWarranties) { opt in
+                                        Text(opt.label).tag(opt.months)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .tint(theme.primaryAccent)
+                            }
+                        }
+                    }
+                }
+                
+                // 2. Subscription & StoreKit 2 Section (Guideline 3.1.2)
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
@@ -147,39 +260,106 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                 // Custom Domain-Specific Section (e.g. Water Hardness, Bike Specs, DIN Calc)
                 customContent
                 
-                // Language & Localization Selection
+                // 3. Diagnostics & Onboarding (Matches localhost lines 521–531)
                 BaseCardView(theme: theme) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Label(lang.t(.language), systemImage: "globe")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(theme.textPrimary)
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("DIAGNOSTICS & ONBOARDING", systemImage: "sparkles")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(theme.secondaryAccent)
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(LanguageCode.allCases, id: \.self) { code in
-                                    Button(action: { lang.setLanguage(code) }) {
-                                        VStack(spacing: 2) {
-                                            Text(code.nativeDisplayName)
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                            Text(code.defaultCurrencyCode)
-                                                .font(.system(size: 9))
-                                                .opacity(0.8)
-                                        }
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(lang.currentLanguage == code ? theme.primaryAccent : theme.surfaceElevated)
-                                        .foregroundColor(lang.currentLanguage == code ? .white : theme.textPrimary)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    }
-                                }
+                        Button(action: { showingOnboarding = true }) {
+                            HStack {
+                                Text("Guided Onboarding Tour")
+                                    .font(.subheadline)
+                                    .foregroundColor(theme.textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        Button(action: {
+                            Task {
+                                await onStartDemo()
+                                statusFeedback = "Demo hardware reloaded successfully."
+                            }
+                        }) {
+                            HStack {
+                                Text("Reset Demo Hardware")
+                                    .font(.subheadline)
+                                    .foregroundColor(theme.textPrimary)
+                                Spacer()
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
                             }
                         }
                     }
                 }
                 
-                // Privacy & GDPR Data Vault (Guideline 5.1.1(v))
+                // 4. Warranty & Service Notifications (Matches localhost lines 532–558)
+                BaseCardView(theme: theme) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("WARRANTY & SERVICE NOTIFICATIONS", systemImage: "bell.badge.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(theme.secondaryAccent)
+                        
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Warranty Expiry Reminders")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(theme.textPrimary)
+                                Text("Notify 30 days, 7 days, and 1 day before statutory warranty cutoff")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                            Spacer()
+                            Toggle("", isOn: $warrantyNotifsEnabled)
+                                .labelsHidden()
+                                .tint(theme.primaryAccent)
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Maintenance & Service Reminders")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(theme.textPrimary)
+                                Text("Descaling, filter replacements, and tuning intervals")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                            Spacer()
+                            Toggle("", isOn: $maintNotifsEnabled)
+                                .labelsHidden()
+                                .tint(theme.primaryAccent)
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        Button(action: {
+                            statusFeedback = "Local push notifications are active for statutory expirations."
+                        }) {
+                            HStack {
+                                Label("View Scheduled Alert Timeline", systemImage: "bell.fill")
+                                    .font(.subheadline)
+                                    .foregroundColor(theme.primaryAccent)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
+                    }
+                }
+                
+                // 5. Privacy & GDPR Data Vault (Guideline 5.1.1(v))
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
@@ -197,7 +377,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                             .font(.caption)
                             .foregroundColor(theme.textSecondary)
                         
-                        Divider()
+                        Divider().opacity(0.3)
                         
                         HStack(spacing: 12) {
                             Button(action: { Task { await onStartDemo() } }) {
@@ -233,7 +413,7 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                     }
                 }
                 
-                // Hardware & Sensor Permissions
+                // 6. Hardware & Sensor Permissions
                 BaseCardView(theme: theme) {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Hardware Permissions", systemImage: "camera.viewfinder")
@@ -265,48 +445,101 @@ public struct SuiteSettingsView<CustomContent: View>: View {
                     }
                 }
                 
-                // Tour & Mandatory Legal Footers (Guideline 3.1.2 & 5.1.1)
-                VStack(spacing: 12) {
-                    Button(action: { showingOnboarding = true }) {
-                        Label("Replay Feature Tour", systemImage: "sparkles.tv")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(theme.textSecondary)
+                // 7. Legal, Privacy & Support (Matches localhost lines 570–600)
+                BaseCardView(theme: theme) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("LEGAL, PRIVACY & SUPPORT", systemImage: "shield.lefthalf.filled")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(theme.secondaryAccent)
+                        
+                        Link(destination: URL(string: "https://nordicassetsuite.com/privacy")!) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "person.badge.shield.checkmark.fill")
+                                            .foregroundColor(theme.primaryAccent)
+                                        Text("Privacy Policy")
+                                            .font(.subheadline)
+                                            .foregroundColor(theme.textPrimary)
+                                    }
+                                    Text("On-device storage, zero tracking, GDPR & Swiss FADP compliance")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        Link(destination: URL(string: "https://nordicassetsuite.com/terms")!) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "doc.plaintext.fill")
+                                            .foregroundColor(theme.primaryAccent)
+                                        Text("Terms of Use (EULA)")
+                                            .font(.subheadline)
+                                            .foregroundColor(theme.textPrimary)
+                                    }
+                                    Text("Warranty disclaimers, safety guidelines & Apple standard EULA")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
+                        
+                        Divider().opacity(0.3)
+                        
+                        Link(destination: URL(string: "mailto:support@nordicasset.app")!) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "headset")
+                                            .foregroundColor(theme.primaryAccent)
+                                        Text("Contact Support & Diagnostics")
+                                            .font(.subheadline)
+                                            .foregroundColor(theme.textPrimary)
+                                    }
+                                    Text("Email help desk, system telemetry & hardware FAQ")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(theme.textSecondary)
+                                }
+                                Spacer()
+                                Image(systemName: "envelope.fill")
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                            }
+                        }
                     }
+                }
+                
+                // Footer: Dynamic Version Info
+                VStack(spacing: 6) {
+                    Text("Nordic Asset Suite \(appVersionDisplay) • Swiss Precision")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(theme.textSecondary.opacity(0.7))
+                        .multilineTextAlignment(.center)
                     
-                    HStack(spacing: 16) {
-                        Link("Privacy Policy", destination: URL(string: "https://nordicassetsuite.com/privacy")!)
-                            .font(.caption)
-                            .foregroundColor(theme.primaryAccent)
-                        
-                        Text("•")
-                            .font(.caption)
-                            .foregroundColor(theme.textSecondary)
-                        
-                        Link("Terms of Use (EULA)", destination: URL(string: "https://nordicassetsuite.com/terms")!)
-                            .font(.caption)
-                            .foregroundColor(theme.primaryAccent)
-                        
-                        Text("•")
-                            .font(.caption)
-                            .foregroundColor(theme.textSecondary)
-                        
-                        Link("Support", destination: URL(string: "mailto:support@nordicasset.app")!)
-                            .font(.caption)
-                            .foregroundColor(theme.primaryAccent)
-                    }
-                    
-                    Text("© 2026 Nordic Asset Suite. Swiss Minimalist & Privacy-First Architecture.")
+                    Text("© 2026 Nordic Asset Suite. Privacy-First Architecture.")
                         .font(.system(size: 9))
-                        .foregroundColor(theme.textSecondary.opacity(0.6))
+                        .foregroundColor(theme.textSecondary.opacity(0.5))
                         .multilineTextAlignment(.center)
                 }
-                .padding(.vertical, 8)
+                .padding(.top, 4)
+                .padding(.bottom, 20)
             }
             .padding()
         }
         .background(theme.backgroundGrouped.ignoresSafeArea())
-        .navigationTitle("Settings")
+        .navigationTitle("Preferences & Data")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

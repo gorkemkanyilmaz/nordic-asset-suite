@@ -14,6 +14,18 @@ public final class RegionalFormatter: Sendable {
     
     private init() {}
     
+    /// Conversion rates relative to Swiss Franc (CHF) matching web-demo standards.
+    public static let currencyRates: [String: Double] = [
+        "CHF": 1.0,
+        "EUR": 1.05,
+        "USD": 1.15,
+        "TRY": 42.5,
+        "GBP": 0.90,
+        "SEK": 11.8,
+        "NOK": 12.0,
+        "DKK": 7.8
+    ]
+    
     /// Formats monetary amounts with ISO currency codes (e.g. CHF 120.50, 1.250,00 kr).
     public func formatCurrency(amount: Decimal, currencyCode: String, locale: Locale = .current) -> String {
         let formatter = NumberFormatter()
@@ -21,6 +33,13 @@ public final class RegionalFormatter: Sendable {
         formatter.currencyCode = currencyCode
         formatter.locale = locale
         return formatter.string(from: amount as NSDecimalNumber) ?? "\(currencyCode) \(amount)"
+    }
+    
+    /// Converts a base CHF amount to the target currency and formats it with appropriate symbols/locale.
+    public func convertAndFormat(amountInCHF: Decimal, targetCurrency: String, locale: Locale = .current) -> String {
+        let rate = Decimal(Self.currencyRates[targetCurrency] ?? 1.0)
+        let converted = amountInCHF * rate
+        return formatCurrency(amount: converted, currencyCode: targetCurrency, locale: locale)
     }
     
     /// Formats standardized ISO/localized warranty expiration dates.

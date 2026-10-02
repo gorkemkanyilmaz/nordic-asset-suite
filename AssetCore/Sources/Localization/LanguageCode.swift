@@ -58,4 +58,30 @@ public enum LanguageCode: String, CaseIterable, Sendable, Codable {
         case .turkish: return "TRY"
         }
     }
+    
+    public var flag: String {
+        switch self {
+        case .german: return "🇨🇭"
+        case .french: return "🇫🇷"
+        case .italian: return "🇮🇹"
+        case .danish: return "🇩🇰"
+        case .swedish: return "🇸🇪"
+        case .norwegian: return "🇳🇴"
+        case .english: return "🇬🇧"
+        case .turkish: return "🇹🇷"
+        }
+    }
+    
+    public var localizedDisplayName: String {
+        switch self {
+        case .german: return "\(flag) Deutsch (CH / DE / AT)"
+        case .french: return "\(flag) Français (CH / FR / BE)"
+        case .italian: return "\(flag) Italiano (CH / IT)"
+        case .danish: return "\(flag) Dansk (Danmark)"
+        case .swedish: return "\(flag) Svenska (Sverige)"
+        case .norwegian: return "\(flag) Norsk (Norge)"
+        case .english: return "\(flag) English (Global / UK / US)"
+        case .turkish: return "\(flag) Türkçe (Türkiye)"
+        }
+    }
 }
