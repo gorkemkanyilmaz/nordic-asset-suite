@@ -122,6 +122,35 @@ public actor DatabaseWorker {
         try modelContext.save()
     }
     
+    public func updateAppliance(
+        id: UUID,
+        purchaseDate: Date? = nil,
+        deliveryDate: Date? = nil,
+        purchaseCountry: String? = nil,
+        roomLocation: String? = nil,
+        manufacturerWarrantyMonths: Int? = nil,
+        purchasePrice: Decimal? = nil
+    ) throws {
+        let descriptor = FetchDescriptor<ApplianceEntity>(predicate: #Predicate { $0.id == id })
+        if let entity = try modelContext.fetch(descriptor).first {
+            if let purchaseDate {
+                entity.purchaseDate = purchaseDate
+                let mMonths = entity.manufacturerWarrantyMonths ?? 24
+                entity.warrantyEndDate = Calendar.current.date(byAdding: .month, value: mMonths, to: purchaseDate) ?? purchaseDate
+            }
+            if let deliveryDate { entity.deliveryDate = deliveryDate }
+            if let purchaseCountry { entity.purchaseCountry = purchaseCountry }
+            if let roomLocation { entity.roomLocation = roomLocation }
+            if let manufacturerWarrantyMonths {
+                entity.manufacturerWarrantyMonths = manufacturerWarrantyMonths
+                entity.warrantyEndDate = Calendar.current.date(byAdding: .month, value: manufacturerWarrantyMonths, to: entity.purchaseDate) ?? entity.purchaseDate
+            }
+            if let purchasePrice { entity.purchasePrice = purchasePrice }
+            entity.updatedAt = Date()
+            try modelContext.save()
+        }
+    }
+    
     // MARK: - Ski Gear Operations
     
     public func fetchSkiGear() throws -> [SkiGearDTO] {

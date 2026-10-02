@@ -17,14 +17,12 @@ public struct ApplianceMainTabView: View {
     private let theme = ApplianceTheme()
     private let lang = LanguageManager.shared
     
-    @State private var selectedTab: Int = 0
-    
     public init(viewModel: ApplianceViewModel) {
         self.viewModel = viewModel
     }
     
     public var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $viewModel.selectedTab) {
             RoomsDashboardView(viewModel: viewModel)
                 .tabItem {
                     Label("Home", systemImage: "house.fill")

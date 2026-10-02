@@ -152,4 +152,31 @@ final class DatabaseTests: XCTestCase {
         XCTAssertEqual(dto.totalShotsPulled, 1250)
         XCTAssertEqual(dto.daysSinceLastDescale, 0)
     }
+    
+    // MARK: - Test 5: Appliance Update Details
+    func testApplianceUpdateDetails() async throws {
+        let applianceId = try await worker.createAndInsertAppliance(
+            brand: "Apple",
+            modelName: "iPhone 16 Pro Max",
+            serialNumber: "SN-APL-12345",
+            roomLocation: "Personal / Pocket",
+            purchaseDate: Date(),
+            purchasePrice: 1349.0,
+            currencyCode: "CHF"
+        )
+        
+        try await worker.updateAppliance(
+            id: applianceId,
+            purchaseCountry: "CH",
+            roomLocation: "Living Room",
+            manufacturerWarrantyMonths: 24,
+            purchasePrice: 1399.0
+        )
+        
+        let appliances = try await worker.fetchAppliances()
+        let updated = try XCTUnwrap(appliances.first { $0.id == applianceId })
+        XCTAssertEqual(updated.roomLocation, "Living Room")
+        XCTAssertEqual(updated.purchasePrice, 1399.0)
+        XCTAssertEqual(updated.manufacturerWarrantyMonths, 24)
+    }
 }

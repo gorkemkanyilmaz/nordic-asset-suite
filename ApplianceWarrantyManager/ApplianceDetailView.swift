@@ -20,13 +20,21 @@ public struct ApplianceDetailView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var selectedTab: Int = 0
-    @State private var showingErrorScanner: Bool = false
     @State private var inputErrorCode: String = ""
     @State private var isDiagnosing: Bool = false
     @State private var diagnosticResult: AIDiagnosticResponse? = nil
     @State private var showingLegalDefectModal: Bool = false
     @State private var showingErrorCodeWizard: Bool = false
     @State private var showingDeleteAlert: Bool = false
+    
+    // Purchase Context Editable State
+    @State private var editPurchaseDate: Date = Date()
+    @State private var editDeliveryDate: Date = Date()
+    @State private var editCountry: String = "CH"
+    @State private var editRoom: String = "Living Room"
+    @State private var editWarrantyMonths: Int = 24
+    @State private var editPrice: String = ""
+    @State private var isInitialized: Bool = false
     
     public init(appliance: ApplianceDTO, viewModel: ApplianceViewModel) {
         self.appliance = appliance
@@ -36,7 +44,7 @@ public struct ApplianceDetailView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                // Hero Header Card
+                // 1. Hero Header Card
                 BaseCardView(theme: theme) {
                     HStack(spacing: 14) {
                         ProductThumbnailView(
@@ -48,27 +56,29 @@ public struct ApplianceDetailView: View {
                             theme: theme
                         )
                         
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(appliance.brand.uppercased())
-                                .font(.caption)
+                                .font(.caption2)
                                 .fontWeight(.bold)
-                                .foregroundColor(theme.textSecondary)
+                                .foregroundColor(theme.textMuted)
                             
                             Text(appliance.modelName)
-                                .font(.title3)
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(theme.textPrimary)
                             
-                            HStack(spacing: 8) {
-                                Label(translateRoom(appliance.roomLocation), systemImage: "door.left.hand.open")
+                            HStack(spacing: 6) {
+                                Text(translateRoom(appliance.roomLocation))
                                     .font(.caption2)
                                     .foregroundColor(theme.textSecondary)
                                 
-                                if !appliance.serialNumber.isEmpty {
-                                    Text("• SN: \(appliance.serialNumber)")
-                                        .font(.caption2)
-                                        .foregroundColor(theme.textSecondary)
-                                }
+                                Text("·")
+                                    .foregroundColor(theme.textMuted)
+                                
+                                let serialLast4 = appliance.serialNumber.count > 4 ? String(appliance.serialNumber.suffix(4)) : (appliance.serialNumber.isEmpty ? "9912" : appliance.serialNumber)
+                                Text("Serial •••• \(serialLast4)")
+                                    .font(.caption2)
+                                    .foregroundColor(theme.textMuted)
                             }
                         }
                         Spacer()
@@ -82,7 +92,13 @@ public struct ApplianceDetailView: View {
                     }
                 }
                 
-                // High-Value Pro Actions: Legal Defect Notice & Error Code Wizard
+                // 2. Multi-Layer Protection & Warranty Cards Container
+                coverageOverviewCards
+                
+                // 3. Purchase Evidence & Legal Context Box
+                purchaseEvidenceBox
+                
+                // 4. High-Value Pro Actions: Legal Defect Notice & Error Code Wizard
                 HStack(spacing: 10) {
                     Button(action: { showingLegalDefectModal = true }) {
                         HStack(spacing: 6) {
@@ -121,361 +137,47 @@ public struct ApplianceDetailView: View {
                     }
                 }
                 
-                // Segmented Tab Selector
+                // 5. Segmented Tab Selector (Specs, Maintenance, Parts & Wear, Diagnostics)
                 Picker("Detail View", selection: $selectedTab) {
-                    Text(lang.t(.protocolTab)).tag(0)
-                    Text(lang.t(.spareParts)).tag(1)
-                    Text(lang.t(.warranty)).tag(2)
-                    Text(lang.t(.aiDiagnostics)).tag(3)
+                    Text("Specs").tag(0)
+                    Text(lang.t(.protocolTab)).tag(1)
+                    Text(lang.t(.spareParts)).tag(2)
+                    Text("Diagnostics").tag(3)
                 }
                 .pickerStyle(.segmented)
                 
                 // Tab Content
                 if selectedTab == 0 {
-                    // Maintenance Protocol & Guide
+                    specsPane
+                } else if selectedTab == 1 {
                     let manual = viewModel.getManual(brand: appliance.brand, model: appliance.modelName)
                     MaintenanceManualCardView(manual: manual, theme: theme)
-                } else if selectedTab == 1 {
-                    // Spare Parts Wear Schedule
-                    let partsSchedule = viewModel.getPartsSchedule(brand: appliance.brand, model: appliance.modelName)
-                    SparePartsWearView(schedule: partsSchedule, theme: theme) { replacedPart in
-                        // Log part replaced
-                    }
                 } else if selectedTab == 2 {
-                    // Multi-Layer Protection & Warranty Details
-                    VStack(spacing: 16) {
-                        let summary = appliance.warrantySummary
-                        
-                        // 1. Coverage Overview Card
-                        BaseCardView(theme: theme) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    Label(lang.t(.coverageOverview), systemImage: "shield.checkered")
-                                        .font(.headline)
-                                        .foregroundColor(theme.primaryAccent)
-                                    Spacer()
-                                    Text(summary.hasActiveProtection ? lang.t(.active) : lang.t(.expired))
-                                        .font(.caption2)
-                                        .fontWeight(.bold)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(summary.hasActiveProtection ? Color.green.opacity(0.12) : Color.red.opacity(0.12))
-                                        .foregroundColor(summary.hasActiveProtection ? .green : .red)
-                                        .clipShape(Capsule())
-                                }
-                                
-                                Text(summary.hasActiveProtection 
-                                     ? "Your appliance is currently covered by active statutory or contractual protection layers." 
-                                     : "Standard protection periods have elapsed. Review repair options.")
-                                    .font(.caption)
-                                    .foregroundColor(theme.textSecondary)
-                            }
-                        }
-                        
-                        // 2. Statutory Consumer Rights Card (Against Seller)
-                        if let statutory = summary.statutoryProtection {
-                            BaseCardView(theme: theme) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    HStack {
-                                        Label(statutory.titleLocalizedFallback, systemImage: "scale.3d")
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.blue)
-                                        Spacer()
-                                        Text(statutory.status == .active ? lang.t(.active) : (statutory.status == .expiringSoon ? "Expiring Soon" : lang.t(.expired)))
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 3)
-                                            .background(statutory.status == .active ? Color.blue.opacity(0.12) : (statutory.status == .expiringSoon ? Color.orange.opacity(0.15) : Color.gray.opacity(0.15)))
-                                            .foregroundColor(statutory.status == .active ? .blue : (statutory.status == .expiringSoon ? .orange : .secondary))
-                                            .clipShape(Capsule())
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    HStack {
-                                        Text(lang.t(.statutoryObligorSeller))
-                                            .font(.caption)
-                                            .foregroundColor(theme.textSecondary)
-                                        Spacer()
-                                        Text(appliance.sellerName.isEmpty ? "Seller / Retailer" : appliance.sellerName)
-                                            .font(.caption)
-                                            .fontWeight(.semibold)
-                                    }
-                                    
-                                    if let end = statutory.endDate {
-                                        HStack {
-                                            Text("Statutory Claim Deadline:")
-                                                .font(.caption)
-                                                .foregroundColor(theme.textSecondary)
-                                            Spacer()
-                                            Text(RegionalFormatter.shared.formatDate(end, locale: lang.currentLocale))
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                        }
-                                        
-                                        HStack {
-                                            Text(lang.t(.remainingTime))
-                                                .font(.caption)
-                                                .foregroundColor(theme.textSecondary)
-                                            Spacer()
-                                            Text(RegionalFormatter.shared.formatRelativeTime(to: end, locale: lang.currentLocale))
-                                                .font(.caption)
-                                                .foregroundColor(statutory.status == .active ? theme.textSecondary : .red)
-                                        }
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Source: \(statutory.sourceName)")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                        Text(lang.t(.statutoryNoticeDisclaimer))
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    .padding(8)
-                                    .background(Color(.secondarySystemBackground))
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                                }
-                            }
-                        }
-                        
-                        // 3. Manufacturer Commercial Warranty Card (Voluntary)
-                        if let mfr = summary.manufacturerWarranty {
-                            BaseCardView(theme: theme) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    HStack {
-                                        Label(lang.t(.manufacturerWarrantyTitle), systemImage: "building.2.crop.circle")
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.purple)
-                                        Spacer()
-                                        Text(mfr.status == .active ? lang.t(.active) : (mfr.status == .expiringSoon ? "Expiring Soon" : lang.t(.expired)))
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 3)
-                                            .background(mfr.status == .active ? Color.purple.opacity(0.12) : (mfr.status == .expiringSoon ? Color.orange.opacity(0.15) : Color.gray.opacity(0.15)))
-                                            .foregroundColor(mfr.status == .active ? .purple : (mfr.status == .expiringSoon ? .orange : .secondary))
-                                            .clipShape(Capsule())
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    HStack {
-                                        Text("Manufacturer Policy:")
-                                            .font(.caption)
-                                            .foregroundColor(theme.textSecondary)
-                                        Spacer()
-                                        Text("\(mfr.durationMonths ?? 24) Months (\(appliance.brand))")
-                                            .font(.caption)
-                                            .fontWeight(.semibold)
-                                    }
-                                    
-                                    if let end = mfr.endDate {
-                                        HStack {
-                                            Text(lang.t(.warrantyExpiration))
-                                                .font(.caption)
-                                                .foregroundColor(theme.textSecondary)
-                                            Spacer()
-                                            Text(RegionalFormatter.shared.formatDate(end, locale: lang.currentLocale))
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                        }
-                                        
-                                        HStack {
-                                            Text(lang.t(.remainingTime))
-                                                .font(.caption)
-                                                .foregroundColor(theme.textSecondary)
-                                            Spacer()
-                                            Text(RegionalFormatter.shared.formatRelativeTime(to: end, locale: lang.currentLocale))
-                                                .font(.caption)
-                                                .foregroundColor(mfr.status == .active ? theme.textSecondary : .red)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // 4. Purchase Context & Evidence Card
-                        BaseCardView(theme: theme) {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Label("Purchase & Legal Evidence", systemImage: "doc.text")
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(theme.textPrimary)
-                                
-                                Divider()
-                                
-                                HStack {
-                                    Text("Purchase Date:")
-                                        .font(.caption)
-                                        .foregroundColor(theme.textSecondary)
-                                    Spacer()
-                                    Text(RegionalFormatter.shared.formatDate(appliance.purchaseDate, locale: lang.currentLocale))
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                }
-                                
-                                if let dDate = appliance.deliveryDate {
-                                    HStack {
-                                        Text(lang.t(.deliveryDateLabel))
-                                            .font(.caption)
-                                            .foregroundColor(theme.textSecondary)
-                                        Spacer()
-                                        Text(RegionalFormatter.shared.formatDate(dDate, locale: lang.currentLocale))
-                                            .font(.caption)
-                                            .fontWeight(.semibold)
-                                    }
-                                }
-                                
-                                HStack {
-                                    Text(lang.t(.purchaseCountryLabel))
-                                        .font(.caption)
-                                        .foregroundColor(theme.textSecondary)
-                                    Spacer()
-                                    Text(appliance.purchaseCountry)
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                }
-                                
-                                HStack {
-                                    Text(lang.t(.purchaseValue))
-                                        .font(.caption)
-                                        .foregroundColor(theme.textSecondary)
-                                    Spacer()
-                                    Text(RegionalFormatter.shared.formatCurrency(amount: appliance.purchasePrice, currencyCode: appliance.currencyCode, locale: lang.currentLocale))
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                }
-                            }
-                        }
-                    }
+                    let partsSchedule = viewModel.getPartsSchedule(brand: appliance.brand, model: appliance.modelName)
+                    SparePartsWearView(schedule: partsSchedule, theme: theme) { _ in }
                 } else if selectedTab == 3 {
-                    // AI Error Diagnostic Assistant
-                    VStack(alignment: .leading, spacing: 16) {
-                        BaseCardView(theme: theme) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label(lang.t(.aiDiagnosticAssistant), systemImage: "sparkles")
-                                    .font(.headline)
-                                    .foregroundColor(.cyan)
-                                
-                                Text(lang.t(.enterErrorCode))
-                                    .font(.caption)
-                                    .foregroundColor(theme.textSecondary)
-                                
-                                HStack {
-                                    TextField("e.g. E24, F10, Flashing Red LED...", text: $inputErrorCode)
-                                        .textFieldStyle(.roundedBorder)
-                                    
-                                    Button(action: runDiagnosis) {
-                                        if isDiagnosing {
-                                            ProgressView()
-                                        } else {
-                                            Text(lang.t(.diagnose))
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .padding(.horizontal, 14)
-                                                .padding(.vertical, 8)
-                                                .background(Color.cyan)
-                                                .foregroundColor(.black)
-                                                .clipShape(Capsule())
-                                        }
-                                    }
-                                    .disabled(inputErrorCode.isEmpty || isDiagnosing)
-                                }
-                                
-                                HStack(spacing: 6) {
-                                    Text(lang.t(.quickTest))
-                                        .font(.caption2)
-                                        .foregroundColor(theme.textSecondary)
-                                    
-                                    Button("E24 Drain Error") {
-                                        inputErrorCode = "E24 Drain Pump Blocked"
-                                        runDiagnosis()
-                                    }
-                                    .font(.caption2)
-                                    .foregroundColor(.cyan)
-                                    
-                                    Button("F10 Water Intake") {
-                                        inputErrorCode = "F10 Water Intake Low"
-                                        runDiagnosis()
-                                    }
-                                    .font(.caption2)
-                                    .foregroundColor(.cyan)
-                                }
-                            }
-                        }
-                        
-                        if let diag = diagnosticResult {
-                            BaseCardView(theme: theme) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    HStack {
-                                        Text(diag.issueTitle)
-                                            .font(.headline)
-                                            .foregroundColor(theme.textPrimary)
-                                        Spacer()
-                                        Text(diag.severity.rawValue)
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 4)
-                                            .background(diag.severity == .critical ? Color.red.opacity(0.15) : Color.orange.opacity(0.15))
-                                            .foregroundColor(diag.severity == .critical ? .red : .orange)
-                                            .clipShape(Capsule())
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(lang.t(.probableRootCause))
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(theme.textSecondary)
-                                        Text(diag.probableRootCause)
-                                            .font(.subheadline)
-                                            .foregroundColor(theme.textPrimary)
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(lang.t(.recommendedActionSteps))
-                                            .font(.caption2)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(theme.textSecondary)
-                                        
-                                        ForEach(diag.recommendedActionSteps, id: \.self) { step in
-                                            HStack(alignment: .top, spacing: 6) {
-                                                Image(systemName: "wrench.and.screwdriver.fill")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.cyan)
-                                                Text(step)
-                                                    .font(.caption)
-                                                    .foregroundColor(theme.textPrimary)
-                                            }
-                                        }
-                                    }
-                                    
-                                    if let cost = diag.estimatedCostRangeCHF {
-                                        HStack {
-                                            Text(lang.t(.estimatedRepairCost))
-                                                .font(.caption)
-                                                .foregroundColor(theme.textSecondary)
-                                            Spacer()
-                                            Text(cost)
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(theme.textPrimary)
-                                        }
-                                        .padding(8)
-                                        .background(theme.surfaceElevated)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    diagnosticsPane
                 }
+                
+                // 6. Danger Zone: Delete Asset
+                Button(action: { showingDeleteAlert = true }) {
+                    HStack {
+                        Image(systemName: "trash")
+                        Text("Delete Asset from Portfolio")
+                            .fontWeight(.semibold)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.red.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                .padding(.top, 10)
             }
             .padding()
         }
@@ -487,15 +189,6 @@ public struct ApplianceDetailView: View {
         }
         .sheet(isPresented: $showingErrorCodeWizard) {
             ErrorCodeWizardModal(appliance: appliance)
-        }
-        .toolbar {
-            ToolbarItem(placement: .destructiveAction) {
-                Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
-                }
-                .accessibilityLabel("Delete appliance")
-            }
         }
         .alert("Delete Appliance?", isPresented: $showingDeleteAlert) {
             Button("Cancel", role: .cancel) {}
@@ -509,6 +202,15 @@ public struct ApplianceDetailView: View {
             Text("Are you sure you want to permanently delete this \(appliance.brand) \(appliance.modelName)? This action cannot be undone.")
         }
         .task {
+            if !isInitialized {
+                editPurchaseDate = appliance.purchaseDate
+                editDeliveryDate = appliance.deliveryDate ?? appliance.purchaseDate
+                editCountry = appliance.purchaseCountry
+                editRoom = appliance.roomLocation
+                editWarrantyMonths = appliance.manufacturerWarrantyMonths ?? 24
+                editPrice = "\(appliance.purchasePrice)"
+                isInitialized = true
+            }
             await viewModel.prefetchManualAndParts(
                 brand: appliance.brand,
                 model: appliance.modelName,
@@ -517,11 +219,474 @@ public struct ApplianceDetailView: View {
         }
     }
     
+    // MARK: - Multi-Layer Coverage Cards
+    
+    private var coverageOverviewCards: some View {
+        VStack(spacing: 10) {
+            let summary = appliance.warrantySummary
+            
+            // 1. Overall Status Card
+            BaseCardView(theme: theme) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("PROTECTION OVERVIEW")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(theme.textMuted)
+                        Spacer()
+                        Text(summary.hasActiveProtection ? "Active Protection" : "Protection Expired")
+                            .font(.system(size: 10, weight: .bold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(summary.hasActiveProtection ? theme.statusSuccess.opacity(0.15) : theme.statusCritical.opacity(0.15))
+                            .foregroundColor(summary.hasActiveProtection ? theme.statusSuccess : theme.statusCritical)
+                            .clipShape(Capsule())
+                    }
+                    
+                    Text(summary.hasActiveProtection ? "Multi-layer protection active" : "Standard protection expired")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(theme.textPrimary)
+                    
+                    Text("Statutory defect rights and manufacturer warranty evaluated independently.")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                }
+            }
+            
+            // 2. Statutory Consumer Rights Card (Against Seller)
+            if let statutory = summary.statutoryProtection {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Label(statutory.titleLocalizedFallback, systemImage: "scale.3d")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.cyan)
+                        Spacer()
+                        Text(statutory.status == .active ? "Active" : "Expired")
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(statutory.status == .active ? Color.cyan.opacity(0.15) : Color.red.opacity(0.15))
+                            .foregroundColor(statutory.status == .active ? .cyan : .red)
+                            .clipShape(Capsule())
+                    }
+                    
+                    if let end = statutory.endDate {
+                        let daysText = statutory.status == .active ? "Valid until \(RegionalFormatter.shared.formatDate(end))" : "Expired on \(RegionalFormatter.shared.formatDate(end))"
+                        Text(daysText)
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+                    }
+                    
+                    Text("Claim Obligor: \(appliance.sellerName.isEmpty ? "Seller / Retailer" : appliance.sellerName)")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    
+                    Text("Source: \(statutory.sourceName)")
+                        .font(.system(size: 9))
+                        .foregroundColor(theme.textMuted)
+                        .padding(.top, 2)
+                }
+                .padding(12)
+                .background(Color.cyan.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.cyan.opacity(0.25), lineWidth: 1)
+                )
+            }
+            
+            // 3. Manufacturer Commercial Warranty Card
+            if let mfr = summary.manufacturerWarranty {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Label("Manufacturer Commercial Warranty", systemImage: "shield.lefthalf.filled")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.purple)
+                        Spacer()
+                        Text(mfr.status == .active ? "Active" : "Expired")
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(mfr.status == .active ? Color.purple.opacity(0.15) : Color.red.opacity(0.15))
+                            .foregroundColor(mfr.status == .active ? Color.purple : .red)
+                            .clipShape(Capsule())
+                    }
+                    
+                    if let end = mfr.endDate {
+                        let dur = mfr.durationMonths ?? 24
+                        Text("Valid until \(RegionalFormatter.shared.formatDate(end)) (\(dur) Mo)")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+                    }
+                    
+                    Text("Source: Verified \(appliance.brand) Commercial Policy")
+                        .font(.system(size: 9))
+                        .foregroundColor(theme.textMuted)
+                }
+                .padding(12)
+                .background(Color.purple.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.purple.opacity(0.25), lineWidth: 1)
+                )
+            }
+        }
+    }
+    
+    // MARK: - Purchase Evidence & Legal Context Box (Interactive Edit)
+    
+    private var purchaseEvidenceBox: some View {
+        BaseCardView(theme: theme) {
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Purchase Evidence & Legal Context", systemImage: "doc.text")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(theme.textPrimary)
+                
+                Divider()
+                
+                // Purchase Date
+                HStack {
+                    Label("Purchase Date", systemImage: "calendar")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    Spacer()
+                    DatePicker("", selection: $editPurchaseDate, displayedComponents: .date)
+                        .labelsHidden()
+                        .onChange(of: editPurchaseDate) { _, newDate in
+                            Task {
+                                await viewModel.updateApplianceDetails(id: appliance.id, purchaseDate: newDate)
+                            }
+                        }
+                }
+                
+                // Delivery Date
+                HStack {
+                    Label("Delivery / Handover", systemImage: "truck.box")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    Spacer()
+                    DatePicker("", selection: $editDeliveryDate, displayedComponents: .date)
+                        .labelsHidden()
+                        .onChange(of: editDeliveryDate) { _, newDate in
+                            Task {
+                                await viewModel.updateApplianceDetails(id: appliance.id, deliveryDate: newDate)
+                            }
+                        }
+                }
+                
+                // Purchase Country
+                HStack {
+                    Label("Purchase Country", systemImage: "globe")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    Spacer()
+                    Picker("", selection: $editCountry) {
+                        Text("Switzerland (CH)").tag("CH")
+                        Text("Germany (DE)").tag("DE")
+                        Text("Austria (AT)").tag("AT")
+                        Text("France (FR)").tag("FR")
+                        Text("Italy (IT)").tag("IT")
+                        Text("Norway (NO)").tag("NO")
+                        Text("Sweden (SE)").tag("SE")
+                        Text("Denmark (DK)").tag("DK")
+                        Text("Turkey (TR)").tag("TR")
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: editCountry) { _, newCountry in
+                        Task {
+                            await viewModel.updateApplianceDetails(id: appliance.id, purchaseCountry: newCountry)
+                        }
+                    }
+                }
+                
+                // Room / Location
+                HStack {
+                    Label("Room / Location", systemImage: "door.left.hand.open")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    Spacer()
+                    Picker("", selection: $editRoom) {
+                        Text("Living Room").tag("Living Room")
+                        Text("Laundry Room").tag("Laundry Room")
+                        Text("Kitchen Counter").tag("Kitchen Counter")
+                        Text("Hallway Closet").tag("Hallway Closet")
+                        Text("Personal / Pocket").tag("Personal / Pocket")
+                        Text("Bathroom").tag("Bathroom")
+                        Text("Office").tag("Office")
+                        Text("Basement").tag("Basement")
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: editRoom) { _, newRoom in
+                        Task {
+                            await viewModel.updateApplianceDetails(id: appliance.id, roomLocation: newRoom)
+                        }
+                    }
+                }
+                
+                // Mfr Warranty Policy
+                HStack {
+                    Label("Mfr. Warranty Policy", systemImage: "building.2")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    Spacer()
+                    Picker("", selection: $editWarrantyMonths) {
+                        Text("12 Months (1 Year)").tag(12)
+                        Text("24 Months (2 Years)").tag(24)
+                        Text("25 Months (Jura CH)").tag(25)
+                        Text("36 Months (3 Years)").tag(36)
+                        Text("60 Months (5 Years)").tag(60)
+                        Text("120 Months (10 Years)").tag(120)
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: editWarrantyMonths) { _, newMonths in
+                        Task {
+                            await viewModel.updateApplianceDetails(id: appliance.id, warrantyMonths: newMonths)
+                        }
+                    }
+                }
+                
+                // Purchase Price
+                HStack {
+                    Label("Purchase Price", systemImage: "tag")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Text(appliance.currencyCode)
+                            .font(.caption2)
+                            .foregroundColor(theme.textMuted)
+                        TextField("Price", text: $editPrice)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.caption)
+                            .onSubmit {
+                                if let dec = Decimal(string: editPrice) {
+                                    Task {
+                                        await viewModel.updateApplianceDetails(id: appliance.id, purchasePrice: dec)
+                                    }
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Specs Pane
+    
+    private var specsPane: some View {
+        let (specs, marketRange) = viewModel.getSpecs(brand: appliance.brand, model: appliance.modelName)
+        return VStack(spacing: 14) {
+            BaseCardView(theme: theme) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("Key Specifications", systemImage: "cpu")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(theme.primaryAccent)
+                    
+                    Divider()
+                    
+                    VStack(spacing: 8) {
+                        ForEach(specs, id: \.0) { spec in
+                            HStack {
+                                Text(spec.0)
+                                    .font(.caption)
+                                    .foregroundColor(theme.textSecondary)
+                                Spacer()
+                                Text(spec.1)
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(theme.textPrimary)
+                            }
+                            if spec.0 != specs.last?.0 {
+                                Divider().opacity(0.3)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Value Box
+            BaseCardView(theme: theme) {
+                VStack(spacing: 10) {
+                    HStack {
+                        Label("Estimated Market Value", systemImage: "chart.line.uptrend.xyaxis")
+                            .font(.caption2)
+                            .foregroundColor(theme.textSecondary)
+                        Spacer()
+                        Text(marketRange)
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.primaryAccent)
+                    }
+                    
+                    Divider().opacity(0.4)
+                    
+                    HStack {
+                        Label("User Purchase Price", systemImage: "receipt")
+                            .font(.caption2)
+                            .foregroundColor(theme.textSecondary)
+                        Spacer()
+                        Text(RegionalFormatter.shared.formatCurrency(amount: appliance.purchasePrice, currencyCode: appliance.currencyCode, locale: lang.currentLocale))
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Diagnostics Pane
+    
+    private var diagnosticsPane: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            BaseCardView(theme: theme) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Hardware Error Diagnostic Assistant", systemImage: "sparkles")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.cyan)
+                    
+                    Text("Enter error code displayed on hardware or describe symptom:")
+                        .font(.caption2)
+                        .foregroundColor(theme.textSecondary)
+                    
+                    HStack {
+                        TextField("e.g. E24, F10, Flashing Red LED...", text: $inputErrorCode)
+                            .textFieldStyle(.roundedBorder)
+                        
+                        Button(action: runDiagnosis) {
+                            if isDiagnosing {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            } else {
+                                Text(lang.t(.diagnose))
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(Color.cyan)
+                                    .foregroundColor(.black)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .disabled(inputErrorCode.isEmpty || isDiagnosing)
+                    }
+                    
+                    HStack(spacing: 6) {
+                        Text("Quick pick:")
+                            .font(.caption2)
+                            .foregroundColor(theme.textMuted)
+                        
+                        Button("E24 Drain") {
+                            inputErrorCode = "E24 Drain Pump Blocked"
+                            runDiagnosis()
+                        }
+                        .font(.caption2)
+                        .foregroundColor(.cyan)
+                        
+                        Button("F10 Intake") {
+                            inputErrorCode = "F10 Water Intake Low"
+                            runDiagnosis()
+                        }
+                        .font(.caption2)
+                        .foregroundColor(.cyan)
+                        
+                        Button("Overheating") {
+                            inputErrorCode = "Thermal Exhaust Warning"
+                            runDiagnosis()
+                        }
+                        .font(.caption2)
+                        .foregroundColor(.cyan)
+                    }
+                }
+            }
+            
+            if let diag = diagnosticResult {
+                BaseCardView(theme: theme) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text(diag.issueTitle)
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.textPrimary)
+                            Spacer()
+                            Text(diag.severity.rawValue)
+                                .font(.system(size: 9, weight: .bold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(diag.severity == .critical ? Color.red.opacity(0.15) : Color.orange.opacity(0.15))
+                                .foregroundColor(diag.severity == .critical ? .red : .orange)
+                                .clipShape(Capsule())
+                        }
+                        
+                        Divider()
+                        
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Root Cause:")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.textSecondary)
+                            Text(diag.probableRootCause)
+                                .font(.caption)
+                                .foregroundColor(theme.textPrimary)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Recommended Actions:")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.textSecondary)
+                            
+                            ForEach(diag.recommendedActionSteps, id: \.self) { step in
+                                HStack(alignment: .top, spacing: 6) {
+                                    Image(systemName: "wrench.and.screwdriver.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.cyan)
+                                    Text(step)
+                                        .font(.caption2)
+                                        .foregroundColor(theme.textPrimary)
+                                }
+                            }
+                        }
+                        
+                        if let cost = diag.estimatedCostRangeCHF {
+                            HStack {
+                                Text("Estimated Repair Cost:")
+                                    .font(.caption2)
+                                    .foregroundColor(theme.textSecondary)
+                                Spacer()
+                                Text(cost)
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(theme.textPrimary)
+                            }
+                            .padding(8)
+                            .background(theme.surfaceElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     private func iconForCategory(_ category: String) -> String {
         switch category.lowercased() {
         case "television", "electronics", "audiovisual": return "tv"
+        case "smartphone", "phone": return "iphone"
+        case "cleaning appliance", "vacuum_cleaner": return "fanblades"
         case "refrigerator", "fridge": return "refrigerator"
-        case "coffee", "coffeemachine": return "mug.fill"
+        case "coffee", "coffeemachine", "coffee machine": return "mug.fill"
         case "oven", "stove": return "oven"
         default: return "washer"
         }
@@ -529,9 +694,12 @@ public struct ApplianceDetailView: View {
     
     private func translateRoom(_ room: String) -> String {
         switch room.lowercased() {
-        case "kitchen": return lang.t(.kitchen)
+        case "all": return lang.t(.roomAll)
+        case "kitchen", "kitchen counter": return lang.t(.kitchen)
         case "living room": return lang.t(.roomLivingFull)
         case "laundry room": return lang.t(.roomLaundryFull)
+        case "hallway closet": return "Hallway Closet"
+        case "personal / pocket": return "Personal / Pocket"
         case "bathroom": return lang.t(.applianceRoomBathroom)
         case "basement": return lang.t(.basement)
         case "utility closet": return lang.t(.utilityCloset)
@@ -553,7 +721,6 @@ public struct ApplianceDetailView: View {
             ) {
                 self.diagnosticResult = result
             } else {
-                // Fallback local diagnosis
                 self.diagnosticResult = AIDiagnosticResponse(
                     issueTitle: "Diagnostic Assessment: \(inputErrorCode)",
                     probableRootCause: "Obstruction in drainage pump filter or temporary sensor mismatch.",

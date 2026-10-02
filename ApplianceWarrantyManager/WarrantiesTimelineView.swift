@@ -39,7 +39,7 @@ public struct WarrantiesTimelineView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Header
+                    // Header with Share Vault button
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Warranty Timeline")
@@ -51,6 +51,28 @@ public struct WarrantiesTimelineView: View {
                                 .foregroundColor(theme.textSecondary)
                         }
                         Spacer()
+                        
+                        ShareLink(
+                            item: generateVaultReportText(),
+                            subject: Text("Nordic Asset Suite — Warranty Vault"),
+                            message: Text("Here is my household warranty protection summary.")
+                        ) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share Vault")
+                                    .fontWeight(.semibold)
+                            }
+                            .font(.caption)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(theme.cardBackground)
+                            .foregroundColor(theme.primaryAccent)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(theme.borderSubtle, lineWidth: 1)
+                            )
+                        }
                     }
                     .padding(.horizontal, 4)
                     
@@ -66,8 +88,8 @@ public struct WarrantiesTimelineView: View {
                         BaseCardView(theme: theme) {
                             VStack(spacing: 12) {
                                 Image(systemName: "shield.slash")
-                                    .font(.system(size: 36))
-                                    .foregroundColor(theme.primaryAccent)
+                                .font(.system(size: 36))
+                                .foregroundColor(theme.primaryAccent)
                                 Text("No Warranties Recorded")
                                     .font(.headline)
                                     .foregroundColor(theme.textPrimary)
@@ -123,78 +145,87 @@ public struct WarrantiesTimelineView: View {
     }
     
     private func warrantyCard(_ appliance: ApplianceDTO) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(appliance.brand.uppercased())
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(theme.textMuted)
-                    Text(appliance.modelName)
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(theme.textPrimary)
-                }
-                Spacer()
-                
-                if appliance.isWarrantyActive {
-                    Text("ACTIVE")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(theme.statusSuccess.opacity(0.15))
-                        .foregroundColor(theme.statusSuccess)
-                        .clipShape(Capsule())
-                } else {
-                    Text("EXPIRED")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(theme.statusCritical.opacity(0.15))
-                        .foregroundColor(theme.statusCritical)
-                        .clipShape(Capsule())
+        VStack(spacing: 10) {
+            NavigationLink(destination: ApplianceDetailView(appliance: appliance, viewModel: viewModel)) {
+                HStack(spacing: 14) {
+                    ProductThumbnailView(
+                        userImageData: appliance.appliancePhotoData,
+                        verifiedImageUrl: (appliance.imageUrl != nil && !appliance.imageUrl!.isEmpty) ? URL(string: appliance.imageUrl!) : nil,
+                        categoryIconName: iconForCategory(appliance.category),
+                        variant: .small,
+                        cornerRadius: 10,
+                        theme: theme
+                    )
+                    
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack {
+                            Text(appliance.brand.uppercased())
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(theme.textMuted)
+                            Spacer()
+                            
+                            if appliance.isWarrantyActive {
+                                Text("ACTIVE")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(theme.statusSuccess.opacity(0.15))
+                                    .foregroundColor(theme.statusSuccess)
+                                    .clipShape(Capsule())
+                            } else {
+                                Text("EXPIRED")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(theme.statusCritical.opacity(0.15))
+                                    .foregroundColor(theme.statusCritical)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        
+                        Text(appliance.modelName)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(theme.textPrimary)
+                        
+                        HStack(spacing: 4) {
+                            if appliance.isWarrantyActive {
+                                Text("Expires on \(RegionalFormatter.shared.formatDate(appliance.warrantyEndDate))")
+                                    .font(.caption2)
+                                    .foregroundColor(theme.statusSuccess)
+                            } else {
+                                Text("Expired on \(RegionalFormatter.shared.formatDate(appliance.warrantyEndDate))")
+                                    .font(.caption2)
+                                    .foregroundColor(theme.statusCritical)
+                            }
+                            
+                            Text("·")
+                                .foregroundColor(theme.textMuted)
+                            
+                            Text("\(appliance.manufacturerWarrantyMonths ?? 24) Mo Policy")
+                                .font(.caption2)
+                                .foregroundColor(theme.textMuted)
+                        }
+                    }
                 }
             }
+            .buttonStyle(.plain)
             
-            Divider()
-            
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("COVERAGE PERIOD")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(theme.textSecondary)
-                    Text("Ends \(RegionalFormatter.shared.formatDate(appliance.warrantyEndDate))")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(theme.textPrimary)
+            if !appliance.isWarrantyActive {
+                Button(action: { selectedApplianceForClaim = appliance }) {
+                    HStack {
+                        Image(systemName: "filemenu.and.selection")
+                        Text("Generate Statutory Defect Notice")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(theme.primaryAccent.opacity(0.12))
+                    .foregroundColor(theme.primaryAccent)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("CLAIM OBLIGOR")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(theme.textSecondary)
-                    Text(appliance.purchaseCountry == "CH" ? "Swiss Retailer / Mfr" : "Authorized Seller")
-                        .font(.caption)
-                        .foregroundColor(theme.textSecondary)
-                }
-            }
-            
-            // Action button to claim
-            Button(action: { selectedApplianceForClaim = appliance }) {
-                HStack {
-                    Image(systemName: "filemenu.and.selection")
-                    Text("Generate Statutory Defect Notice")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(theme.primaryAccent.opacity(0.15))
-                .foregroundColor(theme.primaryAccent)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
         .padding(14)
@@ -204,5 +235,28 @@ public struct WarrantiesTimelineView: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(theme.borderSubtle, lineWidth: 1)
         )
+    }
+    
+    private func generateVaultReportText() -> String {
+        var report = "Nordic Asset Suite — Appliance Warranty Vault\n"
+        report += "\(activeCount) Active Warranties · \(expiredCount) Expired\n\n"
+        for a in viewModel.appliances {
+            let status = a.isWarrantyActive ? "ACTIVE" : "EXPIRED"
+            report += "• \(a.brand) \(a.modelName) [\(status)] - Ends \(RegionalFormatter.shared.formatDate(a.warrantyEndDate))\n"
+        }
+        report += "\nProtected under Swiss & European statutory consumer laws."
+        return report
+    }
+    
+    private func iconForCategory(_ category: String) -> String {
+        switch category.lowercased() {
+        case "television", "electronics", "audiovisual": return "tv"
+        case "smartphone", "phone": return "iphone"
+        case "cleaning appliance", "vacuum_cleaner": return "fanblades"
+        case "refrigerator", "fridge": return "refrigerator"
+        case "coffee", "coffeemachine", "coffee machine": return "mug.fill"
+        case "oven", "stove": return "oven"
+        default: return "washer"
+        }
     }
 }

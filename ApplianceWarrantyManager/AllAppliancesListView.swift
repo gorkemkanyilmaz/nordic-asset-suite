@@ -191,9 +191,11 @@ public struct AllAppliancesListView: View {
     private func translateRoom(_ room: String) -> String {
         switch room.lowercased() {
         case "all": return lang.t(.roomAll)
-        case "kitchen": return lang.t(.kitchen)
+        case "kitchen", "kitchen counter": return lang.t(.kitchen)
         case "living room": return lang.t(.roomLivingFull)
         case "laundry room": return lang.t(.roomLaundryFull)
+        case "hallway closet": return "Hallway Closet"
+        case "personal / pocket": return "Personal / Pocket"
         case "bathroom": return lang.t(.applianceRoomBathroom)
         case "basement": return lang.t(.basement)
         case "utility closet": return lang.t(.utilityCloset)
@@ -205,7 +207,10 @@ public struct AllAppliancesListView: View {
     private func iconForCategory(_ category: String) -> String {
         switch category.lowercased() {
         case "television", "electronics", "audiovisual": return "tv"
+        case "smartphone", "phone": return "iphone"
+        case "cleaning appliance", "vacuum_cleaner": return "fanblades"
         case "refrigerator", "fridge": return "refrigerator"
+        case "coffee", "coffeemachine", "coffee machine": return "mug.fill"
         case "oven", "stove": return "oven"
         default: return "washer"
         }

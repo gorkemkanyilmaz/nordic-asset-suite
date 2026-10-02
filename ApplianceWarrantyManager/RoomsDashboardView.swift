@@ -29,13 +29,19 @@ public struct RoomsDashboardView: View {
                     
                     attentionCallout
                     
-                    // My Appliances Header
+                    // My Appliances Header with See all link matching localhost
                     HStack {
                         Text("My Appliances")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(theme.textPrimary)
                         Spacer()
+                        Button(action: { viewModel.switchToTab(1) }) {
+                            Text("See all →")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(theme.primaryAccent)
+                        }
                     }
                     .padding(.top, 4)
                     
@@ -109,62 +115,76 @@ public struct RoomsDashboardView: View {
     
     @ViewBuilder
     private var attentionCallout: some View {
-        let expiredCount = viewModel.appliances.filter { !$0.isWarrantyActive }.count
+        let expiredList = viewModel.expiredAppliances
         let expiringSoonCount = viewModel.expiringSoonCount
         
-        if expiredCount > 0 {
-            HStack(spacing: 12) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.title3)
-                    .foregroundColor(theme.statusCritical)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(expiredCount) warranty has expired")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(theme.textPrimary)
-                    Text("Statutory defect rights may still apply. Review coverage.")
-                        .font(.caption2)
+        if let firstExpired = expiredList.first {
+            Button(action: { viewModel.switchToTab(2) }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.title3)
+                        .foregroundColor(theme.statusCritical)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(expiredList.count == 1 ? "1 warranty has expired" : "\(expiredList.count) warranties have expired")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+                        Text("\(firstExpired.brand) \(firstExpired.modelName) warranty ended \(RegionalFormatter.shared.formatDate(firstExpired.warrantyEndDate))")
+                            .font(.caption2)
+                            .foregroundColor(theme.textSecondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
                         .foregroundColor(theme.textSecondary)
                 }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(theme.textSecondary)
+                .padding(14)
+                .background(theme.statusCritical.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadiusCard))
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.cornerRadiusCard)
+                        .stroke(theme.statusCritical.opacity(0.3), lineWidth: 1)
+                )
             }
-            .padding(14)
-            .background(theme.statusCritical.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadiusCard))
+            .buttonStyle(.plain)
         } else if expiringSoonCount > 0 {
-            HStack(spacing: 12) {
-                Image(systemName: "clock.badge.exclamationmark.fill")
-                    .font(.title3)
-                    .foregroundColor(theme.statusWarning)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(format: lang.t(.warrantyExpiringCount), expiringSoonCount))
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(theme.textPrimary)
-                    Text(lang.t(.expiresWithin90Days))
-                        .font(.caption2)
+            Button(action: { viewModel.switchToTab(2) }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "clock.badge.exclamationmark.fill")
+                        .font(.title3)
+                        .foregroundColor(theme.statusWarning)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(format: lang.t(.warrantyExpiringCount), expiringSoonCount))
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.textPrimary)
+                        Text(lang.t(.expiresWithin90Days))
+                            .font(.caption2)
+                            .foregroundColor(theme.textSecondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
                         .foregroundColor(theme.textSecondary)
                 }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(theme.textSecondary)
+                .padding(14)
+                .background(theme.statusWarning.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadiusCard))
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.cornerRadiusCard)
+                        .stroke(theme.statusWarning.opacity(0.3), lineWidth: 1)
+                )
             }
-            .padding(14)
-            .background(theme.statusWarning.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadiusCard))
+            .buttonStyle(.plain)
         }
     }
     
     @ViewBuilder
     private var applianceSection: some View {
         LazyVStack(spacing: 10) {
-            ForEach(viewModel.appliances) { appliance in
+            ForEach(viewModel.appliances.prefix(4)) { appliance in
                 applianceRow(appliance)
             }
         }
@@ -306,9 +326,11 @@ public struct RoomsDashboardView: View {
     private func translateRoom(_ room: String) -> String {
         switch room.lowercased() {
         case "all": return lang.t(.roomAll)
-        case "kitchen": return lang.t(.kitchen)
+        case "kitchen", "kitchen counter": return lang.t(.kitchen)
         case "living room": return lang.t(.roomLivingFull)
         case "laundry room": return lang.t(.roomLaundryFull)
+        case "hallway closet": return "Hallway Closet"
+        case "personal / pocket": return "Personal / Pocket"
         case "bathroom": return lang.t(.applianceRoomBathroom)
         case "basement": return lang.t(.basement)
         case "utility closet": return lang.t(.utilityCloset)
@@ -320,7 +342,10 @@ public struct RoomsDashboardView: View {
     private func iconForCategory(_ category: String) -> String {
         switch category.lowercased() {
         case "television", "electronics", "audiovisual": return "tv"
+        case "smartphone", "phone": return "iphone"
+        case "cleaning appliance", "vacuum_cleaner": return "fanblades"
         case "refrigerator", "fridge": return "refrigerator"
+        case "coffee", "coffeemachine", "coffee machine": return "mug.fill"
         case "oven", "stove": return "oven"
         default: return "washer"
         }
